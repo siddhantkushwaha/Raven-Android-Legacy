@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:paddingBottom="50dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                android:padding="8dp"
+                app:srcCompat="@drawable/logo_raven" />
+
+            <LinearLayout
+                android:id="@+id/loginInputs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/phoneLinearLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="4dp"
+                    android:background="@color/colorGrey"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <com.hbb20.CountryCodePicker
+                        android:id="@+id/ccp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="#e1e1e1"
+                        android:gravity="center_vertical"
+                        app:ccpDialog_keyboardAutoPopup="false"
+                        app:ccpDialog_showCloseIcon="true"
+                        app:ccp_autoDetectCountry="true"
+                        app:ccp_rememberLastSelection="true"
+                        app:ccp_showFlag="false"
+                        app:ccp_showNameCode="false" />
+
+                    <EditText
+                        android:id="@+id/phone"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@color/colorGrey"
+                        android:ems="10"
+                        android:hint="Phone"
+                        android:inputType="phone"
+                        android:padding="12dp" />
+                </LinearLayout>
+
+
+                <EditText
+                    android:id="@+id/otp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:background="@color/colorGrey"
+                    android:ems="10"
+                    android:hint="OTP"
+                    android:inputType="number"
+                    android:padding="12dp"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/resend"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:background="@drawable/state_list_background_1"
+                    android:stateListAnimator="@null"
+                    android:text="Resend OTP"
+                    android:textAllCaps="false"
+                    android:textColor="@drawable/state_list_text_color_1"
+                    android:textSize="18sp"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/verify"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/state_list_background_1"
+                    android:stateListAnimator="@null"
+                    android:text="Verify OTP"
+                    android:textAllCaps="false"
+                    android:textColor="@drawable/state_list_text_color_1"
+                    android:textSize="18sp"
+                    android:visibility="gone" />
+
+                <Button
+                    android:id="@+id/submit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/state_list_background_1"
+                    android:stateListAnimator="@null"
+                    android:text="Send OTP"
+                    android:textAllCaps="false"
+                    android:textColor="@drawable/state_list_text_color_1"
+                    android:textSize="18sp"
+                    android:visibility="visible" />
+            </LinearLayout>
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:layout_marginTop="-8dp"
+                android:indeterminate="true"
+                android:visibility="gone" />
+        </LinearLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/wrongPhone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@color/colorGrey"
+        android:text="Wrong phone number?"
+        android:textAllCaps="false"
+        android:textColor="@drawable/state_list_text_color_2"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
+</RelativeLayout>

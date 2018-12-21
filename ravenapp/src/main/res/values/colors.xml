@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="colorGrey">#ececec</color>
+    <color name="colorGreyDark">#7e7e7e</color>
+    <color name="colorIndigo">#0d43ce</color>
+    <color name="colorIndigoDark">#0733a4</color>
+    <color name="colorWhite">#ffffff</color>
+    <color name="colorBlack">#000000</color>
+    <color name="colorRed">#ff0000</color>
+
+    <color name="colorMessageSentHolder">@color/colorIndigo</color>
+    <color name="colorMessageReceivedHolder">#ffffff</color>
+    <color name="colorMessageErrorHolder">#d90000</color>
+
+    <color name="colorAccent">@color/colorIndigo</color>
+    <color name="colorPrimary">@color/colorIndigo</color>
+    <color name="colorPrimaryDark">@color/colorIndigoDark</color>
+
+</resources>

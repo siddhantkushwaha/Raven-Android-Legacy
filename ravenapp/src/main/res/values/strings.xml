@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">Raven</string>
+
+    <string name="key_user_id">KEY_USER_ID</string>
+    <string name="key_thread_id">KEY_THREAD_ID</string>
+
+    <string name="key_notification_title">KEY_NOTIFICATION_TITLE</string>
+    <string name="key_notification_reply">KEY_NOTIFICATION_REPLY</string>
+
+    <string name="key_first_item_position">KEY_FIRST_ITEM_POSITION</string>
+    <string name="key_last_item_position">KEY_LAST_ITEM_POSITION</string>
+
+    <string name="key_parent_activity">KEY_PARENT_ACTIVITY</string>
+
+    <string name="default_channel_id">DEFAULT_CHANNEL_ID</string>
+    <string name="default_channel_name">DEFAULT_CHANNEL_NAME</string>
+
+    <string name="drawer_open">Opens the drawer</string>
+    <string name="drawer_close">Closes the drawer</string>
+
+    <string name="action_logout">Logout</string>
+    <string name="action_my_profile">My Profile</string>
+
+    <string name="google_maps_key">AIzaSyB00w8TBmUH7EbULVTNkBWVpWRzlHePQlo</string>
+
+    <string name="default_name">Raven user</string>
+    <string name="default_about">I am on Raven.</string>
+</resources>
