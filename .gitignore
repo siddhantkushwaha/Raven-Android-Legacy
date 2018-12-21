@@ -1,13 +1,10 @@
-
 *.DS_Store
+*.iml
 .build
 .gradle
 .idea
-local.properties
 build
 gradle
-app/app.iml
-google-services.json
-raven.iml
 ravenapp/release
-raven-android.iml
+local.properties
+google-services.json
