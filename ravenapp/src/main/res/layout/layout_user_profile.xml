@@ -11,8 +11,8 @@
 
     <RelativeLayout
         android:id="@+id/imageRelativeLayout"
-        android:layout_width="40dp"
-        android:layout_height="40dp">
+        android:layout_width="48dp"
+        android:layout_height="48dp">
 
         <ImageView
             android:id="@+id/displayPicImageView"
@@ -34,6 +34,7 @@
         android:layout_height="match_parent"
         android:layout_marginStart="12dp"
         android:layout_weight="10"
+        android:gravity="center_vertical"
         android:orientation="vertical">
 
         <TextView
@@ -48,9 +49,10 @@
             android:id="@+id/aboutTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
             android:maxLines="1"
             android:text="@string/default_about"
             android:textColor="@color/colorGreyDark"
-            android:textSize="12sp" />
+            android:textSize="16sp" />
     </LinearLayout>
 </LinearLayout>
