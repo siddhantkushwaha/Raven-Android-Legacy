@@ -16,6 +16,7 @@ public class RavenMessage extends RealmObject {
     private String threadId;
 
     private String text;
+    private String fileRef;
     private String sentByUserId;
     private String sentToUserId;
 
@@ -50,6 +51,14 @@ public class RavenMessage extends RealmObject {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public String getFileRef() {
+        return fileRef;
+    }
+
+    public void setFileRef(String fileRef) {
+        this.fileRef = fileRef;
     }
 
     public String getSentByUserId() {
@@ -95,6 +104,7 @@ public class RavenMessage extends RealmObject {
     public void cloneObject(Message message) {
 
         this.setText(message.getText());
+        this.setFileRef(message.getFileRef());
         this.setSentByUserId(message.getSentByUserId());
         this.setSentToUserId(message.getSentToUserId());
 

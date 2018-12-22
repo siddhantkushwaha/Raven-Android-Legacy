@@ -114,10 +114,10 @@ class HomeActivity : AppCompatActivity() {
                                 if (ravenThread == null) {
                                     ravenThread = RavenThread()
                                     ravenThread.threadId = threadIndex.threadId
-                                    ravenThread.userId = FirebaseAuth.getInstance().uid
-
-                                    realm.insert(ravenThread)
                                 }
+
+                                ravenThread.userId = FirebaseAuth.getInstance().uid
+                                realm.insertOrUpdate(ravenThread)
                             }
 
                             userThreadHashMap!![it.document.id] = threadIndex.threadId

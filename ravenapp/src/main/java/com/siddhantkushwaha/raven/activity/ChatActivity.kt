@@ -1,22 +1,24 @@
 package com.siddhantkushwaha.raven.activity
 
+import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.View
+import android.widget.Toast
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
+import com.google.firebase.storage.OnProgressListener
 import com.siddhantkushwaha.raven.NotificationSender
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.adapter.MessageAdapter
-import com.siddhantkushwaha.raven.commonUtility.ActivityInfo
-import com.siddhantkushwaha.raven.commonUtility.Alerts
-import com.siddhantkushwaha.raven.commonUtility.GlideUtils
-import com.siddhantkushwaha.raven.commonUtility.RealmUtil
+import com.siddhantkushwaha.raven.commonUtility.*
 import com.siddhantkushwaha.raven.entity.Message
 import com.siddhantkushwaha.raven.localEntity.RavenMessage
 import com.siddhantkushwaha.raven.entity.User
@@ -24,6 +26,7 @@ import com.siddhantkushwaha.raven.localEntity.RavenThread
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.manager.UserManager
 import com.siddhantkushwaha.raven.ravenUtility.RavenUtils
+import com.yalantis.ucrop.UCrop
 import io.realm.OrderedRealmCollectionChangeListener
 import io.realm.Realm
 import io.realm.RealmResults
@@ -89,6 +92,10 @@ class ChatActivity : AppCompatActivity() {
             }
             messageEditText.setText("")
             sendMessage(message)
+        }
+
+        sendImageButton.setOnClickListener {
+            ImageFileHandling.openImageIntent(this@ChatActivity)
         }
 
         user = User()
@@ -221,6 +228,23 @@ class ChatActivity : AppCompatActivity() {
         outState?.putInt(getString(R.string.key_last_item_position), lastVisibleItemPosition[1])
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        when (requestCode) {
+            ImageFileHandling.pickImage -> {
+                if (resultCode == Activity.RESULT_OK) {
+                    Log.i(tag, data?.data?.toString())
+                    ImageFileHandling.startCrop(this@ChatActivity, data?.data ?: return)
+                }
+            }
+
+            UCrop.REQUEST_CROP -> {
+                handleCropResult(UCrop.getOutput(data ?: return) ?: return)
+            }
+        }
+    }
+
     override fun onPause() {
         super.onPause()
 
@@ -261,7 +285,6 @@ class ChatActivity : AppCompatActivity() {
 
         val encryptedMessage = ThreadManager.encryptMessage(threadId, message) ?: return
 
-        // TODO remove sentTime when more people adopt this version
         val messageObject = Message(encryptedMessage, Timestamp.now(), FirebaseAuth.getInstance().uid!!, userId!!)
         threadManager?.sendMessage(threadId!!, messageObject)
     }
@@ -276,6 +299,16 @@ class ChatActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+        }
+    }
+
+    private fun handleCropResult(uri: Uri) {
+
+        val messageObject = Message(null, Timestamp.now(), FirebaseAuth.getInstance().uid!!, userId!!)
+        threadManager?.sendMessage(threadId!!, messageObject, uri) {
+
+            val progress:Double = it.bytesTransferred.toDouble() / it.totalByteCount.toDouble()
+            Log.i(tag, progress.toString())
         }
     }
 }

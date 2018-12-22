@@ -1,9 +1,12 @@
 package com.siddhantkushwaha.raven.manager;
 
 import android.app.Activity;
+import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -13,6 +16,10 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.siddhantkushwaha.raven.custom.AESNygma;
 import com.siddhantkushwaha.raven.entity.Message;
 import com.siddhantkushwaha.raven.entity.ThreadIndex;
@@ -56,12 +63,35 @@ public class ThreadManager {
         batch.set(db.collection(USER_INDEX_COLLECTION_NAME).document(message.getSentByUserId()).collection(THREAD_INDEX_COLLECTION_NAME).document(message.getSentToUserId()), threadIndex);
         batch.set(db.collection(USER_INDEX_COLLECTION_NAME).document(message.getSentToUserId()).collection(THREAD_INDEX_COLLECTION_NAME).document(message.getSentByUserId()), threadIndex);
 
-        HashMap<String, String> map = new HashMap<>();
-        map.put("threadId", threadId);
-        map.put("messageId", messageRef.getId());
         batch.commit().addOnCompleteListener(task -> {
 
+            HashMap<String, String> map = new HashMap<>();
+            map.put("threadId", threadId);
+            map.put("messageId", messageRef.getId());
             FirebaseUtils.getRealtimeDb().getReference("messages").push().setValue(map);
+        });
+    }
+
+    public void sendMessage(@NonNull String threadId, @NonNull Message message,
+                            @NonNull Uri uri, @Nullable OnProgressListener<UploadTask.TaskSnapshot> onProgressListener) {
+
+        // shortcut to generate a random fileId for now
+        String fileId = db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document().getId();
+
+        StorageReference fileRef = FirebaseStorage.getInstance().getReference("thread_media/"  + threadId + "/" + fileId + "/media.png");
+        UploadTask uploadTask = fileRef.putFile(uri);
+
+        if (onProgressListener != null)
+            uploadTask.addOnProgressListener(onProgressListener);
+
+        uploadTask.addOnCompleteListener(uTask -> {
+
+            UploadTask.TaskSnapshot taskSnapshot = uTask.getResult();
+            if (uTask.isSuccessful() && taskSnapshot != null) {
+
+                message.setFileRef(taskSnapshot.getStorage().toString());
+                sendMessage(threadId, message);
+            }
         });
     }
 
@@ -73,7 +103,7 @@ public class ThreadManager {
         DocumentReference messageRef = db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document(messageId);
         db.runTransaction(transaction -> {
             DocumentSnapshot message = transaction.get(messageRef);
-            if (!FirebaseAuth.getInstance().getUid().equals(message.get("sentByUserId")) &&  message.get("seenAt") == null) {
+            if (!FirebaseAuth.getInstance().getUid().equals(message.get("sentByUserId")) && message.get("seenAt") == null) {
                 transaction.update(messageRef, map);
             }
             return null;

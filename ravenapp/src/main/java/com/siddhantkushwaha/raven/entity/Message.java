@@ -1,6 +1,7 @@
 package com.siddhantkushwaha.raven.entity;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.ServerTimestamp;
@@ -9,6 +10,7 @@ import com.google.firebase.firestore.ServerTimestamp;
 public class Message {
 
     private String text;
+    private String fileRef;
     private String sentByUserId;
     private String sentToUserId;
 
@@ -23,7 +25,7 @@ public class Message {
 
     }
 
-    public Message(@NonNull String text, @NonNull Timestamp sentTime, @NonNull String sentByUserId, @NonNull String sentToUserId) {
+    public Message(@Nullable String text, @NonNull Timestamp sentTime, @NonNull String sentByUserId, @NonNull String sentToUserId) {
 
         setText(text);
         setSentTime(sentTime);
@@ -37,6 +39,14 @@ public class Message {
 
     public String getText() {
         return text;
+    }
+
+    public void setFileRef(String fileRef) {
+        this.fileRef = fileRef;
+    }
+
+    public String getFileRef() {
+        return fileRef;
     }
 
     public void setSentByUserId(String sentByUserId) {
