@@ -69,10 +69,15 @@ public class RavenContactSync {
             mAccount = CreateSyncAccount(activity);
             mResolver = activity.getContentResolver();
             mUri = ContactsContract.Contacts.CONTENT_URI;
-//            HomeActivity.TableObserver observer = new HomeActivity.TableObserver(new Handler());
-//            mResolver.registerContentObserver(mUri, true, observer);
-//            ContentResolver.addPeriodicSync(mAccount, AUTHORITY, Bundle.EMPTY, SYNC_INTERVAL);
-//            ContentResolver.requestSync(mAccount, AUTHORITY, Bundle.EMPTY);
+            // HomeActivity.TableObserver observer = new HomeActivity.TableObserver(new Handler());
+            // mResolver.registerContentObserver(mUri, true, observer);
+            // ContentResolver.addPeriodicSync(mAccount, AUTHORITY, Bundle.EMPTY, SYNC_INTERVAL);
+            // ContentResolver.requestSync(mAccount, AUTHORITY, Bundle.EMPTY);
         }
+    }
+
+    public static void reSync(Context context) {
+
+        ContentResolver.requestSync(RavenContactSync.CreateSyncAccount(context), RavenContactSync.AUTHORITY, Bundle.EMPTY);
     }
 }

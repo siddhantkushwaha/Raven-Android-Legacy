@@ -40,7 +40,7 @@ class ContactsActivity : AppCompatActivity() {
 
         refreshButton.setOnClickListener {
             Alerts.showToast(this@ContactsActivity, "Syncing contacts.", 2000)
-            reSync()
+            RavenContactSync.reSync(this@ContactsActivity)
         }
 
         searchView.setIconifiedByDefault(true)
@@ -111,9 +111,5 @@ class ContactsActivity : AppCompatActivity() {
             intent.putExtra(getString(R.string.key_user_id), results!![position]!!.userId)
             startActivity(intent)
         }
-    }
-
-    private fun reSync() {
-        ContentResolver.requestSync(RavenContactSync.CreateSyncAccount(this@ContactsActivity), RavenContactSync.AUTHORITY, Bundle.EMPTY)
     }
 }

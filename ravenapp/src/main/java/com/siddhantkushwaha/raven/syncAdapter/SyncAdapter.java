@@ -21,6 +21,7 @@ import com.siddhantkushwaha.raven.manager.UserManager;
 import com.siddhantkushwaha.raven.ravenUtility.CurrentFirebaseUser;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
@@ -49,7 +50,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         Log.i(TAG, "PERFORMING_SYNC");
 
-        HashMap<String, RavenUser> contactsList = ContactsUtil.getAllContacts(mContext);
+        HashMap<String, String> contactsList = ContactsUtil.getAllContacts(mContext);
 
         Realm realm = RealmUtil.getCustomRealmInstance(mContext);
 
@@ -61,14 +62,13 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 }
             }
         });
-
         realm.close();
 
-
         UserManager userManager = new UserManager();
-        for (final RavenUser contact : contactsList.values()) {
+        for (Map.Entry<String, String> contact : contactsList.entrySet()) {
+            System.out.println(contact.getKey() + " " + contact.getValue());
 
-            userManager.startGetUserByAttribute(UserManager.KEY_PHONE, contact.getPhoneNumber(), task -> {
+            userManager.startGetUserByAttribute(UserManager.KEY_PHONE, contact.getKey(), task -> {
 
                 QuerySnapshot querySnapshot = task.getResult();
                 if (querySnapshot != null && !querySnapshot.isEmpty()) {
@@ -76,29 +76,34 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     DocumentSnapshot documentSnapshot = querySnapshot.getDocuments().get(0);
                     String userId = documentSnapshot.getId();
 
-                    Log.i(TAG, contact.getPhoneNumber() + " ==> " + userId + " ==> " + contact.getContactName());
-
-                    contact.setUserId(userId);
-
-                    User user = null;
-                    try {
-                        user = documentSnapshot.toObject(User.class);
-                    } catch (Exception e) {
-                        Log.i(TAG, e.toString());
-                    }
-
-                    if (user != null)
-                        contact.cloneObject(user);
+                    Log.i(TAG, contact.getKey() + " ==> " + userId + " ==> " + contact.getValue());
 
                     Realm _realm = RealmUtil.getCustomRealmInstance(mContext);
-                    _realm.executeTransaction(realmIns -> realmIns.insertOrUpdate(contact));
+                    _realm.executeTransaction(realmIns -> {
+
+                        RavenUser ravenUser = realmIns.where(RavenUser.class).equalTo("userId", userId).findFirst();
+                        if (ravenUser == null) {
+                            ravenUser = new RavenUser();
+                            ravenUser.setUserId(userId);
+                        }
+
+                        try {
+                            ravenUser.cloneObject(documentSnapshot.toObject(User.class));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        ravenUser.setContactName(contact.getValue());
+
+                        realmIns.insertOrUpdate(ravenUser);
+                    });
                     _realm.close();
 
                 } else {
-                    Log.i(TAG, contact.getPhoneNumber() + " ==> " + "doesn't exist.");
+                    Log.i(TAG, contact.getKey() + " ==> " + "doesn't exist.");
 
                     Realm _realm = RealmUtil.getCustomRealmInstance(mContext);
-                    _realm.executeTransaction(realmIns -> realmIns.where(RavenUser.class).equalTo("phoneNumber", contact.getPhoneNumber()).findAll().deleteAllFromRealm());
+                    _realm.executeTransaction(realmIns -> realmIns.where(RavenUser.class).equalTo("phoneNumber", contact.getKey()).findAll().deleteAllFromRealm());
                     _realm.close();
                 }
             });

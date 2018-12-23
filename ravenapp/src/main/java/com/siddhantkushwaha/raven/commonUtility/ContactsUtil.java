@@ -6,11 +6,11 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.net.Uri;
 import android.provider.ContactsContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-
-import com.siddhantkushwaha.raven.localEntity.RavenUser;
+import android.util.Log;
 
 import java.util.HashMap;
 
@@ -29,46 +29,30 @@ public class ContactsUtil {
         }
     }
 
-    public static HashMap<String, RavenUser> getAllContacts(Context context) {
+    public static HashMap<String, String> getAllContacts(Context context) {
 
-        HashMap<String, RavenUser> contactsList = new HashMap<>();
+        HashMap<String, String> contactsList = new HashMap<>();
 
         if (!contactsReadPermission(context))
             return contactsList;
 
         ContentResolver contentResolver = context.getContentResolver();
-        Cursor cursor = contentResolver.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, ContactsContract.Contacts.SORT_KEY_PRIMARY + " ASC");
+
+        Uri uri = ContactsContract.CommonDataKinds.Contactables.CONTENT_URI;
+        Cursor cursor = contentResolver.query(uri, null, null, null, null);
         if (cursor != null) {
             while (cursor.moveToNext()) {
 
-                String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+                String phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER));
                 String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
 
-                Cursor phoneCursor = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
-                        ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[]{id}, null);
+                if(phoneNumber == null)
+                    continue;
 
-                if (phoneCursor != null) {
-                    while (phoneCursor.moveToNext()) {
-
-                        String phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER));
-
-                        if (phoneNumber == null)
-                            continue;
-
-                        RavenUser ravenUser = new RavenUser();
-                        ravenUser.setContactName(name);
-                        ravenUser.setPhoneNumber(phoneNumber);
-
-                        contactsList.put(phoneNumber, ravenUser);
-                    }
-                    phoneCursor.close();
-                }
+                contactsList.put(phoneNumber, name);
             }
             cursor.close();
         }
-
         return contactsList;
     }
-
-    
 }
