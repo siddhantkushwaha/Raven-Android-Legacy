@@ -2,7 +2,6 @@ package com.siddhantkushwaha.raven.commonUtility;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
@@ -53,10 +52,10 @@ public class GlideUtils {
                 .into(imageView);
     }
 
-    public static void loadImageInChat(Context context, Drawable drawable, ImageView imageView) {
+    public static void loadImageInChat(Context context, String uri, ImageView imageView) {
 
         GlideApp.with(context.getApplicationContext())
-                .load(drawable)
+                .load(uri)
                 .transforms(new CenterCrop(), new RoundedCorners(72))
                 .into(imageView);
     }

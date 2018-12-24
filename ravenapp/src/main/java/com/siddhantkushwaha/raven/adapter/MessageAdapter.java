@@ -1,7 +1,7 @@
 package com.siddhantkushwaha.raven.adapter;
 
 import android.content.Context;
-import android.media.Image;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -13,13 +13,16 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.request.RequestOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.storage.FirebaseStorage;
 import com.siddhantkushwaha.raven.R;
 import com.siddhantkushwaha.raven.commonUtility.DateTimeUtils;
+import com.siddhantkushwaha.raven.commonUtility.GlideUtils;
 import com.siddhantkushwaha.raven.localEntity.RavenMessage;
-import com.siddhantkushwaha.raven.localEntity.RavenUser;
 import com.siddhantkushwaha.raven.manager.ThreadManager;
-import com.siddhantkushwaha.raven.service.FirebaseCloudMessaging;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -127,7 +130,7 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
 
             makeBanner(showDate, bannerLayout, bannerText, ravenMessage);
 
-            setMessageContent(messageText, ravenMessage);
+            setMessageContent(image, messageText, ravenMessage);
 
             setMessageTime(timeText, ravenMessage);
 
@@ -159,7 +162,7 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
 
             makeBanner(showDate, bannerLayout, bannerText, ravenMessage);
 
-            setMessageContent(messageText, ravenMessage);
+            setMessageContent(image, messageText, ravenMessage);
 
             setMessageTime(timeText, ravenMessage);
 
@@ -191,6 +194,7 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
         this.onLongClickListener = onLongClickListener;
     }
 
+    // Utility functions begin from here .........
 
     private void makeBanner(boolean showDate, LinearLayout bannerLayout, TextView bannerText, RavenMessage ravenMessage) {
 
@@ -221,24 +225,33 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
             messageText.setVisibility(View.VISIBLE);
             setErrorView(messageText, "Message Deleted.");
 
+            imageView.setVisibility(View.GONE);
 
         } else if (text == null) {
 
             messageText.setVisibility(View.GONE);
             setDefaultView(messageText, ravenMessage, null);
 
+            imageView.setVisibility(View.VISIBLE);
+
             // download media
+            loadImage(imageView, fileRef);
 
         } else if (fileRef == null) {
 
             messageText.setVisibility(View.VISIBLE);
             setMessageText(messageText, ravenMessage);
+
+            imageView.setVisibility(View.GONE);
         } else {
 
             messageText.setVisibility(View.VISIBLE);
             setMessageText(messageText, ravenMessage);
 
+            imageView.setVisibility(View.VISIBLE);
+
             // download media
+            loadImage(imageView, fileRef);
         }
     }
 
@@ -297,5 +310,16 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
         messageText.setText(errorMessage);
         messageText.setTextColor(ContextCompat.getColor(context, R.color.colorWhite));
         messageText.setBackground(context.getDrawable(R.drawable.background_message_holder_red));
+    }
+
+    private void loadImage(ImageView imageView, String fileRef) {
+
+        System.out.println(fileRef);
+
+        fileRef = fileRef.replace("gs://raven-f6b32.appspot.com/", "");
+        FirebaseStorage.getInstance().getReference(fileRef).getDownloadUrl().addOnSuccessListener(uri -> {
+
+            GlideUtils.loadImageInChat(context, uri.toString(), imageView);
+        }).addOnFailureListener(Throwable::printStackTrace);
     }
 }
