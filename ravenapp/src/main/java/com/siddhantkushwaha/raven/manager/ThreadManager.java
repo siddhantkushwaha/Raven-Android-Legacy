@@ -78,7 +78,7 @@ public class ThreadManager {
         // shortcut to generate a random fileId for now
         String fileId = db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document().getId();
 
-        StorageReference fileRef = FirebaseStorage.getInstance().getReference("thread_media/"  + threadId + "/" + fileId + "/media.png");
+        StorageReference fileRef = FirebaseStorage.getInstance().getReference("thread_media/" + threadId + "/" + fileId + "/media.png");
         UploadTask uploadTask = fileRef.putFile(uri);
 
         if (onProgressListener != null)
@@ -114,6 +114,7 @@ public class ThreadManager {
 
         HashMap<String, Object> map = new HashMap<>();
         map.put("text", FieldValue.delete());
+        map.put("fileRef", FieldValue.delete());
 
         db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document(messageId).update(map).addOnCompleteListener(onCompleteListener);
     }

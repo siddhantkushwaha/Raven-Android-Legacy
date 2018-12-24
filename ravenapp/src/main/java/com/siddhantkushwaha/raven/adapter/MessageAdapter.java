@@ -1,6 +1,7 @@
 package com.siddhantkushwaha.raven.adapter;
 
 import android.content.Context;
+import android.media.Image;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
@@ -16,7 +17,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.siddhantkushwaha.raven.R;
 import com.siddhantkushwaha.raven.commonUtility.DateTimeUtils;
 import com.siddhantkushwaha.raven.localEntity.RavenMessage;
+import com.siddhantkushwaha.raven.localEntity.RavenUser;
 import com.siddhantkushwaha.raven.manager.ThreadManager;
+import com.siddhantkushwaha.raven.service.FirebaseCloudMessaging;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -106,6 +109,7 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
         View view;
         LinearLayout bannerLayout;
         TextView bannerText;
+        ImageView image;
         TextView messageText;
         TextView timeText;
 
@@ -114,6 +118,7 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
             view = itemView;
             bannerLayout = itemView.findViewById(R.id.bannerLayout);
             bannerText = itemView.findViewById(R.id.bannerText);
+            image = itemView.findViewById(R.id.image);
             messageText = itemView.findViewById(R.id.text);
             timeText = itemView.findViewById(R.id.sent_time);
         }
@@ -122,51 +127,11 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
 
             makeBanner(showDate, bannerLayout, bannerText, ravenMessage);
 
-            try {
-                messageText.setText(ThreadManager.decryptMessage(ravenMessage.getThreadId(), ravenMessage.getText()));
-                messageText.setTextColor(ContextCompat.getColor(context, R.color.colorBlack));
-                messageText.setBackground(context.getDrawable(R.drawable.background_message_holder_white));
-            } catch (NullPointerException e) {
-                messageText.setText("Message Deleted.");
-                messageText.setTextColor(ContextCompat.getColor(context, R.color.colorWhite));
-                messageText.setBackground(context.getDrawable(R.drawable.background_message_holder_red));
-            } catch (GeneralSecurityException e) {
-                messageText.setText("Couldn't Decrypt");
-                messageText.setTextColor(ContextCompat.getColor(context, R.color.colorWhite));
-                messageText.setBackground(context.getDrawable(R.drawable.background_message_holder_red));
-            } catch (Exception e) {
-                messageText.setText("There was a problem.");
-                messageText.setTextColor(ContextCompat.getColor(context, R.color.colorWhite));
-                messageText.setBackground(context.getDrawable(R.drawable.background_message_holder_red));
-            }
+            setMessageContent(messageText, ravenMessage);
 
-            if (ravenMessage.getTimestamp() != null) {
+            setMessageTime(timeText, ravenMessage);
 
-                timeText.setVisibility(View.VISIBLE);
-
-                DateTime time = DateTime.parse(ravenMessage.getTimestamp());
-                DateTimeFormatter build = DateTimeFormat.forPattern("hh:mm a");
-                timeText.setText(build.print(time));
-            } else {
-                timeText.setVisibility(View.GONE);
-            }
-
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (onClickListener != null)
-                        onClickListener.onClickListener(v, position);
-                }
-            });
-
-            view.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    if (onLongClickListener != null)
-                        onLongClickListener.onLongClickListener(v, position);
-                    return false;
-                }
-            });
+            setListener(view, position);
         }
     }
 
@@ -174,6 +139,7 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
         View view;
         LinearLayout bannerLayout;
         TextView bannerText;
+        ImageView image;
         TextView messageText;
         TextView timeText;
         ImageView status;
@@ -183,6 +149,7 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
             view = itemView;
             bannerLayout = itemView.findViewById(R.id.bannerLayout);
             bannerText = itemView.findViewById(R.id.bannerText);
+            image = itemView.findViewById(R.id.image);
             messageText = itemView.findViewById(R.id.text);
             timeText = itemView.findViewById(R.id.sent_time);
             status = itemView.findViewById(R.id.status);
@@ -192,49 +159,18 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
 
             makeBanner(showDate, bannerLayout, bannerText, ravenMessage);
 
-            try {
-                messageText.setText(ThreadManager.decryptMessage(ravenMessage.getThreadId(), ravenMessage.getText()));
-                messageText.setBackground(context.getDrawable(R.drawable.background_message_holder_indigo));
-            } catch (NullPointerException e) {
-                messageText.setText("Message Deleted.");
-                messageText.setBackground(context.getDrawable(R.drawable.background_message_holder_red));
-            } catch (GeneralSecurityException e) {
-                messageText.setText("Couldn't Decrypt");
-                messageText.setBackground(context.getDrawable(R.drawable.background_message_holder_red));
-            } catch (Exception e) {
-                messageText.setText("There was a problem.");
-                messageText.setBackground(context.getDrawable(R.drawable.background_message_holder_red));
-            }
+            setMessageContent(messageText, ravenMessage);
 
-            if (ravenMessage.getTimestamp() != null) {
+            setMessageTime(timeText, ravenMessage);
 
-                timeText.setVisibility(View.VISIBLE);
-
-                DateTime time = DateTime.parse(ravenMessage.getTimestamp());
-                DateTimeFormatter build = DateTimeFormat.forPattern("hh:mm a");
-                timeText.setText(build.print(time));
-
-                status.setBackground(context.getDrawable(R.drawable.badge_message_status_sent));
-            } else {
-
-                timeText.setVisibility(View.GONE);
-                status.setBackground(context.getDrawable(R.drawable.badge_message_status_pending));
-            }
-
-            if (ravenMessage.getSeenAt() != null) {
+            if (ravenMessage.getSeenAt() != null)
                 status.setBackground(context.getDrawable(R.drawable.badge_message_status_seen));
-            }
+            else if (ravenMessage.getTimestamp() != null)
+                status.setBackground(context.getDrawable(R.drawable.badge_message_status_sent));
+            else
+                status.setBackground(context.getDrawable(R.drawable.badge_message_status_pending));
 
-            view.setOnClickListener(v -> {
-                if (onClickListener != null)
-                    onClickListener.onClickListener(v, position);
-            });
-
-            view.setOnLongClickListener(v -> {
-                if (onLongClickListener != null)
-                    onLongClickListener.onLongClickListener(v, position);
-                return false;
-            });
+            setListener(view, position);
         }
     }
 
@@ -255,6 +191,7 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
         this.onLongClickListener = onLongClickListener;
     }
 
+
     private void makeBanner(boolean showDate, LinearLayout bannerLayout, TextView bannerText, RavenMessage ravenMessage) {
 
         if (showDate) {
@@ -272,5 +209,93 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
             bannerLayout.setVisibility(View.GONE);
             bannerText.setVisibility(View.GONE);
         }
+    }
+
+    private void setMessageContent(ImageView imageView, TextView messageText, RavenMessage ravenMessage) {
+
+        String text = ravenMessage.getText();
+        String fileRef = ravenMessage.getFileRef();
+
+        if (text == null && fileRef == null) {
+
+            messageText.setVisibility(View.VISIBLE);
+            setErrorView(messageText, "Message Deleted.");
+
+
+        } else if (text == null) {
+
+            messageText.setVisibility(View.GONE);
+            setDefaultView(messageText, ravenMessage, null);
+
+            // download media
+
+        } else if (fileRef == null) {
+
+            messageText.setVisibility(View.VISIBLE);
+            setMessageText(messageText, ravenMessage);
+        } else {
+
+            messageText.setVisibility(View.VISIBLE);
+            setMessageText(messageText, ravenMessage);
+
+            // download media
+        }
+    }
+
+    private void setMessageText(TextView messageText, RavenMessage ravenMessage) {
+        try {
+            setDefaultView(messageText, ravenMessage, ThreadManager.decryptMessage(ravenMessage.getThreadId(), ravenMessage.getText()));
+        } catch (GeneralSecurityException e) {
+            setErrorView(messageText, "Couldn't Decrypt");
+        } catch (Exception e) {
+            setErrorView(messageText, "There was a problem.");
+        }
+    }
+
+    private void setMessageTime(TextView timeText, RavenMessage ravenMessage) {
+        if (ravenMessage.getTimestamp() != null) {
+
+            timeText.setVisibility(View.VISIBLE);
+
+            DateTime time = DateTime.parse(ravenMessage.getTimestamp());
+            DateTimeFormatter build = DateTimeFormat.forPattern("hh:mm a");
+            timeText.setText(build.print(time));
+        } else {
+            timeText.setVisibility(View.GONE);
+        }
+    }
+
+    private void setListener(View view, Integer position) {
+        view.setOnClickListener(v -> {
+            if (onClickListener != null)
+                onClickListener.onClickListener(v, position);
+        });
+
+        view.setOnLongClickListener(v -> {
+            if (onLongClickListener != null)
+                onLongClickListener.onLongClickListener(v, position);
+            return false;
+        });
+    }
+
+    private void setDefaultView(TextView messageText, RavenMessage ravenMessage, String decryptedMessaged) {
+
+        messageText.setText(decryptedMessaged);
+        switch (ravenMessage.getMessageType(FirebaseAuth.getInstance().getUid())) {
+            case 1:
+                messageText.setTextColor(ContextCompat.getColor(context, R.color.colorWhite));
+                messageText.setBackground(context.getDrawable(R.drawable.background_message_holder_indigo));
+                break;
+            case 2:
+                messageText.setTextColor(ContextCompat.getColor(context, R.color.colorBlack));
+                messageText.setBackground(context.getDrawable(R.drawable.background_message_holder_white));
+                break;
+        }
+    }
+
+    private void setErrorView(TextView messageText, String errorMessage) {
+        messageText.setText(errorMessage);
+        messageText.setTextColor(ContextCompat.getColor(context, R.color.colorWhite));
+        messageText.setBackground(context.getDrawable(R.drawable.background_message_holder_red));
     }
 }

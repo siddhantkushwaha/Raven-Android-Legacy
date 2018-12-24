@@ -307,7 +307,7 @@ class ChatActivity : AppCompatActivity() {
         val messageObject = Message(null, Timestamp.now(), FirebaseAuth.getInstance().uid!!, userId!!)
         threadManager?.sendMessage(threadId!!, messageObject, uri) {
 
-            val progress:Double = it.bytesTransferred.toDouble() / it.totalByteCount.toDouble()
+            val progress: Double = it.bytesTransferred.toDouble() / it.totalByteCount.toDouble()
             Log.i(tag, progress.toString())
         }
     }
