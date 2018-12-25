@@ -23,6 +23,7 @@ import com.siddhantkushwaha.raven.commonUtility.DateTimeUtils;
 import com.siddhantkushwaha.raven.commonUtility.GlideUtils;
 import com.siddhantkushwaha.raven.localEntity.RavenMessage;
 import com.siddhantkushwaha.raven.manager.ThreadManager;
+import com.siddhantkushwaha.raven.ravenUtility.FirebaseStorageUtil;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -41,11 +42,15 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
     private OnClickListener onClickListener;
     private OnLongClickListener onLongClickListener;
 
+    private FirebaseStorageUtil firebaseStorageUtil;
+
     public MessageAdapter(Context context, @Nullable OrderedRealmCollection data, boolean autoUpdate) {
         super(data, autoUpdate);
 
         this.context = context;
         this.data = data;
+
+        this.firebaseStorageUtil = new FirebaseStorageUtil();
     }
 
     @NonNull
@@ -313,13 +318,9 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
     }
 
     private void loadImage(ImageView imageView, String fileRef) {
+        firebaseStorageUtil.getDownloadUrl(context, fileRef, uri -> {
 
-        System.out.println(fileRef);
-
-        fileRef = fileRef.replace("gs://raven-f6b32.appspot.com/", "");
-        FirebaseStorage.getInstance().getReference(fileRef).getDownloadUrl().addOnSuccessListener(uri -> {
-
-            GlideUtils.loadImageInChat(context, uri.toString(), imageView);
-        }).addOnFailureListener(Throwable::printStackTrace);
+            GlideUtils.loadImageInChat(context, uri, imageView);
+        });
     }
 }
