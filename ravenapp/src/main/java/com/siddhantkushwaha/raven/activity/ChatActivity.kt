@@ -176,14 +176,21 @@ class ChatActivity : AppCompatActivity() {
         })
 
         ravenMessageAdapter?.setOnClickListener { _, position ->
-            Log.i(tag, ravenMessageAdapter?.getItem(position)?.text ?: "null")
+
+            val ravenMessage = ravenMessageAdapter?.getItem(position)
+            val fileRef = ravenMessage?.fileRef ?: return@setOnClickListener
+
+            val intent = Intent(this@ChatActivity, ImageFullScreenActivity::class.java)
+            intent.putExtra("key_file_ref", fileRef);
+            startActivity(intent)
+            Log.i(tag, fileRef)
         }
         ravenMessageAdapter?.setOnLongClickListener { _, position ->
 
             val ravenMessage = ravenMessageAdapter?.getItem(position)
-
-            if (ravenMessage?.sentByUserId == FirebaseAuth.getInstance().uid) {
-                threadManager?.deleteMessageForEveryone(threadId!!, ravenMessage?.messageId!!) {
+                    ?: return@setOnLongClickListener
+            if (ravenMessage.sentByUserId == FirebaseAuth.getInstance().uid) {
+                threadManager?.deleteMessageForEveryone(threadId!!, ravenMessage.messageId) {
                     if (it.isSuccessful)
                         Alerts.showToast(this@ChatActivity, "Deleted.", 2000)
                 }

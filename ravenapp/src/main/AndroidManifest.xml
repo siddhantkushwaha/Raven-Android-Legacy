@@ -41,6 +41,9 @@
         <activity
             android:name=".activity.ContactsActivity"
             android:parentActivityName=".activity.HomeActivity" />
+        <activity
+            android:name=".activity.ImageFullScreenActivity"
+            android:parentActivityName=".activity.ChatActivity" />
 
         <!-- _____________________________________________________________________ -->
 
@@ -111,8 +114,10 @@
             android:name="io.fabric.ApiKey"
             android:value="666a15faafd90ab0c28f04221e8d88210a047567" />
 
-        <!--TODO this is a workaround, remove this later-->
-        <uses-library android:name="org.apache.http.legacy" android:required="false" />
+        <!-- TODO this is a workaround, remove this later -->
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
     </application>
 
 </manifest>
