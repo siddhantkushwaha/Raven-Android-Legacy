@@ -1,19 +1,24 @@
 package com.siddhantkushwaha.raven.activity
 
-import android.graphics.Color
+import android.graphics.Bitmap
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.GestureDetector
 import android.view.MotionEvent
+import android.view.ScaleGestureDetector
 import android.widget.EditText
-import com.bumptech.glide.request.RequestOptions
 import com.siddhantkushwaha.raven.R
-import com.siddhantkushwaha.raven.commonUtility.GlideUtils
 import com.siddhantkushwaha.raven.commonUtility.UiUtil
 import com.siddhantkushwaha.raven.ravenUtility.FirebaseStorageUtil
 import kotlinx.android.synthetic.main.activity_image_full_screen.*
+import android.util.Log
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.transition.Transition
+import com.siddhantkushwaha.raven.commonUtility.GlideUtils
+
 
 class ImageFullScreenActivity : AppCompatActivity() {
 
@@ -69,16 +74,43 @@ class ImageFullScreenActivity : AppCompatActivity() {
             }
         })
 
+        val scaleGestureDetector = ScaleGestureDetector(this@ImageFullScreenActivity, object : ScaleGestureDetector.OnScaleGestureListener {
+            override fun onScaleBegin(detector: ScaleGestureDetector): Boolean {
+                return true
+            }
+
+            override fun onScaleEnd(detector: ScaleGestureDetector) {
+            }
+
+            override fun onScale(detector: ScaleGestureDetector): Boolean {
+
+                Log.i(tag, detector.scaleFactor.toString())
+
+                return true
+            }
+        })
+
         image.setOnTouchListener { v, event ->
 
             gestureDetector.onTouchEvent(event)
+            scaleGestureDetector.onTouchEvent(event)
             return@setOnTouchListener true
         }
 
         val fileRef = intent.getStringExtra("key_file_ref")
         FirebaseStorageUtil().getDownloadUrl(this@ImageFullScreenActivity, fileRef) {
-            GlideUtils.loadImage(this, it, RequestOptions(), image)
+
+            GlideUtils.loadImageAsBitmap(this@ImageFullScreenActivity, it, RequestOptions(), object : SimpleTarget<Bitmap>() {
+                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    image.setImageBitmap(resource)
+                }
+            })
         }
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return super.onSupportNavigateUp()
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {

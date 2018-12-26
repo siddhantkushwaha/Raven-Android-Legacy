@@ -79,6 +79,11 @@ class ProfileActivity : AppCompatActivity() {
         ActivityInfo.setActivityInfo(null, null)
     }
 
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return super.onSupportNavigateUp()
+    }
+
     /*------------------------------------------- MAP STUFF ---------------------------------------------*/
 
     private fun setGoogleMaps() {

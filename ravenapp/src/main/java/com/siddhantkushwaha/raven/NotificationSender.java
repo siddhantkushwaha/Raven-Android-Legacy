@@ -4,9 +4,9 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.RemoteInput;
 import android.support.v4.content.ContextCompat;
@@ -52,14 +52,16 @@ public class NotificationSender {
 
     public void sendNotificationWithReplyAction(String userId, String threadId, String replyLabel) {
 
-        PendingIntent activityPendingIntent = PendingIntent.getActivity(context, requestCode, intent, PendingIntent.FLAG_ONE_SHOT);
+        PendingIntent pendingIntent = TaskStackBuilder.create(context).addNextIntentWithParentStack(intent).getPendingIntent(requestCode, PendingIntent.FLAG_ONE_SHOT);
+
+//        PendingIntent pendingIntent = PendingIntent.getActivity(context, requestCode, intent, PendingIntent.FLAG_ONE_SHOT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
                 .setDefaults(Notification.DEFAULT_SOUND)
                 .setSmallIcon(R.drawable.logo_raven_silhoutte)
                 .setColor(ContextCompat.getColor(context, R.color.colorAccent))
                 .setContentTitle(contentTitle)
                 .setContentText(contentText)
-                .setContentIntent(activityPendingIntent)
+                .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
 
 

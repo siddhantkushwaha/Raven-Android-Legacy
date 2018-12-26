@@ -181,7 +181,7 @@ class ChatActivity : AppCompatActivity() {
             val fileRef = ravenMessage?.fileRef ?: return@setOnClickListener
 
             val intent = Intent(this@ChatActivity, ImageFullScreenActivity::class.java)
-            intent.putExtra("key_file_ref", fileRef);
+            intent.putExtra("key_file_ref", fileRef)
             startActivity(intent)
             Log.i(tag, fileRef)
         }
@@ -190,7 +190,7 @@ class ChatActivity : AppCompatActivity() {
             val ravenMessage = ravenMessageAdapter?.getItem(position)
                     ?: return@setOnLongClickListener
             if (ravenMessage.sentByUserId == FirebaseAuth.getInstance().uid) {
-                threadManager?.deleteMessageForEveryone(threadId!!, ravenMessage.messageId) {
+                threadManager?.deleteMessageForEveryone(threadId!!, ravenMessage.messageId, ravenMessage.fileRef) {
                     if (it.isSuccessful)
                         Alerts.showToast(this@ChatActivity, "Deleted.", 2000)
                 }
@@ -199,7 +199,7 @@ class ChatActivity : AppCompatActivity() {
 
         firstVisibleItemPosition[1] = savedInstanceState?.getInt(getString(R.string.key_first_item_position)) ?: -1
         lastVisibleItemPosition[1] = savedInstanceState?.getInt(getString(R.string.key_last_item_position)) ?: -1
-        listener = OrderedRealmCollectionChangeListener { results, _ ->
+        listener = OrderedRealmCollectionChangeListener { _, _ ->
 
             ravenMessageAdapter?.notifyDataSetChanged()
             setScrollPosition(lastVisibleItemPosition[1] == getLastItemPosition() - 1)

@@ -23,6 +23,7 @@ import com.google.firebase.storage.UploadTask;
 import com.siddhantkushwaha.raven.custom.AESNygma;
 import com.siddhantkushwaha.raven.entity.Message;
 import com.siddhantkushwaha.raven.entity.ThreadIndex;
+import com.siddhantkushwaha.raven.ravenUtility.FirebaseStorageUtil;
 import com.siddhantkushwaha.raven.ravenUtility.FirebaseUtils;
 
 import java.security.GeneralSecurityException;
@@ -110,11 +111,15 @@ public class ThreadManager {
         }).addOnCompleteListener(onCompleteListener);
     }
 
-    public void deleteMessageForEveryone(@NonNull String threadId, @NonNull String messageId, OnCompleteListener<Void> onCompleteListener) {
+    public void deleteMessageForEveryone(@NonNull String threadId, @NonNull String messageId, @Nullable String fileRef, OnCompleteListener<Void> onCompleteListener) {
 
         HashMap<String, Object> map = new HashMap<>();
         map.put("text", FieldValue.delete());
-        map.put("fileRef", FieldValue.delete());
+
+        if (fileRef != null) {
+            map.put("fileRef", FieldValue.delete());
+            new FirebaseStorageUtil().deleteFile(fileRef);
+        }
 
         db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document(messageId).update(map).addOnCompleteListener(onCompleteListener);
     }

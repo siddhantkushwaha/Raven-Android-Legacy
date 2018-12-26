@@ -28,22 +28,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name=".activity.HomeActivity" />
+
         <activity
             android:name=".activity.MyProfileActivity"
             android:parentActivityName=".activity.HomeActivity" />
+
         <activity
             android:name=".activity.ChatActivity"
             android:parentActivityName=".activity.HomeActivity" />
-        <activity
-            android:name=".activity.ProfileActivity"
-            android:parentActivityName=".activity.HomeActivity" />
+
+        <activity android:name=".activity.ProfileActivity" />
+
         <activity
             android:name=".activity.ContactsActivity"
             android:parentActivityName=".activity.HomeActivity" />
-        <activity
-            android:name=".activity.ImageFullScreenActivity"
-            android:parentActivityName=".activity.ChatActivity" />
+
+        <activity android:name=".activity.ImageFullScreenActivity" />
 
         <!-- _____________________________________________________________________ -->
 

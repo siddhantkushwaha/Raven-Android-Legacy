@@ -42,4 +42,8 @@ public class FirebaseStorageUtil {
         });
         realm.close();
     }
+
+    public void deleteFile(String fileRef) {
+        FirebaseStorage.getInstance().getReference(fileRef.replace(prefix, "")).delete();
+    }
 }
