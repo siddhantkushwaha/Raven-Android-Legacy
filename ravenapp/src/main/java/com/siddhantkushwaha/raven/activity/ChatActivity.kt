@@ -260,6 +260,13 @@ class ChatActivity : AppCompatActivity() {
         results?.removeAllChangeListeners()
     }
 
+    //TODO -- make this better, this is just a quick fix
+    override fun onBackPressed() {
+        super.onBackPressed()
+
+        onSupportNavigateUp()
+    }
+
     private fun updateProfileLayout() {
 
         nameTextView.text = user?.userProfile?.name ?: user?.phoneNumber ?: getString(R.string.key_user_id)
