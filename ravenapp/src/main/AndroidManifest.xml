@@ -28,23 +28,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity android:name=".activity.HomeActivity" />
-
         <activity
             android:name=".activity.MyProfileActivity"
             android:parentActivityName=".activity.HomeActivity" />
-
         <activity
             android:name=".activity.ChatActivity"
             android:parentActivityName=".activity.HomeActivity" />
-
         <activity android:name=".activity.ProfileActivity" />
-
         <activity
             android:name=".activity.ContactsActivity"
             android:parentActivityName=".activity.HomeActivity" />
-
         <activity android:name=".activity.ImageFullScreenActivity" />
 
         <!-- _____________________________________________________________________ -->
@@ -120,6 +114,8 @@
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
+
+        <activity android:name=".activity.AboutActivity"></activity>
     </application>
 
 </manifest>
