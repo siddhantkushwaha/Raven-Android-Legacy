@@ -1,8 +1,11 @@
 package com.siddhantkushwaha.raven.activity
 
+import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.siddhantkushwaha.raven.R
+import kotlinx.android.synthetic.main.activity_about.*
+import java.lang.Exception
 
 class AboutActivity : AppCompatActivity() {
 
@@ -10,5 +13,19 @@ class AboutActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R
                 .layout.activity_about)
+
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        versionName.text = "v${packageManager.getPackageInfo(packageName, 0).versionName}"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
+            versionCode.text = packageManager.getPackageInfo(packageName, 0).longVersionCode.toString()
+        else {
+            try {
+                versionCode.text = packageManager.getPackageInfo(packageName, 0).versionCode.toString()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 }

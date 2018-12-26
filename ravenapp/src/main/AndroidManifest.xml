@@ -40,6 +40,9 @@
             android:name=".activity.ContactsActivity"
             android:parentActivityName=".activity.HomeActivity" />
         <activity android:name=".activity.ImageFullScreenActivity" />
+        <activity
+            android:name=".activity.AboutActivity"
+            android:parentActivityName=".activity.HomeActivity" />
 
         <!-- _____________________________________________________________________ -->
 
@@ -114,8 +117,6 @@
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
-
-        <activity android:name=".activity.AboutActivity"></activity>
     </application>
 
 </manifest>

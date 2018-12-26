@@ -87,6 +87,10 @@ class HomeActivity : AppCompatActivity() {
                 R.id.action_logout -> {
                     actionLogout()
                 }
+
+                R.id.action_about -> {
+                    actionAbout()
+                }
             }
             false
         }
@@ -271,7 +275,7 @@ class HomeActivity : AppCompatActivity() {
             try {
                 map["versionCode"] = packageManager.getPackageInfo(packageName, 0).versionCode
             } catch (e: Exception) {
-                //pass
+                e.printStackTrace()
             }
         }
         map["timestamp"] = Timestamp.now()
@@ -339,6 +343,11 @@ class HomeActivity : AppCompatActivity() {
         val intent = Intent(this, LoginActivity::class.java)
         startActivity(intent)
         finish()
+    }
+
+    private fun actionAbout() {
+
+        startActivity(Intent(this@HomeActivity, AboutActivity::class.java))
     }
 
     private fun updateProfileUi() {
