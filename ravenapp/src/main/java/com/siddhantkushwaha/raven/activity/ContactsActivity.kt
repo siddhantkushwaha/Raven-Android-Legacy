@@ -4,6 +4,7 @@ import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.SearchView
+import android.util.Log
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.RavenContactSync
 import com.siddhantkushwaha.raven.adapter.ContactAdapter
@@ -21,7 +22,7 @@ class ContactsActivity : AppCompatActivity() {
 
     private val tag = ContactsActivity::class.java.toString()
 
-    private var realm:Realm? = null
+    private var realm: Realm? = null
     private var results: RealmResults<RavenUser>? = null
     private var ravenContactAdapter: ContactAdapter? = null
     private var listener: OrderedRealmCollectionChangeListener<RealmResults<RavenUser>>? = null
@@ -46,24 +47,20 @@ class ContactsActivity : AppCompatActivity() {
         searchView.maxWidth = android.R.attr.width
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(p0: String?): Boolean {
+            override fun onQueryTextSubmit(p0: String): Boolean {
                 filter(p0)
                 return false
             }
 
-            override fun onQueryTextChange(p0: String?): Boolean {
+            override fun onQueryTextChange(p0: String): Boolean {
                 filter(p0)
                 return false
             }
 
         })
 
-        searchView.setOnSearchClickListener {
-
-        }
-
         searchView.setOnCloseListener {
-            filter(null)
+            setDefaultResults()
             false
         }
 
@@ -94,20 +91,35 @@ class ContactsActivity : AppCompatActivity() {
         super.onRestoreInstanceState(savedInstanceState)
     }
 
-    private fun filter(query: String?) {
+    private fun filter(query: String) {
+
+        Log.i(tag, "Searching for $query")
+        val searchResults = realm?.where(RavenUser::class.java)?.like("contactName", "*$query*")?.sort("contactName", Sort.ASCENDING)?.findAll()
+        Log.i(tag, "Searching for ${searchResults?.size}")
+        val searchAdapter = ContactAdapter(this@ContactsActivity, searchResults)
+
+        userListView.adapter = searchAdapter
+        userListView.setOnItemClickListener { _, _, position, _ ->
+            val intent = Intent(this@ContactsActivity, ChatActivity::class.java)
+            intent.putExtra(getString(R.string.key_user_id), searchAdapter.getItem(position)!!.userId)
+            startActivity(intent)
+        }
     }
 
     private fun retrieveRavenContacts() {
 
         results = realm?.where(RavenUser::class.java)?.sort("contactName", Sort.ASCENDING)?.findAllAsync()
         ravenContactAdapter = ContactAdapter(this@ContactsActivity, results)
-        userListView.adapter = ravenContactAdapter
-
         listener = OrderedRealmCollectionChangeListener { _, _ -> ravenContactAdapter?.notifyDataSetChanged() }
 
+        setDefaultResults()
+    }
+
+    private fun setDefaultResults() {
+        userListView.adapter = ravenContactAdapter
         userListView.setOnItemClickListener { _, _, position, _ ->
             val intent = Intent(this@ContactsActivity, ChatActivity::class.java)
-            intent.putExtra(getString(R.string.key_user_id), results!![position]!!.userId)
+            intent.putExtra(getString(R.string.key_user_id), ravenContactAdapter?.getItem(position)!!.userId)
             startActivity(intent)
         }
     }

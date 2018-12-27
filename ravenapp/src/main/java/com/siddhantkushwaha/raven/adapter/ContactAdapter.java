@@ -26,6 +26,12 @@ public class ContactAdapter extends RealmBaseAdapter<RavenUser> {
         this.data = data;
     }
 
+    @Nullable
+    @Override
+    public RavenUser getItem(int position) {
+        return data.get(position);
+    }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
