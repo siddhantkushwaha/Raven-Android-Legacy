@@ -22,7 +22,7 @@
             android:id="@+id/image"
             android:layout_width="300dp"
             android:layout_height="300dp"
-            android:src="@color/colorGrey" />
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/text"
@@ -56,6 +56,6 @@
             android:text="11:40 AM"
             android:textColor="@color/colorBlack"
             android:textSize="12sp"
-            android:visibility="gone" />
+            android:visibility="visible" />
     </LinearLayout>
 </LinearLayout>

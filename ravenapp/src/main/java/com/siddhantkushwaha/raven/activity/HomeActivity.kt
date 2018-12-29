@@ -278,7 +278,6 @@ class HomeActivity : AppCompatActivity() {
                 e.printStackTrace()
             }
         }
-        map["timestamp"] = Timestamp.now()
         userManager?.setUserMetaData(FirebaseAuth.getInstance().uid!!, map) {
             if (it.exception != null)
                 Log.e(tag, it.exception.toString())

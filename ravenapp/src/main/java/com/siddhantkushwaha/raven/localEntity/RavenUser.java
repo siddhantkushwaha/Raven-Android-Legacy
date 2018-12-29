@@ -16,6 +16,8 @@ public class RavenUser extends RealmObject {
     private String about;
     private String picUrl;
 
+    private Boolean inContacts;
+
     public RavenUser() {
 
     }
@@ -66,6 +68,14 @@ public class RavenUser extends RealmObject {
 
     public String getPicUrl() {
         return picUrl;
+    }
+
+    public void setInContacts(Boolean inContacts) {
+        this.inContacts = inContacts;
+    }
+
+    public Boolean getInContacts() {
+        return inContacts;
     }
 
     public void cloneObject(User user) {

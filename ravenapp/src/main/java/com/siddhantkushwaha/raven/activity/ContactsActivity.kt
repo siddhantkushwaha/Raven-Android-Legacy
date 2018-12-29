@@ -64,6 +64,7 @@ class ContactsActivity : AppCompatActivity() {
             false
         }
 
+        userListView.emptyView = emptyView
         retrieveRavenContacts()
     }
 
@@ -94,7 +95,7 @@ class ContactsActivity : AppCompatActivity() {
     private fun filter(query: String) {
 
         Log.i(tag, "Searching for $query")
-        val searchResults = realm?.where(RavenUser::class.java)?.like("contactName", "*$query*")?.sort("contactName", Sort.ASCENDING)?.findAll()
+        val searchResults = realm?.where(RavenUser::class.java)?.equalTo("inContacts", true)?.like("contactName", "*$query*")?.sort("contactName", Sort.ASCENDING)?.findAll()
         Log.i(tag, "Searching for ${searchResults?.size}")
         val searchAdapter = ContactAdapter(this@ContactsActivity, searchResults)
 
@@ -108,7 +109,7 @@ class ContactsActivity : AppCompatActivity() {
 
     private fun retrieveRavenContacts() {
 
-        results = realm?.where(RavenUser::class.java)?.sort("contactName", Sort.ASCENDING)?.findAllAsync()
+        results = realm?.where(RavenUser::class.java)?.equalTo("inContacts", true)?.sort("contactName", Sort.ASCENDING)?.findAllAsync()
         ravenContactAdapter = ContactAdapter(this@ContactsActivity, results)
         listener = OrderedRealmCollectionChangeListener { _, _ -> ravenContactAdapter?.notifyDataSetChanged() }
 

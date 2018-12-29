@@ -56,6 +56,8 @@ public class GlideUtils {
 
         GlideApp.with(context.getApplicationContext())
                 .load(uri)
+                .apply(new RequestOptions().placeholder(R.drawable.hourglass))
+                .apply(new RequestOptions().error(R.drawable.bug))
                 .transforms(new CenterCrop(), new RoundedCorners(72))
                 .into(imageView);
     }

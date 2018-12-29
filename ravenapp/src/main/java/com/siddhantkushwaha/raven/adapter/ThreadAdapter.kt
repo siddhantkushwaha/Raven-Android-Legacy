@@ -21,7 +21,6 @@ import io.realm.RealmBaseAdapter
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import java.lang.Exception
-import java.lang.NullPointerException
 import java.security.GeneralSecurityException
 
 class ThreadAdapter(private val context: Context, private val data: OrderedRealmCollection<RavenThread>) : RealmBaseAdapter<RavenThread>(data) {
@@ -73,17 +72,28 @@ class ThreadAdapter(private val context: Context, private val data: OrderedRealm
         }
 
         var messageText = "Message Deleted."
+        view.findViewById<ImageView>(R.id.messageIcon).visibility = View.GONE
         var time: DateTime? = null
         if (ravenThread?.lastMessage != null) {
 
-            messageText = try {
-                ThreadManager.decryptMessage(ravenThread.threadId, ravenThread.lastMessage.text)
-            } catch (e: NullPointerException) {
-                "Message Deleted."
-            } catch (e: GeneralSecurityException) {
-                "Couldn't Decrypt."
-            } catch (e: Exception) {
-                "There was a problem."
+            val text = ravenThread.lastMessage.text
+            val fileRef = ravenThread.lastMessage.fileRef
+
+            if (text == null && fileRef == null) {
+                messageText = "Message Deleted."
+                view.findViewById<ImageView>(R.id.messageIcon).visibility = View.GONE
+
+            } else if (text == null) {
+                messageText = "Photo."
+                view.findViewById<ImageView>(R.id.messageIcon).visibility = View.VISIBLE
+
+            } else if (fileRef == null) {
+                messageText = decryptMessage(ravenThread.lastMessage.threadId, text)
+                view.findViewById<ImageView>(R.id.messageIcon).visibility = View.GONE
+
+            } else {
+                messageText = decryptMessage(ravenThread.lastMessage.threadId, text)
+                view.findViewById<ImageView>(R.id.messageIcon).visibility = View.VISIBLE
             }
 
             val strTime = ravenThread.lastMessage?.timestamp
@@ -106,5 +116,15 @@ class ThreadAdapter(private val context: Context, private val data: OrderedRealm
         }
 
         return view
+    }
+
+    private fun decryptMessage(key: String, message: String): String {
+        return try {
+            ThreadManager.decryptMessage(key, message)
+        } catch (e: GeneralSecurityException) {
+            "Couldn't Decrypt."
+        } catch (e: Exception) {
+            "There was a problem."
+        }
     }
 }

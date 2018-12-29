@@ -94,6 +94,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         }
 
                         ravenUser.setContactName(contact.getValue());
+                        ravenUser.setInContacts(true);
 
                         realmIns.insertOrUpdate(ravenUser);
                     });
