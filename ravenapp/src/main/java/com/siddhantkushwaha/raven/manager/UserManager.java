@@ -143,9 +143,12 @@ public class UserManager {
 
     public void updateProfilePicture(Uri uri, OnCompleteListener<UploadTask.TaskSnapshot> onCompleteListener) {
 
-        StorageReference ref = FirebaseStorage.getInstance().getReference(FirebaseAuth.getInstance().getUid() + "/" + "profile_media/display_pic.png");
+        StorageReference ref = FirebaseStorage.getInstance().getReference("users/" + FirebaseAuth.getInstance().getUid() + "/" + "profile_media/display_pic.png");
         UploadTask uploadTask = ref.putFile(uri);
         uploadTask.addOnCompleteListener(onCompleteListener);
+
+        // TODO remove this later
+        FirebaseStorage.getInstance().getReference(FirebaseAuth.getInstance().getUid() + "/" + "profile_media/display_pic.png").delete();
 
 //        new OnCompleteListener<UploadTask.TaskSnapshot>() {
 //            @Override

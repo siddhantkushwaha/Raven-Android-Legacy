@@ -14,11 +14,10 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
 import com.siddhantkushwaha.raven.R
-import com.siddhantkushwaha.raven.commonUtility.GlideUtils
+import com.siddhantkushwaha.raven.ravenUtility.GlideUtils
 import com.siddhantkushwaha.raven.entity.User
 import com.siddhantkushwaha.raven.manager.UserManager
 import kotlinx.android.synthetic.main.activity_my_profile.*
-import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 import com.siddhantkushwaha.raven.custom.CustomMapFragment

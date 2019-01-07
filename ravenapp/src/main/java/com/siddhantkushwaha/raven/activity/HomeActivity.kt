@@ -11,7 +11,6 @@ import android.util.Log
 import android.view.MenuItem
 import android.widget.TextView
 import com.crashlytics.android.Crashlytics
-import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
 import com.google.firebase.messaging.FirebaseMessaging
@@ -19,7 +18,7 @@ import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.RavenContactSync
 import com.siddhantkushwaha.raven.adapter.ThreadAdapter
 import com.siddhantkushwaha.raven.commonUtility.ActivityInfo
-import com.siddhantkushwaha.raven.commonUtility.GlideUtils
+import com.siddhantkushwaha.raven.ravenUtility.GlideUtils
 import com.siddhantkushwaha.raven.commonUtility.RealmUtil
 import com.siddhantkushwaha.raven.entity.Message
 import com.siddhantkushwaha.raven.entity.ThreadIndex

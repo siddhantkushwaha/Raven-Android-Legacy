@@ -12,7 +12,7 @@ import com.google.firebase.auth.FirebaseAuth
 
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.commonUtility.DateTimeUtils
-import com.siddhantkushwaha.raven.commonUtility.GlideUtils
+import com.siddhantkushwaha.raven.ravenUtility.GlideUtils
 import com.siddhantkushwaha.raven.localEntity.RavenThread
 import com.siddhantkushwaha.raven.manager.ThreadManager
 

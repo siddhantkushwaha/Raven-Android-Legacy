@@ -17,7 +17,7 @@ import android.util.Log
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
-import com.siddhantkushwaha.raven.commonUtility.GlideUtils
+import com.siddhantkushwaha.raven.ravenUtility.GlideUtils
 
 
 class ImageFullScreenActivity : AppCompatActivity() {

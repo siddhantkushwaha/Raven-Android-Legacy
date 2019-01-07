@@ -7,9 +7,9 @@
     tools:context=".activity.ChatActivity">
 
     <ImageView
+        android:id="@+id/background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:alpha="0.3"
         android:scaleType="centerCrop"
         android:src="@drawable/artwork_raven"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -108,9 +108,9 @@
                 android:layout_width="36dp"
                 android:layout_height="36dp"
                 android:layout_marginEnd="12dp"
-                android:visibility="visible"
                 android:background="@android:color/transparent"
-                android:src="@drawable/button_insert_photo" />
+                android:src="@drawable/button_insert_photo"
+                android:visibility="visible" />
 
         </LinearLayout>
 

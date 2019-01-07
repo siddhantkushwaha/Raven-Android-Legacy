@@ -20,9 +20,9 @@ import com.siddhantkushwaha.raven.commonUtility.*
 import com.siddhantkushwaha.raven.custom.CustomMapFragment
 import com.siddhantkushwaha.raven.entity.User
 import com.siddhantkushwaha.raven.manager.UserManager
+import com.siddhantkushwaha.raven.ravenUtility.GlideUtils
 import kotlinx.android.synthetic.main.activity_profile.*
 import kotlinx.android.synthetic.main.layout_profile_content_scrolling.*
-import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 

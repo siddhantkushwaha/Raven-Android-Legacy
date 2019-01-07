@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.siddhantkushwaha.raven.R;
-import com.siddhantkushwaha.raven.commonUtility.GlideUtils;
+import com.siddhantkushwaha.raven.ravenUtility.GlideUtils;
 import com.siddhantkushwaha.raven.localEntity.RavenUser;
 
 import io.realm.OrderedRealmCollection;

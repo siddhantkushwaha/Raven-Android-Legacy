@@ -8,13 +8,10 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
-import android.view.View
-import android.widget.Toast
-import com.google.android.gms.tasks.OnCompleteListener
+import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
-import com.google.firebase.storage.OnProgressListener
 import com.siddhantkushwaha.raven.NotificationSender
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.adapter.MessageAdapter
@@ -25,6 +22,7 @@ import com.siddhantkushwaha.raven.entity.User
 import com.siddhantkushwaha.raven.localEntity.RavenThread
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.manager.UserManager
+import com.siddhantkushwaha.raven.ravenUtility.GlideUtils
 import com.siddhantkushwaha.raven.ravenUtility.RavenUtils
 import com.yalantis.ucrop.UCrop
 import io.realm.OrderedRealmCollectionChangeListener
@@ -97,6 +95,8 @@ class ChatActivity : AppCompatActivity() {
         sendImageButton.setOnClickListener {
             ImageFileHandling.openImageIntent(this@ChatActivity)
         }
+
+        loadChatBackground(null, 0.4F)
 
         user = User()
         userManager = UserManager()
@@ -324,5 +324,15 @@ class ChatActivity : AppCompatActivity() {
             val progress: Double = it.bytesTransferred.toDouble() / it.totalByteCount.toDouble()
             Log.i(tag, progress.toString())
         }
+    }
+
+    private fun loadChatBackground(uri: String?, alpha: Float) {
+        val requestOptions = RequestOptions()
+        requestOptions.error(R.drawable.artwork_raven)
+        requestOptions.placeholder(R.drawable.artwork_raven)
+
+        background.alpha = alpha
+
+        GlideUtils.loadChatBackground(this@ChatActivity, uri, requestOptions, background)
     }
 }

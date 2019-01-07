@@ -1,4 +1,4 @@
-package com.siddhantkushwaha.raven.commonUtility;
+package com.siddhantkushwaha.raven.ravenUtility;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -10,6 +10,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.siddhantkushwaha.raven.R;
+import com.siddhantkushwaha.raven.commonUtility.GlideApp;
 
 public class GlideUtils {
 
@@ -43,12 +44,11 @@ public class GlideUtils {
                 .into(callback);
     }
 
-    public static void loadImage(Context context, String uri, RequestOptions requestOptions, ImageView imageView) {
+    public static void loadChatBackground(Context context, String uri, RequestOptions requestOptions, ImageView imageView) {
 
         GlideApp.with(context.getApplicationContext())
                 .load(uri)
                 .apply(requestOptions)
-                .transition(DrawableTransitionOptions.withCrossFade(300))
                 .into(imageView);
     }
 
