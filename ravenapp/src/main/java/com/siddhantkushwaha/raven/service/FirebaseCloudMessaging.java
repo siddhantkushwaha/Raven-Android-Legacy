@@ -69,15 +69,33 @@ public class FirebaseCloudMessaging extends FirebaseMessagingService {
         }
 
         String threadId = RavenUtils.getThreadId(messageObject.getSentToUserId(), messageObject.getSentByUserId());
-        messageObject = ThreadManager.decryptMessage(threadId, messageObject);
+
+        if (messageObject.getText() == null && messageObject.getFileRef() == null) {
+            messageObject.setText("Message Deleted.");
+        } else if (messageObject.getText() == null) {
+            messageObject.setText("Photo.");
+        } else if (messageObject.getFileRef() == null) {
+            setMessageText(threadId, messageObject);
+        } else {
+            setMessageText(threadId, messageObject);
+        }
 
         Random rand = new Random();
-        int requestCode = rand.nextInt(100000);
+        int requestCode = rand.nextInt(1000000);
 
         Intent intent = new Intent(this, ChatActivity.class);
         intent.putExtra(getString(R.string.key_user_id), messageObject.getSentByUserId());
 
         NotificationSender notificationSender = new NotificationSender(FirebaseCloudMessaging.this, threadId, requestCode, title, messageObject.getText(), intent);
         notificationSender.sendNotificationWithReplyAction(messageObject.getSentByUserId(), threadId, "REPLY");
+    }
+
+    private void setMessageText(String threadId, Message messageObject) {
+        try {
+            messageObject.setText(ThreadManager.decryptMessage(threadId, messageObject.getText()));
+        } catch (Exception e) {
+            messageObject.setText("Couldn't Decrypt.");
+            e.printStackTrace();
+        }
     }
 }

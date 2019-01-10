@@ -164,18 +164,14 @@ public class ThreadManager {
         return AESNygma.decrypt(threadId, encryptedMessage);
     }
 
-    public static Message decryptMessage(String threadId, Message message) {
+    public static Message decryptMessage(String threadId, Message message) throws Exception {
 
         if (message == null)
             return null;
 
-        try {
-            String decryptedMessage = decryptMessage(threadId, message.getText());
-            message.setText(decryptedMessage);
-        } catch (Exception e) {
-            e.printStackTrace();
-            message.setText("There was a problem.");
-        }
+        String decryptedMessage = decryptMessage(threadId, message.getText());
+        message.setText(decryptedMessage);
+
         return message;
     }
 }

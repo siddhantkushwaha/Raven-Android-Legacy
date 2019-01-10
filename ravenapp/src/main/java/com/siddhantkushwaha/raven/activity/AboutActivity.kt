@@ -1,5 +1,6 @@
 package com.siddhantkushwaha.raven.activity
 
+import android.content.Intent
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -26,6 +27,11 @@ class AboutActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+        }
+
+        chatBackground.setOnClickListener {
+            val intent = Intent(this@AboutActivity, ChatBackgroundGallery::class.java)
+            startActivity(intent)
         }
     }
 }

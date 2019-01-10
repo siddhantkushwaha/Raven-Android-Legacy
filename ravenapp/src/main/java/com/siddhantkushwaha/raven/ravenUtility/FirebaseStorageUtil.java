@@ -1,7 +1,10 @@
 package com.siddhantkushwaha.raven.ravenUtility;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.util.Log;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.siddhantkushwaha.raven.commonUtility.RealmUtil;
 import com.siddhantkushwaha.raven.localEntity.Pair;
@@ -37,7 +40,10 @@ public class FirebaseStorageUtil {
                         realmIns2.insertOrUpdate(newPair);
                     });
 
-                }).addOnFailureListener(Throwable::printStackTrace);
+                }).addOnFailureListener(e -> {
+                    Log.i(FirebaseStorageUtil.class.toString(), fileRef);
+                    e.printStackTrace();
+                });
             }
         });
         realm.close();

@@ -14,6 +14,14 @@ import com.siddhantkushwaha.raven.commonUtility.GlideApp;
 
 public class GlideUtils {
 
+    public static void loadImage(Context context, String uri, RequestOptions requestOptions, ImageView imageView) {
+
+        GlideApp.with(context.getApplicationContext())
+                .load(uri)
+                .apply(requestOptions)
+                .into(imageView);
+    }
+
     public static void loadProfilePhotoCircle(Context context, ImageView imageView, String uri) {
 
         GlideApp.with(context.getApplicationContext())
