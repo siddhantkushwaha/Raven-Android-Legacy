@@ -32,6 +32,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
+import com.google.firebase.storage.FirebaseStorage
 import com.siddhantkushwaha.raven.commonUtility.ActivityInfo
 import com.siddhantkushwaha.raven.commonUtility.Alerts
 import com.siddhantkushwaha.raven.commonUtility.DateTimeUtils
@@ -250,6 +251,10 @@ class MyProfileActivity : AppCompatActivity() {
         val map = HashMap<String, Any>()
         map[UserManager.KEY_PROFILE_PIC] = FieldValue.delete()
         updateUserFields(map)
+
+        val picUrl = user?.userProfile?.picUrl
+        if (picUrl != null)
+            FirebaseStorage.getInstance().getReferenceFromUrl(picUrl).delete()
     }
 
     /*---------------------------------------------------------------------------------------------------*/
