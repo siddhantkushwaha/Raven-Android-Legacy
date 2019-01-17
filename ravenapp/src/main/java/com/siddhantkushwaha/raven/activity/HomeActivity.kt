@@ -3,22 +3,21 @@ package com.siddhantkushwaha.raven.activity
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
+import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.MenuItem
 import android.widget.TextView
 import com.crashlytics.android.Crashlytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
+import com.google.firebase.firestore.EventListener
 import com.google.firebase.messaging.FirebaseMessaging
 import com.siddhantkushwaha.raven.R
-import com.siddhantkushwaha.raven.RavenContactSync
 import com.siddhantkushwaha.raven.adapter.ThreadAdapter
 import com.siddhantkushwaha.raven.commonUtility.ActivityInfo
-import com.siddhantkushwaha.raven.ravenUtility.GlideUtils
 import com.siddhantkushwaha.raven.commonUtility.RealmUtil
 import com.siddhantkushwaha.raven.entity.Message
 import com.siddhantkushwaha.raven.entity.ThreadIndex
@@ -28,13 +27,13 @@ import com.siddhantkushwaha.raven.localEntity.RavenThread
 import com.siddhantkushwaha.raven.localEntity.RavenUser
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.manager.UserManager
+import com.siddhantkushwaha.raven.ravenUtility.GlideUtils
 import io.realm.OrderedRealmCollectionChangeListener
 import io.realm.Realm
 import io.realm.RealmResults
 import io.realm.Sort
 import kotlinx.android.synthetic.main.activity_home.*
-import java.lang.Exception
-import java.util.HashMap
+import java.util.*
 
 
 class HomeActivity : AppCompatActivity() {
@@ -256,7 +255,7 @@ class HomeActivity : AppCompatActivity() {
         userManager = UserManager()
         threadManager = ThreadManager()
 
-        RavenContactSync.setupSync(this@HomeActivity)
+//        RavenContactSync.setupSync(this@HomeActivity)
 
         val map = HashMap<String, Any>()
         map[UserManager.KEY_USER_ID] = FieldValue.delete()

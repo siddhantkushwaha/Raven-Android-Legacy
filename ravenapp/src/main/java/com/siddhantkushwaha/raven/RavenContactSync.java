@@ -78,6 +78,6 @@ public class RavenContactSync {
 
     public static void reSync(Context context) {
 
-        ContentResolver.requestSync(RavenContactSync.CreateSyncAccount(context), RavenContactSync.AUTHORITY, Bundle.EMPTY);
+        ContentResolver.requestSync(CreateSyncAccount(context), AUTHORITY, Bundle.EMPTY);
     }
 }

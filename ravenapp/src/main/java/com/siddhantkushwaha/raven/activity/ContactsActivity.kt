@@ -1,17 +1,17 @@
 package com.siddhantkushwaha.raven.activity
 
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.SearchView
 import android.util.Log
 import com.siddhantkushwaha.raven.R
-import com.siddhantkushwaha.raven.RavenContactSync
 import com.siddhantkushwaha.raven.adapter.ContactAdapter
 import com.siddhantkushwaha.raven.commonUtility.ActivityInfo
 import com.siddhantkushwaha.raven.commonUtility.Alerts
 import com.siddhantkushwaha.raven.commonUtility.RealmUtil
 import com.siddhantkushwaha.raven.localEntity.RavenUser
+import com.siddhantkushwaha.raven.syncAdapter.SyncAdapter
 import io.realm.OrderedRealmCollectionChangeListener
 import io.realm.Realm
 import io.realm.RealmResults
@@ -40,7 +40,9 @@ class ContactsActivity : AppCompatActivity() {
 
         refreshButton.setOnClickListener {
             Alerts.showToast(this@ContactsActivity, "Syncing contacts.", 2000)
-            RavenContactSync.reSync(this@ContactsActivity)
+//            RavenContactSync.reSync(this@ContactsActivity)
+//            AppInfo.openAppInfo(this);
+            SyncAdapter.syncContacts(this@ContactsActivity)
         }
 
         searchView.setIconifiedByDefault(true)

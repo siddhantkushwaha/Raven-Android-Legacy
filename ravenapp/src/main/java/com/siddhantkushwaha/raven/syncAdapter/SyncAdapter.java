@@ -48,11 +48,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
 
+        syncContacts(mContext);
+    }
+
+    public static void syncContacts(Context context) {
+
         Log.i(TAG, "PERFORMING_SYNC");
 
-        HashMap<String, String> contactsList = ContactsUtil.getAllContacts(mContext);
+        HashMap<String, String> contactsList = ContactsUtil.getAllContacts(context);
 
-        Realm realm = RealmUtil.getCustomRealmInstance(mContext);
+        Realm realm = RealmUtil.getCustomRealmInstance(context);
 
         realm.executeTransactionAsync(realmIns -> {
             RealmResults<RavenUser> realmResults = realmIns.where(RavenUser.class).findAll();
@@ -78,7 +83,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
                     Log.i(TAG, contact.getKey() + " ==> " + userId + " ==> " + contact.getValue());
 
-                    Realm _realm = RealmUtil.getCustomRealmInstance(mContext);
+                    Realm _realm = RealmUtil.getCustomRealmInstance(context);
                     _realm.executeTransaction(realmIns -> {
 
                         RavenUser ravenUser = realmIns.where(RavenUser.class).equalTo("userId", userId).findFirst();
@@ -103,7 +108,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 } else {
                     Log.i(TAG, contact.getKey() + " ==> " + "doesn't exist.");
 
-                    Realm _realm = RealmUtil.getCustomRealmInstance(mContext);
+                    Realm _realm = RealmUtil.getCustomRealmInstance(context);
                     _realm.executeTransaction(realmIns -> realmIns.where(RavenUser.class).equalTo("phoneNumber", contact.getKey()).findAll().deleteAllFromRealm());
                     _realm.close();
                 }
