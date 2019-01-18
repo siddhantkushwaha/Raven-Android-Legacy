@@ -9,6 +9,7 @@ import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.adapter.ContactAdapter
 import com.siddhantkushwaha.raven.commonUtility.ActivityInfo
 import com.siddhantkushwaha.raven.commonUtility.Alerts
+import com.siddhantkushwaha.raven.commonUtility.ContactsUtil
 import com.siddhantkushwaha.raven.commonUtility.RealmUtil
 import com.siddhantkushwaha.raven.localEntity.RavenUser
 import com.siddhantkushwaha.raven.syncAdapter.SyncAdapter
@@ -42,6 +43,7 @@ class ContactsActivity : AppCompatActivity() {
             Alerts.showToast(this@ContactsActivity, "Syncing contacts.", 2000)
 //            RavenContactSync.reSync(this@ContactsActivity)
 //            AppInfo.openAppInfo(this);
+            ContactsUtil.getReadContactsPermission(this@ContactsActivity)
             SyncAdapter.syncContacts(this@ContactsActivity)
         }
 

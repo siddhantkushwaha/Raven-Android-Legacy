@@ -63,7 +63,6 @@ public class RavenContactSync {
     }
 
     public static void setupSync(Activity activity) {
-        ContactsUtil.getReadContactsPermission(activity);
         if (ContactsUtil.contactsReadPermission(activity)) {
 
             mAccount = CreateSyncAccount(activity);
