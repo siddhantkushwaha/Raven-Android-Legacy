@@ -33,6 +33,7 @@ import io.realm.Realm
 import io.realm.RealmResults
 import io.realm.Sort
 import kotlinx.android.synthetic.main.activity_home.*
+import kotlinx.android.synthetic.main.layout_toolbar.*
 import java.util.*
 
 
@@ -71,6 +72,7 @@ class HomeActivity : AppCompatActivity() {
         realm = RealmUtil.getCustomRealmInstance(this@HomeActivity)
 
         setSupportActionBar(toolbar)
+        toolbar.title = "Raven"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeButtonEnabled(true)
 

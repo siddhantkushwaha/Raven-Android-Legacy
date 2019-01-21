@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:layout_marginTop="@dimen/activity_horizontal_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".activity.activityProfile"
+    tools:context=".activity.ProfileActivity"
     tools:showIn="@layout/activity_profile">
 
     <LinearLayout

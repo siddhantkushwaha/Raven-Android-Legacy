@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.siddhantkushwaha.raven.R
 import kotlinx.android.synthetic.main.activity_about.*
+import kotlinx.android.synthetic.main.layout_toolbar.*
 import java.lang.Exception
 
 class AboutActivity : AppCompatActivity() {
@@ -16,6 +17,7 @@ class AboutActivity : AppCompatActivity() {
                 .layout.activity_about)
 
         setSupportActionBar(toolbar)
+        toolbar.title = "About"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         versionName.text = "v${packageManager.getPackageInfo(packageName, 0).versionName}"
@@ -29,9 +31,9 @@ class AboutActivity : AppCompatActivity() {
             }
         }
 
-        chatBackground.setOnClickListener {
-            val intent = Intent(this@AboutActivity, ChatBackgroundGallery::class.java)
-            startActivity(intent)
-        }
+//        chatBackground.setOnClickListener {
+//            val intent = Intent(this@AboutActivity, ChatBackgroundGallery::class.java)
+//            startActivity(intent)
+//        }
     }
 }

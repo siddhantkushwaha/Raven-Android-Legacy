@@ -1,8 +1,8 @@
 package com.siddhantkushwaha.raven.activity
 
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -17,7 +17,6 @@ import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.commonUtility.ActivityInfo
 import com.siddhantkushwaha.raven.commonUtility.Alerts
 import io.fabric.sdk.android.Fabric
-import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_login.*
 import java.util.concurrent.TimeUnit
 

@@ -1,12 +1,13 @@
 package com.siddhantkushwaha.raven.commonUtility;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.lang.reflect.Type;
 
 public class GsonUtils {
 
-    private static final Gson gson = new Gson();
+    private static final Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 
     public static String toGson(Object object) {
         return gson.toJson(object);

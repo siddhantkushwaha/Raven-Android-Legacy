@@ -18,9 +18,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-
+        <activity android:name=".activity.EditBackground"></activity>
         <!-- __________________________ app activities __________________________ -->
-
         <activity android:name=".activity.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -42,10 +41,7 @@
         <activity android:name=".activity.ImageFullScreenActivity" />
         <activity
             android:name=".activity.AboutActivity"
-            android:parentActivityName=".activity.HomeActivity" />
-
-        <!-- _____________________________________________________________________ -->
-
+            android:parentActivityName=".activity.HomeActivity" /> <!-- _____________________________________________________________________ -->
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
@@ -111,14 +107,12 @@
             android:value="@string/google_maps_key" />
         <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="666a15faafd90ab0c28f04221e8d88210a047567" />
-
-        <!-- TODO this is a workaround, remove this later -->
+            android:value="666a15faafd90ab0c28f04221e8d88210a047567" /> <!-- TODO this is a workaround, remove this later -->
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
 
-        <activity android:name=".activity.ChatBackgroundGallery"></activity>
+        <activity android:name=".activity.ChatBackgroundGallery" />
     </application>
 
 </manifest>

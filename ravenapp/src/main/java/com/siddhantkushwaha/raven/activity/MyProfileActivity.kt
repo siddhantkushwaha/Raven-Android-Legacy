@@ -38,6 +38,7 @@ import com.siddhantkushwaha.raven.commonUtility.Alerts
 import com.siddhantkushwaha.raven.commonUtility.DateTimeUtils
 import com.siddhantkushwaha.raven.utilityActivity.activityRemoveDisplayPicture
 import com.yalantis.ucrop.UCrop
+import kotlinx.android.synthetic.main.layout_toolbar.*
 import java.io.File
 
 
@@ -64,6 +65,7 @@ class MyProfileActivity : AppCompatActivity() {
         setContentView(R.layout.activity_my_profile)
 
         setSupportActionBar(toolbar)
+        toolbar.title = "My Profile"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         setGoogleMaps()

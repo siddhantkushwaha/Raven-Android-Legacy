@@ -3,25 +3,32 @@ package com.siddhantkushwaha.raven.activity
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.*
+import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.EventListener
+import com.google.firebase.firestore.QuerySnapshot
+import com.google.gson.JsonObject
 import com.siddhantkushwaha.raven.NotificationSender
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.adapter.MessageAdapter
 import com.siddhantkushwaha.raven.commonUtility.*
 import com.siddhantkushwaha.raven.entity.Message
-import com.siddhantkushwaha.raven.localEntity.RavenMessage
 import com.siddhantkushwaha.raven.entity.User
+import com.siddhantkushwaha.raven.localEntity.RavenMessage
 import com.siddhantkushwaha.raven.localEntity.RavenThread
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.manager.UserManager
+import com.siddhantkushwaha.raven.ravenUtility.FirebaseStorageUtil
 import com.siddhantkushwaha.raven.ravenUtility.GlideUtils
 import com.siddhantkushwaha.raven.ravenUtility.RavenUtils
 import com.yalantis.ucrop.UCrop
@@ -30,7 +37,6 @@ import io.realm.Realm
 import io.realm.RealmResults
 import io.realm.Sort
 import kotlinx.android.synthetic.main.activity_chat.*
-import java.lang.Exception
 import kotlin.math.max
 
 class ChatActivity : AppCompatActivity() {
@@ -55,6 +61,8 @@ class ChatActivity : AppCompatActivity() {
     private var results: RealmResults<RavenMessage>? = null
     private var ravenMessageAdapter: MessageAdapter? = null
     private var listener: OrderedRealmCollectionChangeListener<RealmResults<RavenMessage>>? = null
+
+    private var threadDocEventListener: EventListener<DocumentSnapshot>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,8 +103,6 @@ class ChatActivity : AppCompatActivity() {
         sendImageButton.setOnClickListener {
             ImageFileHandling.openImageIntent(this@ChatActivity)
         }
-
-        loadChatBackground(null, 0.4F)
 
         user = User()
         userManager = UserManager()
@@ -142,6 +148,25 @@ class ChatActivity : AppCompatActivity() {
                             realm.where(RavenMessage::class.java).equalTo("messageId", messageId).findAll().deleteAllFromRealm()
                         }
                     }
+                }
+            }
+        }
+
+        loadChatBackground(null, 0.4F)
+        threadDocEventListener = EventListener { doc, _ ->
+
+            if (doc != null && doc.exists()) {
+                try {
+                    val docData = doc.data?.get("backgroundMetadata") ?: return@EventListener
+                    val backgroundMetadata = GsonUtils.fromGson(GsonUtils.toGson(docData), JsonObject::class.java)
+                    val fileRef = backgroundMetadata.getAsJsonPrimitive("fileRef").asString
+                    val alpha = backgroundMetadata.getAsJsonPrimitive("opacity").asFloat
+
+                    FirebaseStorageUtil().getDownloadUrl(this@ChatActivity, fileRef) {
+                        loadChatBackground(it, alpha)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
             }
         }
@@ -223,6 +248,7 @@ class ChatActivity : AppCompatActivity() {
 
         userManager?.startUserSyncByUserId(this@ChatActivity, userId, userEventListener)
         threadManager?.startThreadSyncByThreadId(this@ChatActivity, threadId, threadEventListener)
+        threadManager?.startThreadDocSyncByThreadId(this@ChatActivity, threadId, threadDocEventListener)
 
         results?.addChangeListener(listener!!)
     }
@@ -258,6 +284,27 @@ class ChatActivity : AppCompatActivity() {
         ActivityInfo.setActivityInfo(null, null)
 
         results?.removeAllChangeListeners()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+
+        menuInflater.inflate(R.menu.chat_menu, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        when (item.itemId) {
+            R.id.action_change_background -> {
+
+                val intent = Intent(this@ChatActivity, ChatBackgroundGallery::class.java);
+                intent.putExtra("userId", FirebaseAuth.getInstance().uid)
+                intent.putExtra("threadId", threadId)
+
+                startActivity(intent)
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     //TODO -- make this better, this is just a quick fix
@@ -326,12 +373,12 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadChatBackground(uri: String?, alpha: Float) {
+    private fun loadChatBackground(uri: String?, alpha: Float?) {
         val requestOptions = RequestOptions()
         requestOptions.error(R.drawable.artwork_raven)
         requestOptions.placeholder(R.drawable.artwork_raven)
 
-        background.alpha = alpha
+        background.alpha = alpha ?: 1F
 
         GlideUtils.loadChatBackground(this@ChatActivity, uri, requestOptions, background)
     }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/action_change_background"
+        android:orderInCategory="0"
+        android:title="Change Background" />
+
+    <item
+        android:id="@+id/action_other"
+        android:orderInCategory="0"
+        android:title="Other" />
+</menu>

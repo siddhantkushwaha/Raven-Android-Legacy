@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -132,6 +131,14 @@ public class ThreadManager {
         db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).addSnapshotListener(activity, eventListener);
     }
 
+    public void startThreadDocSyncByThreadId(Activity activity, String threadId, EventListener<DocumentSnapshot> eventListener) {
+
+        if (activity == null)
+            return;
+
+        db.collection(THREAD_COLLECTION_NAME).document(threadId).addSnapshotListener(activity, eventListener);
+    }
+
     public void startSyncThreadIndexByUserId(Activity activity, String userId, EventListener<QuerySnapshot> eventListener) {
 
         if (activity == null)
@@ -173,5 +180,14 @@ public class ThreadManager {
         message.setText(decryptedMessage);
 
         return message;
+    }
+
+    public void changeThreadBackground(@NonNull String fileRef, @NonNull Float opacity, @NonNull String threadId, @NonNull String userId, OnCompleteListener<Void> onCompleteListener) {
+
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("backgroundMetadata.fileRef", fileRef);
+        map.put("backgroundMetadata.opacity", opacity);
+        map.put("backgroundMetadata.changedByUserId", userId);
+        db.collection(THREAD_COLLECTION_NAME).document(threadId).update(map).addOnCompleteListener(onCompleteListener);
     }
 }
