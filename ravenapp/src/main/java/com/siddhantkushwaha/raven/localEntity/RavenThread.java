@@ -1,5 +1,7 @@
 package com.siddhantkushwaha.raven.localEntity;
 
+import android.os.Bundle;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -14,6 +16,9 @@ public class RavenThread extends RealmObject {
     private RavenMessage lastMessage;
 
     private Boolean isRead;
+
+    private String backgroundFileUrl;
+    private Float backgroundOpacity;
 
     public RavenThread() {
 
@@ -57,5 +62,21 @@ public class RavenThread extends RealmObject {
 
     public Boolean getRead() {
         return isRead;
+    }
+
+    public String getBackgroundFileUrl() {
+        return backgroundFileUrl;
+    }
+
+    public void setBackgroundFileUrl(String backgroundFileUrl) {
+        this.backgroundFileUrl = backgroundFileUrl;
+    }
+
+    public Float getBackgroundOpacity() {
+        return backgroundOpacity;
+    }
+
+    public void setBackgroundOpacity(Float backgroundOpacity) {
+        this.backgroundOpacity = backgroundOpacity;
     }
 }

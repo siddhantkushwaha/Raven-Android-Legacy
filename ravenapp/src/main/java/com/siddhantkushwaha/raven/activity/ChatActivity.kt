@@ -81,6 +81,8 @@ class ChatActivity : AppCompatActivity() {
             finish()
         }
 
+        loadBackGround()
+
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -152,7 +154,6 @@ class ChatActivity : AppCompatActivity() {
             }
         }
 
-        loadChatBackground(null, 0.4F)
         threadDocEventListener = EventListener { doc, _ ->
 
             if (doc != null && doc.exists()) {
@@ -163,7 +164,20 @@ class ChatActivity : AppCompatActivity() {
                     val alpha = backgroundMetadata.getAsJsonPrimitive("opacity").asFloat
 
                     FirebaseStorageUtil().getDownloadUrl(this@ChatActivity, fileRef) {
-                        loadChatBackground(it, alpha)
+
+                        // this transaction is not async because of loadBackground() after this
+                        realm?.executeTransactionAsync { realmIns ->
+                            val ravenThread = realmIns.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
+                            if (ravenThread != null) {
+                                ravenThread.backgroundFileUrl = it
+                                ravenThread.backgroundOpacity = alpha
+                                realmIns.insertOrUpdate(ravenThread)
+                            }
+
+                            runOnUiThread{
+                                loadBackGround()
+                            }
+                        }
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -238,13 +252,8 @@ class ChatActivity : AppCompatActivity() {
 
         NotificationSender.cancelNotification(this@ChatActivity, threadId, 0)
 
-        realm?.executeTransactionAsync { realmIns ->
-            val ravenThread = realmIns.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
-            if (ravenThread != null) {
-                ravenThread.read = true
-                realmIns.insertOrUpdate(ravenThread)
-            }
-        }
+        markThreadRead()
+        loadBackGround()
 
         userManager?.startUserSyncByUserId(this@ChatActivity, userId, userEventListener)
         threadManager?.startThreadSyncByThreadId(this@ChatActivity, threadId, threadEventListener)
@@ -373,12 +382,37 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadChatBackground(uri: String?, alpha: Float?) {
+    private fun markThreadRead() {
+
+        realm?.executeTransactionAsync { realmIns ->
+            val ravenThread = realmIns.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
+            if (ravenThread != null) {
+                ravenThread.read = true
+                realmIns.insertOrUpdate(ravenThread)
+            }
+        }
+    }
+
+    private fun loadBackGround() {
+
+        realm?.executeTransactionAsync { realmIns ->
+            val ravenThread = realmIns.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
+
+            val uri = ravenThread?.backgroundFileUrl
+            val opacity = ravenThread?.backgroundOpacity ?: 1F
+            runOnUiThread {
+                loadChatBackground(uri, opacity)
+            }
+        }
+    }
+
+    private fun loadChatBackground(uri: String?, alpha: Float) {
+
+        background.alpha = alpha
+
         val requestOptions = RequestOptions()
         requestOptions.error(R.drawable.artwork_raven)
         requestOptions.placeholder(R.drawable.artwork_raven)
-
-        background.alpha = alpha ?: 1F
 
         GlideUtils.loadChatBackground(this@ChatActivity, uri, requestOptions, background)
     }

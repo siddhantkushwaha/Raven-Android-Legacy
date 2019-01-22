@@ -1,10 +1,8 @@
 package com.siddhantkushwaha.raven.ravenUtility;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.siddhantkushwaha.raven.commonUtility.RealmUtil;
 import com.siddhantkushwaha.raven.localEntity.Pair;
@@ -22,6 +20,7 @@ public class FirebaseStorageUtil {
     public void getDownloadUrl(Context context, String fileRef, OnComplete onComplete) {
 
         Realm realm = RealmUtil.getCustomRealmInstance(context);
+
         realm.executeTransaction(realmIns1 -> {
 
             Pair pair = realmIns1.where(Pair.class).equalTo("ref", fileRef).findFirst();
@@ -32,7 +31,7 @@ public class FirebaseStorageUtil {
 
                     onComplete.onComplete(uri.toString());
 
-                    realm.executeTransaction(realmIns2 -> {
+                    realm.executeTransactionAsync(realmIns2 -> {
 
                         Pair newPair = new Pair();
                         newPair.setRef(fileRef);
