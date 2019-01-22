@@ -69,4 +69,8 @@ public class GlideUtils {
                 .transforms(new CenterCrop(), new RoundedCorners(72))
                 .into(imageView);
     }
+
+    public static void preload(Context context, String uri) {
+        GlideApp.with(context).load(uri).preload();
+    }
 }

@@ -9,18 +9,15 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import com.google.firebase.auth.FirebaseAuth
-
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.commonUtility.DateTimeUtils
-import com.siddhantkushwaha.raven.ravenUtility.GlideUtils
 import com.siddhantkushwaha.raven.localEntity.RavenThread
 import com.siddhantkushwaha.raven.manager.ThreadManager
-
+import com.siddhantkushwaha.raven.ravenUtility.GlideUtils
 import io.realm.OrderedRealmCollection
 import io.realm.RealmBaseAdapter
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
-import java.lang.Exception
 import java.security.GeneralSecurityException
 
 class ThreadAdapter(private val context: Context, private val data: OrderedRealmCollection<RavenThread>) : RealmBaseAdapter<RavenThread>(data) {

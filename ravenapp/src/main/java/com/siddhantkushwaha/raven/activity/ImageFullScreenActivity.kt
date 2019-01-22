@@ -1,23 +1,23 @@
 package com.siddhantkushwaha.raven.activity
 
 import android.graphics.Bitmap
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.widget.EditText
-import com.siddhantkushwaha.raven.R
-import com.siddhantkushwaha.raven.commonUtility.UiUtil
-import com.siddhantkushwaha.raven.ravenUtility.FirebaseStorageUtil
-import kotlinx.android.synthetic.main.activity_image_full_screen.*
-import android.util.Log
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
+import com.siddhantkushwaha.raven.R
+import com.siddhantkushwaha.raven.commonUtility.UiUtil
+import com.siddhantkushwaha.raven.ravenUtility.FirebaseStorageUtil
 import com.siddhantkushwaha.raven.ravenUtility.GlideUtils
+import kotlinx.android.synthetic.main.activity_image_full_screen.*
 
 
 class ImageFullScreenActivity : AppCompatActivity() {

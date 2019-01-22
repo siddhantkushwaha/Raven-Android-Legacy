@@ -234,8 +234,13 @@ class HomeActivity : AppCompatActivity() {
         threadListView.emptyView = emptyView
         threadListView.adapter = ravenThreadAdapter
 
-        listener = OrderedRealmCollectionChangeListener { _, _ ->
+        listener = OrderedRealmCollectionChangeListener { results, _ ->
             ravenThreadAdapter!!.notifyDataSetChanged()
+
+//            results.forEach { rt ->
+//                if (rt.backgroundFileUrl != null)
+//                    GlideUtils.preload(this@HomeActivity, rt.backgroundFileUrl)
+//            }
         }
 
         threadListView.setOnItemClickListener { _, _, position, _ ->

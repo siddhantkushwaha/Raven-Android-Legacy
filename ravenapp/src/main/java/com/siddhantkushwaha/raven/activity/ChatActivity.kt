@@ -81,8 +81,6 @@ class ChatActivity : AppCompatActivity() {
             finish()
         }
 
-        loadBackGround()
-
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -174,7 +172,7 @@ class ChatActivity : AppCompatActivity() {
                                 realmIns.insertOrUpdate(ravenThread)
                             }
 
-                            runOnUiThread{
+                            runOnUiThread {
                                 loadBackGround()
                             }
                         }
