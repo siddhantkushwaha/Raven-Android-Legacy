@@ -1,5 +1,7 @@
 package com.siddhantkushwaha.raven.activity
 
+import android.app.Activity
+import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -30,6 +32,16 @@ import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 
 class ProfileActivity : AppCompatActivity() {
+
+    companion object {
+        fun openActivity(activity: Activity, finish: Boolean) {
+
+            val intent = Intent(activity, ProfileActivity::class.java)
+            activity.startActivity(intent)
+            if (finish)
+                activity.finish()
+        }
+    }
 
     private val tag = ProfileActivity::class.java.toString()
 

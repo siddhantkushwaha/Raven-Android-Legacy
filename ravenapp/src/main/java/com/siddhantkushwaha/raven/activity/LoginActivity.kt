@@ -1,5 +1,6 @@
 package com.siddhantkushwaha.raven.activity
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -21,6 +22,16 @@ import kotlinx.android.synthetic.main.activity_login.*
 import java.util.concurrent.TimeUnit
 
 class LoginActivity : AppCompatActivity() {
+
+    companion object {
+        fun openActivity(activity: Activity, finish: Boolean) {
+
+            val intent = Intent(activity, LoginActivity::class.java)
+            activity.startActivity(intent)
+            if (finish)
+                activity.finish()
+        }
+    }
 
     private val tag = LoginActivity::class.java.toString()
 
@@ -170,11 +181,8 @@ class LoginActivity : AppCompatActivity() {
 
         ActivityInfo.setActivityInfo(this::class.java.toString(), intent.extras)
 
-        if (FirebaseAuth.getInstance().currentUser != null) {
-            val intent = Intent(this@LoginActivity, HomeActivity::class.java)
-            startActivity(intent)
-            finish()
-        }
+        if (FirebaseAuth.getInstance().currentUser != null)
+            HomeActivity.openActivity(this@LoginActivity, true)
     }
 
     override fun onPause() {
@@ -235,10 +243,7 @@ class LoginActivity : AppCompatActivity() {
             if (t.isSuccessful) {
 
                 updateActivityState(activityStateSignInSuccess, 0)
-
-                val intent = Intent(this@LoginActivity, HomeActivity::class.java)
-                startActivity(intent)
-                finish()
+                HomeActivity.openActivity(this@LoginActivity, true)
             } else {
                 Log.e(tag, t.exception.toString())
                 updateActivityState(activityStateSignInFailed, 0)

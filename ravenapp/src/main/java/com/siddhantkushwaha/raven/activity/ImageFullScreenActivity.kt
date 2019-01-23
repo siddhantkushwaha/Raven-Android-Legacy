@@ -1,5 +1,7 @@
 package com.siddhantkushwaha.raven.activity
 
+import android.app.Activity
+import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -21,6 +23,16 @@ import kotlinx.android.synthetic.main.activity_image_full_screen.*
 
 
 class ImageFullScreenActivity : AppCompatActivity() {
+
+    companion object {
+        fun openActivity(activity: Activity, finish: Boolean) {
+
+            val intent = Intent(activity, ImageFullScreenActivity::class.java)
+            activity.startActivity(intent)
+            if (finish)
+                activity.finish()
+        }
+    }
 
     val tag = ImageFullScreenActivity::class.java.toString()
 

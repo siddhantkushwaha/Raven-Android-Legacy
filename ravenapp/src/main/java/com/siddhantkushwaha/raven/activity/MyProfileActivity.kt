@@ -44,6 +44,16 @@ import java.io.File
 
 class MyProfileActivity : AppCompatActivity() {
 
+    companion object {
+        fun openActivity(activity: Activity, finish: Boolean) {
+
+            val intent = Intent(activity, MyProfileActivity::class.java)
+            activity.startActivity(intent)
+            if (finish)
+                activity.finish()
+        }
+    }
+
     private val tag = MyProfileActivity::class.java.toString()
 
     private val pickImage = 1

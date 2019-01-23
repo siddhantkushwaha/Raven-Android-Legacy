@@ -1,5 +1,6 @@
 package com.siddhantkushwaha.raven.activity
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -10,6 +11,16 @@ import kotlinx.android.synthetic.main.activity_chat_background_gallery.*
 import kotlinx.android.synthetic.main.layout_toolbar.*
 
 class ChatBackgroundGallery : AppCompatActivity() {
+
+    companion object {
+        fun openActivity(activity: Activity, finish: Boolean) {
+
+            val intent = Intent(activity, ChatBackgroundGallery::class.java)
+            activity.startActivity(intent)
+            if (finish)
+                activity.finish()
+        }
+    }
 
     private val tag: String = ChatBackgroundGallery::class.java.toString()
 

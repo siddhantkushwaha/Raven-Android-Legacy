@@ -1,5 +1,6 @@
 package com.siddhantkushwaha.raven.activity
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
@@ -10,6 +11,16 @@ import kotlinx.android.synthetic.main.layout_toolbar.*
 import java.lang.Exception
 
 class AboutActivity : AppCompatActivity() {
+
+    companion object {
+        fun openActivity(activity: Activity, finish: Boolean) {
+
+            val intent = Intent(activity, AboutActivity::class.java)
+            activity.startActivity(intent)
+            if (finish)
+                activity.finish()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

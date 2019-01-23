@@ -1,5 +1,7 @@
 package com.siddhantkushwaha.raven.activity
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -15,6 +17,16 @@ import kotlinx.android.synthetic.main.activity_edit_background.*
 import kotlinx.android.synthetic.main.layout_toolbar.*
 
 class EditBackground : AppCompatActivity() {
+
+    companion object {
+        fun openActivity(activity: Activity, finish: Boolean) {
+
+            val intent = Intent(activity, EditBackground::class.java)
+            activity.startActivity(intent)
+            if (finish)
+                activity.finish()
+        }
+    }
 
     var fileRef: String? = null
     var userId: String? = null

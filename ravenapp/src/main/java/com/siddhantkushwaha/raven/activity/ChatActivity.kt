@@ -41,6 +41,16 @@ import kotlin.math.max
 
 class ChatActivity : AppCompatActivity() {
 
+    companion object {
+        fun openActivity(activity: Activity, finish: Boolean) {
+
+            val intent = Intent(activity, ChatActivity::class.java)
+            activity.startActivity(intent)
+            if (finish)
+                activity.finish()
+        }
+    }
+
     private val tag = ChatActivity::class.java.toString()
 
     private var userId: String? = null
