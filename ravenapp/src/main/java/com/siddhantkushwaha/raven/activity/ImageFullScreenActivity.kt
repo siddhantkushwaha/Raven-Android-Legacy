@@ -14,9 +14,9 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import com.siddhantkushwaha.raven.R
-import com.siddhantkushwaha.raven.commonUtility.UiUtil
-import com.siddhantkushwaha.raven.ravenUtility.FirebaseStorageUtil
-import com.siddhantkushwaha.raven.ravenUtility.GlideUtils
+import com.siddhantkushwaha.raven.common.utility.UiUtil
+import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil
+import com.siddhantkushwaha.raven.utility.GlideUtils
 import kotlinx.android.synthetic.main.activity_image_full_screen.*
 
 

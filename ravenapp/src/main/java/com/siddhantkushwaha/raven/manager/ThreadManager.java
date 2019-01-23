@@ -22,8 +22,8 @@ import com.google.firebase.storage.UploadTask;
 import com.siddhantkushwaha.raven.custom.AESNygma;
 import com.siddhantkushwaha.raven.entity.Message;
 import com.siddhantkushwaha.raven.entity.ThreadIndex;
-import com.siddhantkushwaha.raven.ravenUtility.FirebaseStorageUtil;
-import com.siddhantkushwaha.raven.ravenUtility.FirebaseUtils;
+import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil;
+import com.siddhantkushwaha.raven.utility.FirebaseUtils;
 
 import java.security.GeneralSecurityException;
 import java.util.HashMap;

@@ -13,12 +13,12 @@ import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.siddhantkushwaha.raven.commonUtility.ContactsUtil;
-import com.siddhantkushwaha.raven.commonUtility.RealmUtil;
+import com.siddhantkushwaha.raven.common.utility.ContactsUtil;
+import com.siddhantkushwaha.raven.common.utility.RealmUtil;
 import com.siddhantkushwaha.raven.entity.User;
 import com.siddhantkushwaha.raven.localEntity.RavenUser;
 import com.siddhantkushwaha.raven.manager.UserManager;
-import com.siddhantkushwaha.raven.ravenUtility.CurrentFirebaseUser;
+import com.siddhantkushwaha.raven.utility.CurrentFirebaseUser;
 
 import java.util.HashMap;
 import java.util.Map;

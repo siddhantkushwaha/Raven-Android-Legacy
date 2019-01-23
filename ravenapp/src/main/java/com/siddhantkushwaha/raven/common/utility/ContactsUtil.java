@@ -1,4 +1,4 @@
-package com.siddhantkushwaha.raven.commonUtility;
+package com.siddhantkushwaha.raven.common.utility;
 
 import android.Manifest;
 import android.app.Activity;
@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.provider.ContactsContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 
 import java.util.HashMap;
 

@@ -1,4 +1,4 @@
-package com.siddhantkushwaha.raven.commonUtility;
+package com.siddhantkushwaha.raven.common;
 
 import android.content.Context;
 import android.support.annotation.NonNull;

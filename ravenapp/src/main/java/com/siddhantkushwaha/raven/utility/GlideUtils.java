@@ -1,4 +1,4 @@
-package com.siddhantkushwaha.raven.ravenUtility;
+package com.siddhantkushwaha.raven.utility;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -10,7 +10,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.siddhantkushwaha.raven.R;
-import com.siddhantkushwaha.raven.commonUtility.GlideApp;
+import com.siddhantkushwaha.raven.common.GlideApp;
 
 public class GlideUtils {
 
@@ -71,6 +71,7 @@ public class GlideUtils {
     }
 
     public static void preload(Context context, String uri) {
+
         GlideApp.with(context).load(uri).preload();
     }
 }

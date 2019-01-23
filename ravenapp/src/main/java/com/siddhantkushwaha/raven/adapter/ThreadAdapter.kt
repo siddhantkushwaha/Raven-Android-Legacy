@@ -10,10 +10,10 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.google.firebase.auth.FirebaseAuth
 import com.siddhantkushwaha.raven.R
-import com.siddhantkushwaha.raven.commonUtility.DateTimeUtils
+import com.siddhantkushwaha.raven.common.utility.DateTimeUtils
 import com.siddhantkushwaha.raven.localEntity.RavenThread
 import com.siddhantkushwaha.raven.manager.ThreadManager
-import com.siddhantkushwaha.raven.ravenUtility.GlideUtils
+import com.siddhantkushwaha.raven.utility.GlideUtils
 import io.realm.OrderedRealmCollection
 import io.realm.RealmBaseAdapter
 import org.joda.time.DateTime

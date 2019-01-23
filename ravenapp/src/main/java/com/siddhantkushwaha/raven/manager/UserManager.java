@@ -2,11 +2,8 @@ package com.siddhantkushwaha.raven.manager;
 
 import android.app.Activity;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -18,15 +15,10 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.siddhantkushwaha.raven.ravenUtility.FirebaseUtils;
-
-import org.jetbrains.annotations.NotNull;
+import com.siddhantkushwaha.raven.utility.FirebaseUtils;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import kotlin.Unit;
-import kotlin.jvm.functions.Function0;
 
 public class UserManager {
 

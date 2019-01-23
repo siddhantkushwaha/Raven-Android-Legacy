@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.adapter.ChatBackgroundGalleryAdapter
-import com.siddhantkushwaha.raven.ravenUtility.FirebaseUtils
+import com.siddhantkushwaha.raven.utility.FirebaseUtils
 import kotlinx.android.synthetic.main.activity_chat_background_gallery.*
 import kotlinx.android.synthetic.main.layout_toolbar.*
 

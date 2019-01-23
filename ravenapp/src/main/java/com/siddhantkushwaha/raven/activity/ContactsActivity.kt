@@ -7,10 +7,10 @@ import android.support.v7.widget.SearchView
 import android.util.Log
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.adapter.ContactAdapter
-import com.siddhantkushwaha.raven.commonUtility.ActivityInfo
-import com.siddhantkushwaha.raven.commonUtility.Alerts
-import com.siddhantkushwaha.raven.commonUtility.ContactsUtil
-import com.siddhantkushwaha.raven.commonUtility.RealmUtil
+import com.siddhantkushwaha.raven.common.utility.ActivityInfo
+import com.siddhantkushwaha.raven.common.utility.Alerts
+import com.siddhantkushwaha.raven.common.utility.ContactsUtil
+import com.siddhantkushwaha.raven.common.utility.RealmUtil
 import com.siddhantkushwaha.raven.localEntity.RavenUser
 import com.siddhantkushwaha.raven.syncAdapter.SyncAdapter
 import io.realm.OrderedRealmCollectionChangeListener

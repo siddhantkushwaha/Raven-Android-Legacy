@@ -9,8 +9,8 @@ import android.widget.BaseAdapter;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.request.RequestOptions;
 import com.siddhantkushwaha.raven.R;
-import com.siddhantkushwaha.raven.ravenUtility.FirebaseStorageUtil;
-import com.siddhantkushwaha.raven.ravenUtility.GlideUtils;
+import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil;
+import com.siddhantkushwaha.raven.utility.GlideUtils;
 
 import java.util.ArrayList;
 

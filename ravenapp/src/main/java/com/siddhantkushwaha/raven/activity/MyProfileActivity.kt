@@ -14,7 +14,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
 import com.siddhantkushwaha.raven.R
-import com.siddhantkushwaha.raven.ravenUtility.GlideUtils
+import com.siddhantkushwaha.raven.utility.GlideUtils
 import com.siddhantkushwaha.raven.entity.User
 import com.siddhantkushwaha.raven.manager.UserManager
 import kotlinx.android.synthetic.main.activity_my_profile.*
@@ -33,9 +33,9 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.storage.FirebaseStorage
-import com.siddhantkushwaha.raven.commonUtility.ActivityInfo
-import com.siddhantkushwaha.raven.commonUtility.Alerts
-import com.siddhantkushwaha.raven.commonUtility.DateTimeUtils
+import com.siddhantkushwaha.raven.common.utility.ActivityInfo
+import com.siddhantkushwaha.raven.common.utility.Alerts
+import com.siddhantkushwaha.raven.common.utility.DateTimeUtils
 import com.siddhantkushwaha.raven.utilityActivity.activityRemoveDisplayPicture
 import com.yalantis.ucrop.UCrop
 import kotlinx.android.synthetic.main.layout_toolbar.*

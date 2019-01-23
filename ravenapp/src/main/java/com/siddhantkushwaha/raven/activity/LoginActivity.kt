@@ -14,8 +14,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthProvider
 import com.siddhantkushwaha.raven.R
-import com.siddhantkushwaha.raven.commonUtility.ActivityInfo
-import com.siddhantkushwaha.raven.commonUtility.Alerts
+import com.siddhantkushwaha.raven.common.utility.ActivityInfo
+import com.siddhantkushwaha.raven.common.utility.Alerts
 import io.fabric.sdk.android.Fabric
 import kotlinx.android.synthetic.main.activity_login.*
 import java.util.concurrent.TimeUnit

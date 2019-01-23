@@ -1,4 +1,4 @@
-package com.siddhantkushwaha.raven.ravenUtility;
+package com.siddhantkushwaha.raven.utility;
 
 public class FirebasePath {
 

@@ -1,4 +1,4 @@
-package com.siddhantkushwaha.raven.commonUtility;
+package com.siddhantkushwaha.raven.common.utility;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;

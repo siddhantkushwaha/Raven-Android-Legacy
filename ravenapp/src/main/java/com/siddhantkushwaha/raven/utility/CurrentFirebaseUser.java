@@ -1,4 +1,4 @@
-package com.siddhantkushwaha.raven.ravenUtility;
+package com.siddhantkushwaha.raven.utility;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;

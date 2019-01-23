@@ -1,6 +1,6 @@
 package com.siddhantkushwaha.raven.localEntity;
 
-import com.siddhantkushwaha.raven.commonUtility.DateTimeUtils;
+import com.siddhantkushwaha.raven.common.utility.DateTimeUtils;
 import com.siddhantkushwaha.raven.entity.Message;
 
 import org.joda.time.DateTime;

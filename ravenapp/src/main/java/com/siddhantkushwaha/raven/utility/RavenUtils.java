@@ -1,4 +1,4 @@
-package com.siddhantkushwaha.raven.ravenUtility;
+package com.siddhantkushwaha.raven.utility;
 
 import java.util.ArrayList;
 import java.util.Collections;

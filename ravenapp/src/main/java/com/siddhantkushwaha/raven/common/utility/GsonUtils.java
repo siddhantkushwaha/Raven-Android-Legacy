@@ -1,4 +1,4 @@
-package com.siddhantkushwaha.raven.commonUtility;
+package com.siddhantkushwaha.raven.common.utility;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

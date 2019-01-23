@@ -17,8 +17,8 @@ import com.google.firebase.firestore.EventListener
 import com.google.firebase.messaging.FirebaseMessaging
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.adapter.ThreadAdapter
-import com.siddhantkushwaha.raven.commonUtility.ActivityInfo
-import com.siddhantkushwaha.raven.commonUtility.RealmUtil
+import com.siddhantkushwaha.raven.common.utility.ActivityInfo
+import com.siddhantkushwaha.raven.common.utility.RealmUtil
 import com.siddhantkushwaha.raven.entity.Message
 import com.siddhantkushwaha.raven.entity.ThreadIndex
 import com.siddhantkushwaha.raven.entity.User
@@ -27,7 +27,7 @@ import com.siddhantkushwaha.raven.localEntity.RavenThread
 import com.siddhantkushwaha.raven.localEntity.RavenUser
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.manager.UserManager
-import com.siddhantkushwaha.raven.ravenUtility.GlideUtils
+import com.siddhantkushwaha.raven.utility.GlideUtils
 import io.realm.OrderedRealmCollectionChangeListener
 import io.realm.Realm
 import io.realm.RealmResults
@@ -236,14 +236,12 @@ class HomeActivity : AppCompatActivity() {
 
         listener = OrderedRealmCollectionChangeListener { results, _ ->
             ravenThreadAdapter!!.notifyDataSetChanged()
-
-//            results.forEach { rt ->
-//                if (rt.backgroundFileUrl != null)
-//                    GlideUtils.preload(this@HomeActivity, rt.backgroundFileUrl)
-//            }
         }
 
         threadListView.setOnItemClickListener { _, _, position, _ ->
+
+            //TODO not sure if this brings in any improvements
+            GlideUtils.preload(this@HomeActivity, ravenThreadAdapter?.getItem(position)?.backgroundFileUrl)
 
             val intent = Intent(this@HomeActivity, ChatActivity::class.java)
             intent.putExtra(getString(R.string.key_user_id), ravenThreadAdapter?.getItem(position)?.user?.userId)

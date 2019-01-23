@@ -11,9 +11,7 @@ import android.util.Log;
 import com.google.firebase.Timestamp;
 import com.siddhantkushwaha.raven.entity.Message;
 import com.siddhantkushwaha.raven.manager.ThreadManager;
-import com.siddhantkushwaha.raven.ravenUtility.CurrentFirebaseUser;
-
-import org.joda.time.DateTime;
+import com.siddhantkushwaha.raven.utility.CurrentFirebaseUser;
 
 public class NotificationReceiver extends BroadcastReceiver {
 

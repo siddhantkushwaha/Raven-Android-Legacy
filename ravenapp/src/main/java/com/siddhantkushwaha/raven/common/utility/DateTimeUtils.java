@@ -1,4 +1,4 @@
-package com.siddhantkushwaha.raven.commonUtility;
+package com.siddhantkushwaha.raven.common.utility;
 
 import android.util.Log;
 
@@ -6,8 +6,6 @@ import com.google.firebase.Timestamp;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-
-import java.util.Date;
 
 
 public class DateTimeUtils {

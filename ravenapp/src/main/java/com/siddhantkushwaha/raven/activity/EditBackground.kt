@@ -9,8 +9,8 @@ import android.widget.SeekBar
 import com.bumptech.glide.request.RequestOptions
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.manager.ThreadManager
-import com.siddhantkushwaha.raven.ravenUtility.FirebaseStorageUtil
-import com.siddhantkushwaha.raven.ravenUtility.GlideUtils
+import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil
+import com.siddhantkushwaha.raven.utility.GlideUtils
 import kotlinx.android.synthetic.main.activity_edit_background.*
 import kotlinx.android.synthetic.main.layout_toolbar.*
 
