@@ -24,7 +24,6 @@ import java.util.concurrent.TimeUnit
 class LoginActivity : AppCompatActivity() {
 
     companion object {
-        data class IntentData(val dummy: String)
         fun openActivity(activity: Activity, finish: Boolean) {
 
             val intent = Intent(activity, LoginActivity::class.java)
@@ -183,7 +182,7 @@ class LoginActivity : AppCompatActivity() {
         ActivityInfo.setActivityInfo(this::class.java.toString(), intent.extras)
 
         if (FirebaseAuth.getInstance().currentUser != null)
-            HomeActivity.openActivity(this@LoginActivity, true, HomeActivity.Companion.IntentData(""))
+            HomeActivity.openActivity(this@LoginActivity, true)
     }
 
     override fun onPause() {
@@ -244,7 +243,7 @@ class LoginActivity : AppCompatActivity() {
             if (t.isSuccessful) {
 
                 updateActivityState(activityStateSignInSuccess, 0)
-                HomeActivity.openActivity(this@LoginActivity, true, HomeActivity.Companion.IntentData(""))
+                HomeActivity.openActivity(this@LoginActivity, true)
             } else {
                 Log.e(tag, t.exception.toString())
                 updateActivityState(activityStateSignInFailed, 0)

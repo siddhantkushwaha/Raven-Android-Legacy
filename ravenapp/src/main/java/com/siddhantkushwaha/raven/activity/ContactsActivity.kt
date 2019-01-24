@@ -25,20 +25,12 @@ import kotlinx.android.synthetic.main.activity_contacts.*
 class ContactsActivity : AppCompatActivity() {
 
     companion object {
-        data class IntentData(val dummy: String)
-        fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
+        fun openActivity(activity: Activity, finish: Boolean) {
 
             val intent = Intent(activity, ContactsActivity::class.java)
-            intent.putExtra("dummy", intentData.dummy)
             activity.startActivity(intent)
             if (finish)
                 activity.finish()
-        }
-
-        fun getIntentData(activity: Activity): IntentData {
-
-            val intent = activity.intent
-            return IntentData(intent.getStringExtra("dummy"))
         }
     }
 
@@ -54,7 +46,6 @@ class ContactsActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_contacts)
 
-        val intentData = getIntentData(this)
         realm = RealmUtil.getCustomRealmInstance(this)
 
         setSupportActionBar(toolbar)

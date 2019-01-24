@@ -12,20 +12,12 @@ import kotlinx.android.synthetic.main.layout_toolbar.*
 class AboutActivity : AppCompatActivity() {
 
     companion object {
-        data class IntentData(val dummy: String)
-        fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
+        fun openActivity(activity: Activity, finish: Boolean) {
 
             val intent = Intent(activity, AboutActivity::class.java)
-            intent.putExtra("dummy", intentData.dummy)
             activity.startActivity(intent)
             if (finish)
                 activity.finish()
-        }
-
-        fun getIntentData(activity: Activity): IntentData {
-
-            val intent = activity.intent
-            return IntentData(intent.getStringExtra("dummy"))
         }
     }
 
@@ -33,8 +25,6 @@ class AboutActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R
                 .layout.activity_about)
-
-        val intentData = getIntentData(this)
 
         setSupportActionBar(toolbar)
         toolbar.title = "About"

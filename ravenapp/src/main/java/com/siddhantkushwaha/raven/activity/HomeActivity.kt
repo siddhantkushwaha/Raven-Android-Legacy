@@ -41,20 +41,12 @@ import java.util.*
 class HomeActivity : AppCompatActivity() {
 
     companion object {
-        data class IntentData(val dummy: String)
-        fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
+        fun openActivity(activity: Activity, finish: Boolean) {
 
             val intent = Intent(activity, HomeActivity::class.java)
-            intent.putExtra("dummy", intentData.dummy)
             activity.startActivity(intent)
             if (finish)
                 activity.finish()
-        }
-
-        fun getIntentData(activity: Activity): IntentData {
-
-            val intent = activity.intent
-            return IntentData(intent.getStringExtra("dummy"))
         }
     }
 
@@ -88,7 +80,6 @@ class HomeActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_home)
 
-        val intentData = getIntentData(this)
         realm = RealmUtil.getCustomRealmInstance(this)
 
         setSupportActionBar(toolbar)
@@ -116,7 +107,7 @@ class HomeActivity : AppCompatActivity() {
         }
 
         contacts.setOnClickListener {
-            ContactsActivity.openActivity(this@HomeActivity, false, ContactsActivity.Companion.IntentData(""))
+            ContactsActivity.openActivity(this@HomeActivity, false)
         }
 
         userThreadHashMap = HashMap()
@@ -352,7 +343,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun actionMyProfile() {
-        MyProfileActivity.openActivity(this@HomeActivity, false, MyProfileActivity.Companion.IntentData(""))
+        MyProfileActivity.openActivity(this@HomeActivity, false)
     }
 
     private fun actionLogout() {
@@ -367,7 +358,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun actionAbout() {
-        AboutActivity.openActivity(this@HomeActivity, false, AboutActivity.Companion.IntentData(""))
+        AboutActivity.openActivity(this@HomeActivity, false)
     }
 
     private fun updateProfileUi() {
