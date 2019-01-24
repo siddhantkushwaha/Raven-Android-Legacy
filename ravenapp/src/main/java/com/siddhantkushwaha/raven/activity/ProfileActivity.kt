@@ -37,7 +37,7 @@ class ProfileActivity : AppCompatActivity() {
         data class IntentData(val userId: String)
         fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
 
-            val intent = Intent(activity, ImageFullScreenActivity::class.java)
+            val intent = Intent(activity, ProfileActivity::class.java)
             intent.putExtra("userId", intentData.userId)
             activity.startActivity(intent)
             if (finish)

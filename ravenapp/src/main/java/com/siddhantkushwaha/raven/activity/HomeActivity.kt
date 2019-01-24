@@ -44,7 +44,7 @@ class HomeActivity : AppCompatActivity() {
         data class IntentData(val dummy: String)
         fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
 
-            val intent = Intent(activity, AboutActivity::class.java)
+            val intent = Intent(activity, HomeActivity::class.java)
             intent.putExtra("dummy", intentData.dummy)
             activity.startActivity(intent)
             if (finish)
@@ -363,7 +363,7 @@ class HomeActivity : AppCompatActivity() {
         // RealmUtil.clearData(this@HomeActivity)
 
         FirebaseAuth.getInstance().signOut()
-        LoginActivity.openActivity(this@HomeActivity, true, LoginActivity.Companion.IntentData(""))
+        LoginActivity.openActivity(this@HomeActivity, true)
     }
 
     private fun actionAbout() {

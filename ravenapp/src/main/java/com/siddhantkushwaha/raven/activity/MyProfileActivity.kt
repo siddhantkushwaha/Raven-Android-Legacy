@@ -48,7 +48,7 @@ class MyProfileActivity : AppCompatActivity() {
         data class IntentData(val dummy: String)
         fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
 
-            val intent = Intent(activity, AboutActivity::class.java)
+            val intent = Intent(activity, MyProfileActivity::class.java)
             intent.putExtra("dummy", intentData.dummy)
             activity.startActivity(intent)
             if (finish)

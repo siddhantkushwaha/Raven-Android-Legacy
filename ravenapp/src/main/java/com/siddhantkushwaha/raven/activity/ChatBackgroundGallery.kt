@@ -17,7 +17,7 @@ class ChatBackgroundGallery : AppCompatActivity() {
 
         fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
 
-            val intent = Intent(activity, ChatActivity::class.java)
+            val intent = Intent(activity, ChatBackgroundGallery::class.java)
             intent.putExtra("userId", intentData.userId)
             intent.putExtra("threadId", intentData.threadId)
             activity.startActivity(intent)
