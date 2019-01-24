@@ -76,4 +76,18 @@ class ChatBackgroundGallery : AppCompatActivity() {
                 }
 
     }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+
+        // val intentData = getIntentData(this)
+        // ChatActivity.openActivity(this, true, ChatActivity.Companion.IntentData(intentData.userId, intentData.threadId))
+
+        onBackPressed()
+
+        return super.onSupportNavigateUp()
+    }
 }

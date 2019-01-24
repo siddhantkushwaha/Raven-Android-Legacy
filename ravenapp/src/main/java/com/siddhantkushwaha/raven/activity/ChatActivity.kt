@@ -31,6 +31,7 @@ import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.manager.UserManager
 import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil
 import com.siddhantkushwaha.raven.utility.GlideUtils
+import com.siddhantkushwaha.raven.utility.RavenUtils
 import com.yalantis.ucrop.UCrop
 import io.realm.OrderedRealmCollectionChangeListener
 import io.realm.Realm
@@ -42,12 +43,13 @@ import kotlin.math.max
 class ChatActivity : AppCompatActivity() {
 
     companion object {
-        data class IntentData(val userId: String, val threadId: String)
+        // data class IntentData(val userId: String, val threadId: String)
+        data class IntentData(val threadId: String)
 
         @JvmStatic fun getIntent(context: Context, intentData: IntentData): Intent {
 
             val intent = Intent(context, ChatActivity::class.java)
-            intent.putExtra("userId", intentData.userId)
+            // intent.putExtra("userId", intentData.userId)
             intent.putExtra("threadId", intentData.threadId)
 
             return intent
@@ -64,8 +66,7 @@ class ChatActivity : AppCompatActivity() {
         @JvmStatic fun getIntentData(activity: Activity): IntentData {
 
             val intent = activity.intent
-            return IntentData(intent.getStringExtra("userId"),
-                    intent.getStringExtra("threadId"))
+            return IntentData(intent.getStringExtra("threadId"))
         }
     }
 
@@ -100,8 +101,8 @@ class ChatActivity : AppCompatActivity() {
         val intentData = getIntentData(this)
         realm = RealmUtil.getCustomRealmInstance(this)
 
-        userId = intentData.userId
         threadId = intentData.threadId
+        userId = RavenUtils.getUserId(threadId!!, FirebaseAuth.getInstance().uid!!)
 
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

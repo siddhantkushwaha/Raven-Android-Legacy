@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.SeekBar
+import android.widget.Toast
 import com.bumptech.glide.request.RequestOptions
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.manager.ThreadManager
@@ -89,6 +90,20 @@ class EditBackground : AppCompatActivity() {
         })
     }
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+
+        // val intentData = getIntentData(this)
+        // ChatBackgroundGallery.openActivity(this, true, ChatBackgroundGallery.Companion.IntentData(intentData.userId, intentData.threadId))
+
+        onBackPressed()
+
+        return super.onNavigateUp()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_accept, menu)
         return super.onCreateOptionsMenu(menu)
@@ -97,9 +112,14 @@ class EditBackground : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         when (item.itemId) {
-            R.id.action_accept -> {
+            R.id.action_accept -> ThreadManager().changeThreadBackground(fileRef!!, alpha, threadId!!, userId!!) {
+                if (it.isSuccessful) {
 
-                ThreadManager().changeThreadBackground(fileRef!!, alpha, threadId!!, userId!!, null)
+                    Toast.makeText(this, "Background updated.", Toast.LENGTH_SHORT).show()
+
+                    val intentData = getIntentData(this)
+                    ChatActivity.openActivity(this, true, ChatActivity.Companion.IntentData(intentData.threadId))
+                }
             }
         }
         return super.onOptionsItemSelected(item)

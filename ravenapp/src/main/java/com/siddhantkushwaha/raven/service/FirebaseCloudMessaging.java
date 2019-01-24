@@ -80,7 +80,7 @@ public class FirebaseCloudMessaging extends FirebaseMessagingService {
         Random rand = new Random();
         int requestCode = rand.nextInt(1000000);
 
-        Intent intent = ChatActivity.getIntent(this, new ChatActivity.Companion.IntentData(messageObject.getSentByUserId(), threadId));
+        Intent intent = ChatActivity.getIntent(this, new ChatActivity.Companion.IntentData(threadId));
         NotificationSender notificationSender = new NotificationSender(FirebaseCloudMessaging.this, threadId, requestCode, title, messageObject.getText(), intent);
         notificationSender.sendNotificationWithReplyAction(messageObject.getSentByUserId(), threadId, "REPLY");
     }

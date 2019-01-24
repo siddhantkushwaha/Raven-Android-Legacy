@@ -1,5 +1,7 @@
 package com.siddhantkushwaha.raven.utility;
 
+import android.support.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -24,5 +26,10 @@ public class RavenUtils {
             }
         });
         return userIds.get(0) + userIds.get(1);
+    }
+
+    public static String getUserId(@NonNull String threadId, @NonNull String userId) {
+
+        return threadId.replace(userId, "");
     }
 }

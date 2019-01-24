@@ -255,9 +255,7 @@ class HomeActivity : AppCompatActivity() {
             GlideUtils.preload(this@HomeActivity, ravenThreadAdapter?.getItem(position)?.backgroundFileUrl)
 
             ChatActivity.openActivity(this@HomeActivity, false,
-                    ChatActivity.Companion.IntentData(
-                            ravenThreadAdapter?.getItem(position)?.user?.userId!!,
-                            ravenThreadAdapter?.getItem(position)?.threadId!!))
+                    ChatActivity.Companion.IntentData(ravenThreadAdapter?.getItem(position)?.threadId!!))
         }
 
         currentUserEventListener = EventListener { snapshot, _ ->

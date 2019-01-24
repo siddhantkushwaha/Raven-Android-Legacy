@@ -114,7 +114,7 @@ class ContactsActivity : AppCompatActivity() {
             val userId = searchAdapter.getItem(position)!!.userId
             val threadId = RavenUtils.getThreadId(FirebaseAuth.getInstance().uid, userId)
             ChatActivity.openActivity(this@ContactsActivity, false,
-                    ChatActivity.Companion.IntentData(userId, threadId))
+                    ChatActivity.Companion.IntentData(threadId))
         }
     }
 
@@ -134,7 +134,7 @@ class ContactsActivity : AppCompatActivity() {
             val userId = ravenContactAdapter?.getItem(position)!!.userId
             val threadId = RavenUtils.getThreadId(FirebaseAuth.getInstance().uid, userId)
             ChatActivity.openActivity(this@ContactsActivity, false,
-                    ChatActivity.Companion.IntentData(userId, threadId))
+                    ChatActivity.Companion.IntentData(threadId))
         }
     }
 }
