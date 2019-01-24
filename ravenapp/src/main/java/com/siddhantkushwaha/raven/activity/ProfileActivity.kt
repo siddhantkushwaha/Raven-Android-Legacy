@@ -34,12 +34,20 @@ import org.joda.time.format.DateTimeFormat
 class ProfileActivity : AppCompatActivity() {
 
     companion object {
-        fun openActivity(activity: Activity, finish: Boolean) {
+        data class IntentData(val userId: String)
+        fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
 
-            val intent = Intent(activity, ProfileActivity::class.java)
+            val intent = Intent(activity, ImageFullScreenActivity::class.java)
+            intent.putExtra("userId", intentData.userId)
             activity.startActivity(intent)
             if (finish)
                 activity.finish()
+        }
+
+        fun getIntentData(activity: Activity): IntentData {
+
+            val intent = activity.intent
+            return IntentData(intent.getStringExtra("userId"))
         }
     }
 

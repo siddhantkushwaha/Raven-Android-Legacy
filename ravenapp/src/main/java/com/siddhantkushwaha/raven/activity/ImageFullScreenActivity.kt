@@ -25,12 +25,20 @@ import kotlinx.android.synthetic.main.activity_image_full_screen.*
 class ImageFullScreenActivity : AppCompatActivity() {
 
     companion object {
-        fun openActivity(activity: Activity, finish: Boolean) {
+        data class IntentData(val fileRef: String)
+        fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
 
             val intent = Intent(activity, ImageFullScreenActivity::class.java)
+            intent.putExtra("fileRef", intentData.fileRef)
             activity.startActivity(intent)
             if (finish)
                 activity.finish()
+        }
+
+        fun getIntentData(activity: Activity): IntentData {
+
+            val intent = activity.intent
+            return IntentData(intent.getStringExtra("fileRef"))
         }
     }
 

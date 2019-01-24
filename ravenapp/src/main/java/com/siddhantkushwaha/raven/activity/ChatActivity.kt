@@ -42,12 +42,22 @@ import kotlin.math.max
 class ChatActivity : AppCompatActivity() {
 
     companion object {
-        fun openActivity(activity: Activity, finish: Boolean) {
+        data class IntentData(val userId: String, val threadId: String)
+        fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
 
             val intent = Intent(activity, ChatActivity::class.java)
+            intent.putExtra("userId", intentData.userId)
+            intent.putExtra("threadId", intentData.threadId)
             activity.startActivity(intent)
             if (finish)
                 activity.finish()
+        }
+
+        fun getIntentData(activity: Activity): IntentData {
+
+            val intent = activity.intent
+            return IntentData(intent.getStringExtra("userId"),
+                    intent.getStringExtra("threadId"))
         }
     }
 

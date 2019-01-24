@@ -19,12 +19,38 @@ import kotlinx.android.synthetic.main.layout_toolbar.*
 class EditBackground : AppCompatActivity() {
 
     companion object {
-        fun openActivity(activity: Activity, finish: Boolean) {
+        data class IntentData(val fileRef: String, val userId: String, val threadId: String, val contributedBy: String)
+//        fun openActivity(activity: Activity, finish: Boolean, fileRef: String, userId: String, threadId: String, contributedBy: String) {
+//
+//            val intent = Intent(activity, EditBackground::class.java)
+//            intent.putExtra("fileRef", fileRef)
+//            intent.putExtra("userId", userId)
+//            intent.putExtra("threadId", threadId)
+//            intent.putExtra("contributedBy", contributedBy)
+//            activity.startActivity(intent)
+//            if (finish)
+//                activity.finish()
+//        }
+
+        fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
 
             val intent = Intent(activity, EditBackground::class.java)
+            intent.putExtra("fileRef", intentData.fileRef)
+            intent.putExtra("userId", intentData.userId)
+            intent.putExtra("threadId", intentData.threadId)
+            intent.putExtra("contributedBy", intentData.contributedBy)
             activity.startActivity(intent)
             if (finish)
                 activity.finish()
+        }
+
+        fun getIntentData(activity: Activity): IntentData {
+
+            val intent = activity.intent
+            return IntentData(intent.getStringExtra("fileRef"),
+                    intent.getStringExtra("userId"),
+                    intent.getStringExtra("threadId"),
+                    intent.getStringExtra("contributedBy"))
         }
     }
 
