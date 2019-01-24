@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.SearchView
 import android.util.Log
+import com.google.firebase.auth.FirebaseAuth
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.adapter.ContactAdapter
 import com.siddhantkushwaha.raven.common.utility.ActivityInfo
@@ -14,6 +15,7 @@ import com.siddhantkushwaha.raven.common.utility.ContactsUtil
 import com.siddhantkushwaha.raven.common.utility.RealmUtil
 import com.siddhantkushwaha.raven.localEntity.RavenUser
 import com.siddhantkushwaha.raven.syncAdapter.SyncAdapter
+import com.siddhantkushwaha.raven.utility.RavenUtils
 import io.realm.OrderedRealmCollectionChangeListener
 import io.realm.Realm
 import io.realm.RealmResults
@@ -23,12 +25,20 @@ import kotlinx.android.synthetic.main.activity_contacts.*
 class ContactsActivity : AppCompatActivity() {
 
     companion object {
-        fun openActivity(activity: Activity, finish: Boolean) {
+        data class IntentData(val dummy: String)
+        fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
 
-            val intent = Intent(activity, ContactsActivity::class.java)
+            val intent = Intent(activity, AboutActivity::class.java)
+            intent.putExtra("dummy", intentData.dummy)
             activity.startActivity(intent)
             if (finish)
                 activity.finish()
+        }
+
+        fun getIntentData(activity: Activity): IntentData {
+
+            val intent = activity.intent
+            return IntentData(intent.getStringExtra("dummy"))
         }
     }
 
@@ -44,7 +54,8 @@ class ContactsActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_contacts)
 
-        realm = RealmUtil.getCustomRealmInstance(this@ContactsActivity)
+        val intentData = getIntentData(this)
+        realm = RealmUtil.getCustomRealmInstance(this)
 
         setSupportActionBar(toolbar)
 
@@ -99,14 +110,6 @@ class ContactsActivity : AppCompatActivity() {
         results?.removeAllChangeListeners()
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
-        super.onSaveInstanceState(outState)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
-        super.onRestoreInstanceState(savedInstanceState)
-    }
-
     private fun filter(query: String) {
 
         Log.i(tag, "Searching for $query")
@@ -116,9 +119,11 @@ class ContactsActivity : AppCompatActivity() {
 
         userListView.adapter = searchAdapter
         userListView.setOnItemClickListener { _, _, position, _ ->
-            val intent = Intent(this@ContactsActivity, ChatActivity::class.java)
-            intent.putExtra(getString(R.string.key_user_id), searchAdapter.getItem(position)!!.userId)
-            startActivity(intent)
+
+            val userId = searchAdapter.getItem(position)!!.userId
+            val threadId = RavenUtils.getThreadId(FirebaseAuth.getInstance().uid, userId)
+            ChatActivity.openActivity(this@ContactsActivity, false,
+                    ChatActivity.Companion.IntentData(userId, threadId))
         }
     }
 
@@ -134,9 +139,11 @@ class ContactsActivity : AppCompatActivity() {
     private fun setDefaultResults() {
         userListView.adapter = ravenContactAdapter
         userListView.setOnItemClickListener { _, _, position, _ ->
-            val intent = Intent(this@ContactsActivity, ChatActivity::class.java)
-            intent.putExtra(getString(R.string.key_user_id), ravenContactAdapter?.getItem(position)!!.userId)
-            startActivity(intent)
+
+            val userId = ravenContactAdapter?.getItem(position)!!.userId
+            val threadId = RavenUtils.getThreadId(FirebaseAuth.getInstance().uid, userId)
+            ChatActivity.openActivity(this@ContactsActivity, false,
+                    ChatActivity.Companion.IntentData(userId, threadId))
         }
     }
 }

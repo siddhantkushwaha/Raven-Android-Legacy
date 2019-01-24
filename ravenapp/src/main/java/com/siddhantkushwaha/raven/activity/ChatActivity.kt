@@ -1,6 +1,7 @@
 package com.siddhantkushwaha.raven.activity
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -30,7 +31,6 @@ import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.manager.UserManager
 import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil
 import com.siddhantkushwaha.raven.utility.GlideUtils
-import com.siddhantkushwaha.raven.utility.RavenUtils
 import com.yalantis.ucrop.UCrop
 import io.realm.OrderedRealmCollectionChangeListener
 import io.realm.Realm
@@ -43,17 +43,25 @@ class ChatActivity : AppCompatActivity() {
 
     companion object {
         data class IntentData(val userId: String, val threadId: String)
-        fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
 
-            val intent = Intent(activity, ChatActivity::class.java)
+        @JvmStatic fun getIntent(context: Context, intentData: IntentData): Intent {
+
+            val intent = Intent(context, ChatActivity::class.java)
             intent.putExtra("userId", intentData.userId)
             intent.putExtra("threadId", intentData.threadId)
+
+            return intent
+        }
+
+        @JvmStatic fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
+
+            val intent = getIntent(activity, intentData)
             activity.startActivity(intent)
             if (finish)
                 activity.finish()
         }
 
-        fun getIntentData(activity: Activity): IntentData {
+        @JvmStatic fun getIntentData(activity: Activity): IntentData {
 
             val intent = activity.intent
             return IntentData(intent.getStringExtra("userId"),
@@ -89,25 +97,17 @@ class ChatActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_chat)
 
-        realm = RealmUtil.getCustomRealmInstance(this@ChatActivity)
+        val intentData = getIntentData(this)
+        realm = RealmUtil.getCustomRealmInstance(this)
 
-        userId = intent.getStringExtra(getString(R.string.key_user_id))
-        if (userId == null || userId.equals(FirebaseAuth.getInstance().uid)) {
-            finish()
-        }
-
-        threadId = RavenUtils.getThreadId(FirebaseAuth.getInstance().uid, userId)
-        if (threadId == null) {
-            finish()
-        }
+        userId = intentData.userId
+        threadId = intentData.threadId
 
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         userProfileLayout.setOnClickListener {
-            val intent = Intent(this@ChatActivity, ProfileActivity::class.java)
-            intent.putExtra(getString(R.string.key_user_id), userId)
-            startActivity(intent)
+            ProfileActivity.openActivity(this@ChatActivity, false, ProfileActivity.Companion.IntentData(userId!!))
         }
 
         sendButton.setOnClickListener {
@@ -236,11 +236,7 @@ class ChatActivity : AppCompatActivity() {
 
             val ravenMessage = ravenMessageAdapter?.getItem(position)
             val fileRef = ravenMessage?.fileRef ?: return@setOnClickListener
-
-            val intent = Intent(this@ChatActivity, ImageFullScreenActivity::class.java)
-            intent.putExtra("key_file_ref", fileRef)
-            startActivity(intent)
-            Log.i(tag, fileRef)
+            ImageFullScreenActivity.openActivity(this@ChatActivity, false, ImageFullScreenActivity.Companion.IntentData(fileRef))
         }
         ravenMessageAdapter?.setOnLongClickListener { _, position ->
 
@@ -323,12 +319,8 @@ class ChatActivity : AppCompatActivity() {
 
         when (item.itemId) {
             R.id.action_change_background -> {
-
-                val intent = Intent(this@ChatActivity, ChatBackgroundGallery::class.java);
-                intent.putExtra("userId", FirebaseAuth.getInstance().uid)
-                intent.putExtra("threadId", threadId)
-
-                startActivity(intent)
+                ChatBackgroundGallery.openActivity(this@ChatActivity, false,
+                        ChatBackgroundGallery.Companion.IntentData(FirebaseAuth.getInstance().uid!!, threadId!!))
             }
         }
         return super.onOptionsItemSelected(item)
@@ -343,7 +335,7 @@ class ChatActivity : AppCompatActivity() {
 
     private fun updateProfileLayout() {
 
-        nameTextView.text = user?.userProfile?.name ?: user?.phoneNumber ?: getString(R.string.key_user_id)
+        nameTextView.text = user?.userProfile?.name ?: user?.phoneNumber ?: getString(R.string.default_name)
         GlideUtils.loadProfilePhotoCircle(this, imageRelativeLayout, user?.userProfile?.picUrl)
     }
 

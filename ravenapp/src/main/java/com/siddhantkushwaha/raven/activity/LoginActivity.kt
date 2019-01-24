@@ -24,12 +24,20 @@ import java.util.concurrent.TimeUnit
 class LoginActivity : AppCompatActivity() {
 
     companion object {
-        fun openActivity(activity: Activity, finish: Boolean) {
+        data class IntentData(val dummy: String)
+        fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
 
-            val intent = Intent(activity, LoginActivity::class.java)
+            val intent = Intent(activity, AboutActivity::class.java)
+            intent.putExtra("dummy", intentData.dummy)
             activity.startActivity(intent)
             if (finish)
                 activity.finish()
+        }
+
+        fun getIntentData(activity: Activity): IntentData {
+
+            val intent = activity.intent
+            return IntentData(intent.getStringExtra("dummy"))
         }
     }
 
@@ -58,6 +66,8 @@ class LoginActivity : AppCompatActivity() {
         Fabric.with(this@LoginActivity, Crashlytics())
         Crashlytics.setUserIdentifier("NONE")
         Crashlytics.setUserName("NONE")
+
+        val intentData = getIntentData(this)
 
         setContentView(R.layout.activity_login)
 
@@ -182,7 +192,7 @@ class LoginActivity : AppCompatActivity() {
         ActivityInfo.setActivityInfo(this::class.java.toString(), intent.extras)
 
         if (FirebaseAuth.getInstance().currentUser != null)
-            HomeActivity.openActivity(this@LoginActivity, true)
+            HomeActivity.openActivity(this@LoginActivity, true, HomeActivity.Companion.IntentData(""))
     }
 
     override fun onPause() {
@@ -243,7 +253,7 @@ class LoginActivity : AppCompatActivity() {
             if (t.isSuccessful) {
 
                 updateActivityState(activityStateSignInSuccess, 0)
-                HomeActivity.openActivity(this@LoginActivity, true)
+                HomeActivity.openActivity(this@LoginActivity, true, HomeActivity.Companion.IntentData(""))
             } else {
                 Log.e(tag, t.exception.toString())
                 updateActivityState(activityStateSignInFailed, 0)

@@ -13,12 +13,23 @@ import kotlinx.android.synthetic.main.layout_toolbar.*
 class ChatBackgroundGallery : AppCompatActivity() {
 
     companion object {
-        fun openActivity(activity: Activity, finish: Boolean) {
+        data class IntentData(val userId: String, val threadId: String)
 
-            val intent = Intent(activity, ChatBackgroundGallery::class.java)
+        fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
+
+            val intent = Intent(activity, ChatActivity::class.java)
+            intent.putExtra("userId", intentData.userId)
+            intent.putExtra("threadId", intentData.threadId)
             activity.startActivity(intent)
             if (finish)
                 activity.finish()
+        }
+
+        fun getIntentData(activity: Activity): IntentData {
+
+            val intent = activity.intent
+            return IntentData(intent.getStringExtra("userId"),
+                    intent.getStringExtra("threadId"))
         }
     }
 
@@ -27,6 +38,8 @@ class ChatBackgroundGallery : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_background_gallery)
+
+        val intentData = getIntentData(this)
 
         setSupportActionBar(toolbar)
         toolbar.title = "Choose a Background"
@@ -38,12 +51,12 @@ class ChatBackgroundGallery : AppCompatActivity() {
 
         backgrounds.setOnItemClickListener { _, _, position, _ ->
 
-            val intent = Intent(this@ChatBackgroundGallery, EditBackground::class.java)
-            intent.putExtra("fileRef", adapter.getItem(position))
-            intent.putExtra("userId", getIntent().getStringExtra("userId"))
-            intent.putExtra("threadId", getIntent().getStringExtra("threadId"))
-            intent.putExtra("contributedBy", adapter.getItem(position))
-            startActivity(intent)
+            EditBackground.openActivity(this@ChatBackgroundGallery, false, EditBackground.Companion.IntentData(
+                    adapter.getItem(position),
+                    intentData.userId,
+                    intentData.threadId,
+                    "Shobhit Malarya"
+            ))
         }
 
         FirebaseUtils.getFirestoreDb(true).collection("storageIndex").document("abstractWallpapers").get()

@@ -41,12 +41,20 @@ import java.util.*
 class HomeActivity : AppCompatActivity() {
 
     companion object {
-        fun openActivity(activity: Activity, finish: Boolean) {
+        data class IntentData(val dummy: String)
+        fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
 
-            val intent = Intent(activity, HomeActivity::class.java)
+            val intent = Intent(activity, AboutActivity::class.java)
+            intent.putExtra("dummy", intentData.dummy)
             activity.startActivity(intent)
             if (finish)
                 activity.finish()
+        }
+
+        fun getIntentData(activity: Activity): IntentData {
+
+            val intent = activity.intent
+            return IntentData(intent.getStringExtra("dummy"))
         }
     }
 
@@ -80,7 +88,8 @@ class HomeActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_home)
 
-        realm = RealmUtil.getCustomRealmInstance(this@HomeActivity)
+        val intentData = getIntentData(this)
+        realm = RealmUtil.getCustomRealmInstance(this)
 
         setSupportActionBar(toolbar)
         toolbar.title = "Raven"
@@ -107,7 +116,7 @@ class HomeActivity : AppCompatActivity() {
         }
 
         contacts.setOnClickListener {
-            startActivity(Intent(this@HomeActivity, ContactsActivity::class.java))
+            ContactsActivity.openActivity(this@HomeActivity, false, ContactsActivity.Companion.IntentData(""))
         }
 
         userThreadHashMap = HashMap()
@@ -254,9 +263,10 @@ class HomeActivity : AppCompatActivity() {
             //TODO not sure if this brings in any improvements
             GlideUtils.preload(this@HomeActivity, ravenThreadAdapter?.getItem(position)?.backgroundFileUrl)
 
-            val intent = Intent(this@HomeActivity, ChatActivity::class.java)
-            intent.putExtra(getString(R.string.key_user_id), ravenThreadAdapter?.getItem(position)?.user?.userId)
-            startActivity(intent)
+            ChatActivity.openActivity(this@HomeActivity, false,
+                    ChatActivity.Companion.IntentData(
+                            ravenThreadAdapter?.getItem(position)?.user?.userId!!,
+                            ravenThreadAdapter?.getItem(position)?.threadId!!))
         }
 
         currentUserEventListener = EventListener { snapshot, _ ->
@@ -342,7 +352,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun actionMyProfile() {
-        startActivity(Intent(this@HomeActivity, MyProfileActivity::class.java))
+        MyProfileActivity.openActivity(this@HomeActivity, false, MyProfileActivity.Companion.IntentData(""))
     }
 
     private fun actionLogout() {
@@ -353,14 +363,11 @@ class HomeActivity : AppCompatActivity() {
         // RealmUtil.clearData(this@HomeActivity)
 
         FirebaseAuth.getInstance().signOut()
-        val intent = Intent(this, LoginActivity::class.java)
-        startActivity(intent)
-        finish()
+        LoginActivity.openActivity(this@HomeActivity, true, LoginActivity.Companion.IntentData(""))
     }
 
     private fun actionAbout() {
-
-        startActivity(Intent(this@HomeActivity, AboutActivity::class.java))
+        AboutActivity.openActivity(this@HomeActivity, false, AboutActivity.Companion.IntentData(""))
     }
 
     private fun updateProfileUi() {

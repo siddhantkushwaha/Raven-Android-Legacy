@@ -67,13 +67,10 @@ public class NotificationSender {
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
 
-            RemoteInput remoteInput = new RemoteInput.Builder(context.getString(R.string.key_notification_reply))
+            RemoteInput remoteInput = new RemoteInput.Builder(NotificationReceiver.NOTIFICATION_REPLY)
                     .setLabel(replyLabel).build();
 
-
-            Intent intent = new Intent(context, NotificationReceiver.class);
-            intent.putExtra(context.getString(R.string.key_thread_id), threadId);
-            intent.putExtra(context.getString(R.string.key_user_id), userId);
+            Intent intent = NotificationReceiver.getIntent(context, userId, threadId);
             PendingIntent replyPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), requestCode, intent, PendingIntent.FLAG_ONE_SHOT);
 
             NotificationCompat.Action action = new NotificationCompat.Action.Builder(R.drawable.button_send_message, replyLabel, replyPendingIntent)

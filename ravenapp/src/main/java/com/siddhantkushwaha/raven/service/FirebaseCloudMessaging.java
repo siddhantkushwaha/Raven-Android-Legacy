@@ -60,7 +60,7 @@ public class FirebaseCloudMessaging extends FirebaseMessagingService {
         }
 
         if (ActivityInfo.getClassName() != null && ChatActivity.class.toString().equals(ActivityInfo.getClassName())) {
-            if (ActivityInfo.getIntentInfo() != null && messageObject.getSentByUserId().equals(ActivityInfo.getIntentInfo().getString(this.getString(R.string.key_user_id)))) {
+            if (ActivityInfo.getIntentInfo() != null && messageObject.getSentByUserId().equals(ActivityInfo.getIntentInfo().getString("userId"))) {
                 return;
             }
         }
@@ -80,9 +80,7 @@ public class FirebaseCloudMessaging extends FirebaseMessagingService {
         Random rand = new Random();
         int requestCode = rand.nextInt(1000000);
 
-        Intent intent = new Intent(this, ChatActivity.class);
-        intent.putExtra(getString(R.string.key_user_id), messageObject.getSentByUserId());
-
+        Intent intent = ChatActivity.getIntent(this, new ChatActivity.Companion.IntentData(messageObject.getSentByUserId(), threadId));
         NotificationSender notificationSender = new NotificationSender(FirebaseCloudMessaging.this, threadId, requestCode, title, messageObject.getText(), intent);
         notificationSender.sendNotificationWithReplyAction(messageObject.getSentByUserId(), threadId, "REPLY");
     }

@@ -3,22 +3,29 @@ package com.siddhantkushwaha.raven.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Build
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 import com.siddhantkushwaha.raven.R
 import kotlinx.android.synthetic.main.activity_about.*
 import kotlinx.android.synthetic.main.layout_toolbar.*
-import java.lang.Exception
 
 class AboutActivity : AppCompatActivity() {
 
     companion object {
-        fun openActivity(activity: Activity, finish: Boolean) {
+        data class IntentData(val dummy: String)
+        fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
 
             val intent = Intent(activity, AboutActivity::class.java)
+            intent.putExtra("dummy", intentData.dummy)
             activity.startActivity(intent)
             if (finish)
                 activity.finish()
+        }
+
+        fun getIntentData(activity: Activity): IntentData {
+
+            val intent = activity.intent
+            return IntentData(intent.getStringExtra("dummy"))
         }
     }
 
@@ -26,6 +33,8 @@ class AboutActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R
                 .layout.activity_about)
+
+        val intentData = getIntentData(this)
 
         setSupportActionBar(toolbar)
         toolbar.title = "About"
@@ -41,10 +50,5 @@ class AboutActivity : AppCompatActivity() {
                 e.printStackTrace()
             }
         }
-
-//        chatBackground.setOnClickListener {
-//            val intent = Intent(this@AboutActivity, ChatBackgroundGallery::class.java)
-//            startActivity(intent)
-//        }
     }
 }

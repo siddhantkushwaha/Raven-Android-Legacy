@@ -53,6 +53,8 @@ class ImageFullScreenActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_image_full_screen)
 
+        val intentData = getIntentData(this)
+
 //        setSupportActionBar(toolbar)
 //        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -117,8 +119,7 @@ class ImageFullScreenActivity : AppCompatActivity() {
             return@setOnTouchListener true
         }
 
-        val fileRef = intent.getStringExtra("key_file_ref")
-        FirebaseStorageUtil().getDownloadUrl(this@ImageFullScreenActivity, fileRef) {
+        FirebaseStorageUtil().getDownloadUrl(this@ImageFullScreenActivity, intentData.fileRef) {
 
             GlideUtils.loadImageAsBitmap(this@ImageFullScreenActivity, it, RequestOptions(), object : SimpleTarget<Bitmap>() {
                 override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {

@@ -20,17 +20,6 @@ class EditBackground : AppCompatActivity() {
 
     companion object {
         data class IntentData(val fileRef: String, val userId: String, val threadId: String, val contributedBy: String)
-//        fun openActivity(activity: Activity, finish: Boolean, fileRef: String, userId: String, threadId: String, contributedBy: String) {
-//
-//            val intent = Intent(activity, EditBackground::class.java)
-//            intent.putExtra("fileRef", fileRef)
-//            intent.putExtra("userId", userId)
-//            intent.putExtra("threadId", threadId)
-//            intent.putExtra("contributedBy", contributedBy)
-//            activity.startActivity(intent)
-//            if (finish)
-//                activity.finish()
-//        }
 
         fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
 
@@ -64,26 +53,23 @@ class EditBackground : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_background)
 
+        val intentData = getIntentData(this)
+
         setSupportActionBar(toolbar)
         toolbar.title = "Edit Background"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        fileRef = intent.getStringExtra("fileRef")
+        fileRef = intentData.fileRef
 
-        userId = intent.getStringExtra("userId")
-        threadId = intent.getStringExtra("threadId")
+        userId = intentData.userId
+        threadId = intentData.threadId
 
-        val contributedBy = intent.getStringExtra("contributedBy")
-
-        if (fileRef == null) {
-            finish()
-        }
+        val contributedBy = intentData.contributedBy
 
         FirebaseStorageUtil().getDownloadUrl(this@EditBackground, fileRef) {
             GlideUtils.loadImage(this@EditBackground, it, RequestOptions(), background)
         }
-//        contributedByText.text = "Contributed By - $contributedBy"
-        contributedByText.text = "Contributed By - Shobhit Malarya"
+        contributedByText.text = "Contributed By - $contributedBy"
 
         alphaSeeker.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {

@@ -67,13 +67,12 @@ class ProfileActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_profile)
 
+        val intentData = getIntentData(this)
+
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        userId = intent.getStringExtra(getString(R.string.key_user_id))
-        if (userId == null) {
-            finish()
-        }
+        userId = intentData.userId
 
         setGoogleMaps()
 

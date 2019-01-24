@@ -45,12 +45,20 @@ import java.io.File
 class MyProfileActivity : AppCompatActivity() {
 
     companion object {
-        fun openActivity(activity: Activity, finish: Boolean) {
+        data class IntentData(val dummy: String)
+        fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
 
-            val intent = Intent(activity, MyProfileActivity::class.java)
+            val intent = Intent(activity, AboutActivity::class.java)
+            intent.putExtra("dummy", intentData.dummy)
             activity.startActivity(intent)
             if (finish)
                 activity.finish()
+        }
+
+        fun getIntentData(activity: Activity): IntentData {
+
+            val intent = activity.intent
+            return IntentData(intent.getStringExtra("dummy"))
         }
     }
 
@@ -73,6 +81,8 @@ class MyProfileActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_my_profile)
+
+        val intentData = getIntentData(this)
 
         setSupportActionBar(toolbar)
         toolbar.title = "My Profile"

@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-
+import android.support.annotation.NonNull;
 import android.support.v4.app.RemoteInput;
 import android.util.Log;
 
@@ -15,6 +15,19 @@ import com.siddhantkushwaha.raven.utility.CurrentFirebaseUser;
 
 public class NotificationReceiver extends BroadcastReceiver {
 
+    public static final String NOTIFICATION_REPLY = "NOTIFICATION_REPLY";
+    public static final String USER_ID = "USER_ID";
+    public static final String THREAD_ID = "THREAD_ID";
+
+    public static Intent getIntent(@NonNull Context context, @NonNull String userId, @NonNull String threadId) {
+
+        Intent intent = new Intent(context, NotificationReceiver.class);
+        intent.putExtra(USER_ID, userId);
+        intent.putExtra(THREAD_ID, threadId);
+
+        return intent;
+    }
+
     @Override
     public void onReceive(Context context, Intent intent) {
 
@@ -23,10 +36,10 @@ public class NotificationReceiver extends BroadcastReceiver {
         Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
         if (remoteInput != null) {
 
-            String threadId = intent.getStringExtra(context.getString(R.string.key_thread_id));
-            String userId = intent.getStringExtra(context.getString(R.string.key_user_id));
+            String threadId = intent.getStringExtra(THREAD_ID);
+            String userId = intent.getStringExtra(USER_ID);
 
-            CharSequence c = remoteInput.getCharSequence(context.getString(R.string.key_notification_reply));
+            CharSequence c = remoteInput.getCharSequence(NOTIFICATION_REPLY);
             String message = null;
             if (c != null) {
                 message = c.toString();
