@@ -68,7 +68,7 @@ public class ThreadManager {
             HashMap<String, String> map = new HashMap<>();
             map.put("threadId", threadId);
             map.put("messageId", messageRef.getId());
-            FirebaseUtils.getRealtimeDb().getReference("messages").push().setValue(map);
+            FirebaseUtils.getRealtimeDb(true).getReference("messages").push().setValue(map);
         });
     }
 
@@ -188,6 +188,13 @@ public class ThreadManager {
         map.put("backgroundMetadata.fileRef", fileRef);
         map.put("backgroundMetadata.opacity", opacity);
         map.put("backgroundMetadata.changedByUserId", userId);
+        db.collection(THREAD_COLLECTION_NAME).document(threadId).update(map).addOnCompleteListener(onCompleteListener);
+    }
+
+    public void deleteThreadBackground(@NonNull String threadId, @NonNull String userId, OnCompleteListener<Void> onCompleteListener) {
+
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("backgroundMetadata", FieldValue.delete());
         db.collection(THREAD_COLLECTION_NAME).document(threadId).update(map).addOnCompleteListener(onCompleteListener);
     }
 }

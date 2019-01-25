@@ -11,6 +11,8 @@ import android.widget.SeekBar
 import android.widget.Toast
 import com.bumptech.glide.request.RequestOptions
 import com.siddhantkushwaha.raven.R
+import com.siddhantkushwaha.raven.common.utility.GsonUtils
+import com.siddhantkushwaha.raven.entity.WallpaperMetadata
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil
 import com.siddhantkushwaha.raven.utility.GlideUtils
@@ -20,15 +22,14 @@ import kotlinx.android.synthetic.main.layout_toolbar.*
 class EditBackground : AppCompatActivity() {
 
     companion object {
-        data class IntentData(val fileRef: String, val userId: String, val threadId: String, val contributedBy: String)
+        data class IntentData(val wallpaperMetadata: WallpaperMetadata, val userId: String, val threadId: String)
 
         fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
 
             val intent = Intent(activity, EditBackground::class.java)
-            intent.putExtra("fileRef", intentData.fileRef)
+            intent.putExtra("wallpaperMetadataJson", GsonUtils.toGson(intentData.wallpaperMetadata))
             intent.putExtra("userId", intentData.userId)
             intent.putExtra("threadId", intentData.threadId)
-            intent.putExtra("contributedBy", intentData.contributedBy)
             activity.startActivity(intent)
             if (finish)
                 activity.finish()
@@ -37,14 +38,15 @@ class EditBackground : AppCompatActivity() {
         fun getIntentData(activity: Activity): IntentData {
 
             val intent = activity.intent
-            return IntentData(intent.getStringExtra("fileRef"),
+            return IntentData(
+                    GsonUtils.fromGson(intent.getStringExtra("wallpaperMetadataJson"), WallpaperMetadata::class.java),
                     intent.getStringExtra("userId"),
-                    intent.getStringExtra("threadId"),
-                    intent.getStringExtra("contributedBy"))
+                    intent.getStringExtra("threadId"))
         }
     }
 
-    var fileRef: String? = null
+    var wallpaperMetadata: WallpaperMetadata? = null
+
     var userId: String? = null
     var threadId: String? = null
 
@@ -60,17 +62,19 @@ class EditBackground : AppCompatActivity() {
         toolbar.title = "Edit Background"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        fileRef = intentData.fileRef
+        wallpaperMetadata = intentData.wallpaperMetadata
 
         userId = intentData.userId
         threadId = intentData.threadId
 
-        val contributedBy = intentData.contributedBy
-
-        FirebaseStorageUtil().getDownloadUrl(this@EditBackground, fileRef) {
-            GlideUtils.loadImage(this@EditBackground, it, RequestOptions(), background)
+        FirebaseStorageUtil().getDownloadUrl(this@EditBackground, wallpaperMetadata!!.highResRef) {
+            val requestOptions = RequestOptions()
+            // requestOptions.placeholder(R.drawable.hourglass)
+            // requestOptions.error(R.drawable.bug)
+            GlideUtils.loadImage(this@EditBackground, it, requestOptions, background)
         }
-        contributedByText.text = "Contributed By - $contributedBy"
+
+        infoText.text = wallpaperMetadata?.info ?: "No information available."
 
         alphaSeeker.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -112,13 +116,15 @@ class EditBackground : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         when (item.itemId) {
-            R.id.action_accept -> ThreadManager().changeThreadBackground(fileRef!!, alpha, threadId!!, userId!!) {
+            R.id.action_accept -> ThreadManager().changeThreadBackground(wallpaperMetadata!!.highResRef!!, alpha, threadId!!, userId!!) {
                 if (it.isSuccessful) {
 
                     Toast.makeText(this, "Background updated.", Toast.LENGTH_SHORT).show()
 
                     val intentData = getIntentData(this)
                     ChatActivity.openActivity(this, true, ChatActivity.Companion.IntentData(intentData.threadId))
+                }else {
+                    Toast.makeText(this, "Background update failed.", Toast.LENGTH_SHORT).show()
                 }
             }
         }

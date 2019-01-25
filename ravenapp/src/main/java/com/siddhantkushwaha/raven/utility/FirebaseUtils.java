@@ -8,6 +8,8 @@ import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 public class FirebaseUtils {
 
+    private static FirebaseDatabase firebaseDatabase;
+
     public static FirebaseFirestore getFirestoreDb(Boolean persistenceEnabled) {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -22,8 +24,12 @@ public class FirebaseUtils {
         return db;
     }
 
-    public static FirebaseDatabase getRealtimeDb() {
+    public static FirebaseDatabase getRealtimeDb(Boolean persistenceEnabled) {
 
-        return FirebaseDatabase.getInstance();
+        if(firebaseDatabase == null) {
+            firebaseDatabase = FirebaseDatabase.getInstance();
+            firebaseDatabase.setPersistenceEnabled(persistenceEnabled);
+        }
+        return firebaseDatabase;
     }
 }

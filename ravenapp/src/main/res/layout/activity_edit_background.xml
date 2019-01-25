@@ -28,11 +28,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="600dp"
                     android:scaleType="centerCrop"
-                    android:visibility="visible"
-                    app:srcCompat="@drawable/artwork_raven" />
+                    android:background="@color/colorGreyDark"
+                    android:visibility="visible" />
 
                 <TextView
-                    android:id="@+id/contributedByText"
+                    android:id="@+id/infoText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@color/colorGrey"

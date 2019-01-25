@@ -9,6 +9,7 @@ import android.widget.BaseAdapter;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.request.RequestOptions;
 import com.siddhantkushwaha.raven.R;
+import com.siddhantkushwaha.raven.entity.WallpaperMetadata;
 import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil;
 import com.siddhantkushwaha.raven.utility.GlideUtils;
 
@@ -17,10 +18,10 @@ import java.util.ArrayList;
 public class ChatBackgroundGalleryAdapter extends BaseAdapter {
 
     private Context context;
-    private ArrayList<String> data;
+    private ArrayList<WallpaperMetadata> data;
     private FirebaseStorageUtil firebaseStorageUtil;
 
-    public ChatBackgroundGalleryAdapter(Context context, ArrayList<String> data) {
+    public ChatBackgroundGalleryAdapter(Context context, ArrayList<WallpaperMetadata> data) {
 
         this.context = context;
         this.data = data;
@@ -33,7 +34,7 @@ public class ChatBackgroundGalleryAdapter extends BaseAdapter {
     }
 
     @Override
-    public String getItem(int position) {
+    public WallpaperMetadata getItem(int position) {
         return data.get(position);
     }
 
@@ -50,7 +51,7 @@ public class ChatBackgroundGalleryAdapter extends BaseAdapter {
             listItem = LayoutInflater.from(context).inflate(R.layout.layout_image, parent, false);
 
         View finalListItem = listItem;
-        String fileRef = data.get(position);
+        String fileRef = data.get(position).getLowResRef();
         firebaseStorageUtil.getDownloadUrl(context, fileRef, uri -> {
 
             RequestOptions requestOptions = new RequestOptions();

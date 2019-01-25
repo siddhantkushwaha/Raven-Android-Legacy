@@ -46,7 +46,8 @@ class ChatActivity : AppCompatActivity() {
         // data class IntentData(val userId: String, val threadId: String)
         data class IntentData(val threadId: String)
 
-        @JvmStatic fun getIntent(context: Context, intentData: IntentData): Intent {
+        @JvmStatic
+        fun getIntent(context: Context, intentData: IntentData): Intent {
 
             val intent = Intent(context, ChatActivity::class.java)
             // intent.putExtra("userId", intentData.userId)
@@ -55,7 +56,8 @@ class ChatActivity : AppCompatActivity() {
             return intent
         }
 
-        @JvmStatic fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
+        @JvmStatic
+        fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
 
             val intent = getIntent(activity, intentData)
             activity.startActivity(intent)
@@ -63,7 +65,8 @@ class ChatActivity : AppCompatActivity() {
                 activity.finish()
         }
 
-        @JvmStatic fun getIntentData(activity: Activity): IntentData {
+        @JvmStatic
+        fun getIntentData(activity: Activity): IntentData {
 
             val intent = activity.intent
             return IntentData(intent.getStringExtra("threadId"))
@@ -177,27 +180,22 @@ class ChatActivity : AppCompatActivity() {
 
             if (doc != null && doc.exists()) {
                 try {
-                    val docData = doc.data?.get("backgroundMetadata") ?: return@EventListener
-                    val backgroundMetadata = GsonUtils.fromGson(GsonUtils.toGson(docData), JsonObject::class.java)
-                    val fileRef = backgroundMetadata.getAsJsonPrimitive("fileRef").asString
-                    val alpha = backgroundMetadata.getAsJsonPrimitive("opacity").asFloat
-
-                    FirebaseStorageUtil().getDownloadUrl(this@ChatActivity, fileRef) {
-
-                        // this transaction is not async because of loadBackground() after this
-                        realm?.executeTransactionAsync { realmIns ->
-                            val ravenThread = realmIns.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
-                            if (ravenThread != null) {
-                                ravenThread.backgroundFileUrl = it
-                                ravenThread.backgroundOpacity = alpha
-                                realmIns.insertOrUpdate(ravenThread)
-                            }
-
-                            runOnUiThread {
-                                loadBackGround()
-                            }
-                        }
+                    val docData = doc.data?.get("backgroundMetadata")
+                    var fileRef: String? = null
+                    var alpha: Float? = null
+                    if (docData != null) {
+                        val backgroundMetadata = GsonUtils.fromGson(GsonUtils.toGson(docData), JsonObject::class.java)
+                        fileRef = backgroundMetadata.getAsJsonPrimitive("fileRef").asString
+                        alpha = backgroundMetadata.getAsJsonPrimitive("opacity").asFloat
                     }
+
+                    if (fileRef != null)
+                        FirebaseStorageUtil().getDownloadUrl(this@ChatActivity, fileRef) {
+                            // this transaction is not async because of loadBackground() after this
+                            updateBackground(it, alpha)
+                        }
+                    else
+                        updateBackground(null, null)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -404,6 +402,22 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
+    private fun updateBackground(fileUrl: String?, alpha: Float?) {
+
+        realm?.executeTransactionAsync { realmIns ->
+            val ravenThread = realmIns.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
+            if (ravenThread != null) {
+                ravenThread.backgroundFileUrl = fileUrl
+                ravenThread.backgroundOpacity = alpha
+                realmIns.insertOrUpdate(ravenThread)
+            }
+
+            runOnUiThread {
+                loadBackGround()
+            }
+        }
+    }
+
     private fun loadBackGround() {
 
         realm?.executeTransactionAsync { realmIns ->
@@ -417,9 +431,9 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadChatBackground(uri: String?, alpha: Float) {
+    private fun loadChatBackground(uri: String?, alpha: Float?) {
 
-        background.alpha = alpha
+        background.alpha = alpha ?: 1F
 
         val requestOptions = RequestOptions()
         requestOptions.error(R.drawable.artwork_raven)

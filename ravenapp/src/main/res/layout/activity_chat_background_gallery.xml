@@ -8,6 +8,19 @@
 
     <include layout="@layout/layout_toolbar" />
 
+    <Button
+        android:id="@+id/resetBackground"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="2dp"
+        android:background="@color/colorGreyDark"
+        android:padding="12dp"
+        android:stateListAnimator="@null"
+        android:text="Reset to default"
+        android:textAllCaps="false"
+        android:textColor="@color/colorWhite"
+        android:textSize="24sp" />
+
     <GridView
         android:id="@+id/backgrounds"
         android:layout_width="match_parent"
