@@ -59,13 +59,13 @@ public class FirebaseCloudMessaging extends FirebaseMessagingService {
             return;
         }
 
+        String threadId = RavenUtils.getThreadId(messageObject.getSentToUserId(), messageObject.getSentByUserId());
+
         if (ActivityInfo.getClassName() != null && ChatActivity.class.toString().equals(ActivityInfo.getClassName())) {
-            if (ActivityInfo.getIntentInfo() != null && messageObject.getSentByUserId().equals(ActivityInfo.getIntentInfo().getString("userId"))) {
+            if (ActivityInfo.getIntentInfo() != null && threadId.equals(ActivityInfo.getIntentInfo().getString("threadId"))) {
                 return;
             }
         }
-
-        String threadId = RavenUtils.getThreadId(messageObject.getSentToUserId(), messageObject.getSentByUserId());
 
         if (messageObject.getText() == null && messageObject.getFileRef() == null) {
             messageObject.setText("Message Deleted.");
