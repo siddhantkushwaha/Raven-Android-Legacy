@@ -8,10 +8,11 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 
 import java.util.HashMap;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 public class ContactsUtil {
 
@@ -45,7 +46,7 @@ public class ContactsUtil {
                 String phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER));
                 String name = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
 
-                if(phoneNumber == null)
+                if (phoneNumber == null)
                     continue;
 
                 contactsList.put(phoneNumber, name);

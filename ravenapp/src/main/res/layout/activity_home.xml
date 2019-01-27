@@ -1,10 +1,10 @@
-<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false">
@@ -34,7 +34,7 @@
                 android:background="@color/colorWhite"
                 android:divider="@null" />
 
-            <android.support.design.widget.FloatingActionButton
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/contacts"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -46,18 +46,17 @@
                 app:fabSize="normal"
                 app:srcCompat="@drawable/button_send_new_message" />
         </RelativeLayout>
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <android.support.design.widget.NavigationView
+    <com.google.android.material.navigation.NavigationView
         android:id="@+id/navigation"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:background="@color/colorWhite"
         app:headerLayout="@layout/layout_navbar_header"
-        app:menu="@menu/nav_items">
+        app:menu="@menu/nav_items" />
 
-    </android.support.design.widget.NavigationView>
-</android.support.v4.widget.DrawerLayout>
+</androidx.drawerlayout.widget.DrawerLayout>
 
 

@@ -1,7 +1,8 @@
 package com.siddhantkushwaha.raven.common.utility;
 
 import android.graphics.Bitmap;
-import android.support.v7.graphics.Palette;
+
+import androidx.palette.graphics.Palette;
 
 public class PaletteUtils {
 

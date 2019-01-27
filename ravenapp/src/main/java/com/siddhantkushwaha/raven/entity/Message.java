@@ -1,10 +1,10 @@
 package com.siddhantkushwaha.raven.entity;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.ServerTimestamp;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 
 public class Message {

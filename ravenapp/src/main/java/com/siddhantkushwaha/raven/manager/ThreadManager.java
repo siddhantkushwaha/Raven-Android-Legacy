@@ -2,8 +2,6 @@ package com.siddhantkushwaha.raven.manager;
 
 import android.app.Activity;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.Timestamp;
@@ -28,6 +26,9 @@ import com.siddhantkushwaha.raven.utility.FirebaseUtils;
 
 import java.security.GeneralSecurityException;
 import java.util.HashMap;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class ThreadManager {
 

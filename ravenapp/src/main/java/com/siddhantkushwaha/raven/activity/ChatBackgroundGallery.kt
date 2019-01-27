@@ -3,14 +3,13 @@ package com.siddhantkushwaha.raven.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.adapter.ChatBackgroundGalleryAdapter
-import com.siddhantkushwaha.raven.common.utility.GsonUtils
 import com.siddhantkushwaha.raven.entity.WallpaperMetadata
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.utility.FirebaseUtils
@@ -54,14 +53,13 @@ class ChatBackgroundGallery : AppCompatActivity() {
 
         resetBackground.setOnClickListener {
 
-            ThreadManager().deleteThreadBackground(intentData.threadId, intentData.userId) {task ->
+            ThreadManager().deleteThreadBackground(intentData.threadId, intentData.userId) { task ->
 
-                if(task.isSuccessful) {
+                if (task.isSuccessful) {
 
                     Toast.makeText(this, "Background updated.", Toast.LENGTH_SHORT).show()
                     ChatActivity.openActivity(this, true, ChatActivity.Companion.IntentData(intentData.threadId))
-                }
-                else {
+                } else {
                     Toast.makeText(this, "Background update failed.", Toast.LENGTH_SHORT).show()
                 }
             }

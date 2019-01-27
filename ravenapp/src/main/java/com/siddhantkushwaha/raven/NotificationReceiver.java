@@ -4,14 +4,15 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.RemoteInput;
 import android.util.Log;
 
 import com.google.firebase.Timestamp;
 import com.siddhantkushwaha.raven.entity.Message;
 import com.siddhantkushwaha.raven.manager.ThreadManager;
 import com.siddhantkushwaha.raven.utility.CurrentFirebaseUser;
+
+import androidx.annotation.NonNull;
+import androidx.core.app.RemoteInput;
 
 public class NotificationReceiver extends BroadcastReceiver {
 

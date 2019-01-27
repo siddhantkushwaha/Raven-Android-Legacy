@@ -4,7 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
-import android.support.v4.content.ContextCompat
+import androidx.core.content.ContextCompat
 import com.siddhantkushwaha.raven.R
 import com.yalantis.ucrop.UCrop
 import java.io.File

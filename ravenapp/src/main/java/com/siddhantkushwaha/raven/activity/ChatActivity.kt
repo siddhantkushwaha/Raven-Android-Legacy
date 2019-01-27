@@ -5,12 +5,12 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -275,12 +275,12 @@ class ChatActivity : AppCompatActivity() {
         results?.addChangeListener(listener!!)
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
+    override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
-        outState?.putInt(getString(R.string.key_first_item_position), firstVisibleItemPosition[1])
+        outState.putInt(getString(R.string.key_first_item_position), firstVisibleItemPosition[1])
 
-        outState?.putInt(getString(R.string.key_last_item_position), lastVisibleItemPosition[1])
+        outState.putInt(getString(R.string.key_last_item_position), lastVisibleItemPosition[1])
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

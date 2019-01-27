@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -18,7 +18,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
-        <android.support.design.widget.FloatingActionButton
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/submit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -52,7 +52,7 @@
                         android:layout_height="match_parent"
                         android:src="@drawable/image_unknown_user_circle" />
 
-                    <android.support.design.widget.FloatingActionButton
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
                         android:id="@+id/uploadButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -80,7 +80,7 @@
                     android:orientation="vertical"
                     android:padding="12dp">
 
-                    <android.support.v7.widget.CardView
+                    <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
@@ -103,9 +103,9 @@
                                 android:textColor="@color/colorBlack"
                                 android:textSize="20sp" />
                         </LinearLayout>
-                    </android.support.v7.widget.CardView>
+                    </androidx.cardview.widget.CardView>
 
-                    <android.support.v7.widget.CardView
+                    <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
@@ -160,9 +160,9 @@
                                 android:textSize="20sp" />
 
                         </LinearLayout>
-                    </android.support.v7.widget.CardView>
+                    </androidx.cardview.widget.CardView>
 
-                    <android.support.v7.widget.CardView
+                    <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="16dp"
@@ -193,7 +193,7 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="match_parent" />
 
-                                <android.support.design.widget.FloatingActionButton
+                                <com.google.android.material.floatingactionbutton.FloatingActionButton
                                     android:id="@+id/myLocationButton"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
@@ -255,9 +255,9 @@
                                     android:textSize="20sp" />
                             </LinearLayout>
                         </LinearLayout>
-                    </android.support.v7.widget.CardView>
+                    </androidx.cardview.widget.CardView>
                 </LinearLayout>
             </LinearLayout>
         </ScrollView>
     </RelativeLayout>
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,7 +3,7 @@ package com.siddhantkushwaha.raven.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -191,10 +191,10 @@ class LoginActivity : AppCompatActivity() {
         ActivityInfo.setActivityInfo(null, null)
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
+    override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
-        outState?.putString("LAYOUT_STATE", activityState?.text.toString())
+        outState.putString("LAYOUT_STATE", activityState?.text.toString())
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {

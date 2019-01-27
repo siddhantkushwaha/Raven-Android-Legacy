@@ -1,10 +1,10 @@
 package com.siddhantkushwaha.raven.utility;
 
-import android.support.annotation.NonNull;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+
+import androidx.annotation.NonNull;
 
 public class RavenUtils {
 

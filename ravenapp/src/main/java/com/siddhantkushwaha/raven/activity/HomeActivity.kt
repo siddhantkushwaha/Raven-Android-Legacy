@@ -5,12 +5,12 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.view.GravityCompat
-import android.support.v7.app.ActionBarDrawerToggle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.MenuItem
 import android.widget.TextView
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.core.view.GravityCompat
 import com.crashlytics.android.Crashlytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
@@ -35,7 +35,6 @@ import io.realm.RealmResults
 import io.realm.Sort
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.layout_toolbar.*
-import java.util.*
 
 
 class HomeActivity : AppCompatActivity() {
@@ -331,7 +330,7 @@ class HomeActivity : AppCompatActivity() {
         drawerToggle?.syncState()
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration?) {
+    override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         drawerToggle?.onConfigurationChanged(newConfig)
     }

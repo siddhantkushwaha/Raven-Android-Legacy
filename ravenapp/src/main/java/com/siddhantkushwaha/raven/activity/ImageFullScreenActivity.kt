@@ -4,7 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -134,9 +134,9 @@ class ImageFullScreenActivity : AppCompatActivity() {
         return super.onSupportNavigateUp()
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
+    override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
-        outState?.putString("layout_state", layoutState!!.text.toString())
+        outState.putString("layout_state", layoutState!!.text.toString())
     }
 }

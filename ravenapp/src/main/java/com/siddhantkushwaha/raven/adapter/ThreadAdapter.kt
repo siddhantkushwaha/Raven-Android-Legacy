@@ -2,12 +2,12 @@ package com.siddhantkushwaha.raven.adapter
 
 import android.content.Context
 import android.graphics.Typeface
-import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.common.utility.DateTimeUtils

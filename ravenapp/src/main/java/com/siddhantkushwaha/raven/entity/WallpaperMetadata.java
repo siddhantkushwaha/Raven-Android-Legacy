@@ -1,8 +1,9 @@
 package com.siddhantkushwaha.raven.entity;
 
-import android.support.annotation.NonNull;
 
 import com.google.firebase.database.PropertyName;
+
+import androidx.annotation.NonNull;
 
 public class WallpaperMetadata {
 

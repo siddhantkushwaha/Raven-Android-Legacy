@@ -1,7 +1,6 @@
 package com.siddhantkushwaha.raven.adapter;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +11,7 @@ import com.siddhantkushwaha.raven.R;
 import com.siddhantkushwaha.raven.utility.GlideUtils;
 import com.siddhantkushwaha.raven.localEntity.RavenUser;
 
+import androidx.annotation.Nullable;
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmBaseAdapter;
 

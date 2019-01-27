@@ -5,40 +5,40 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
+import android.widget.CompoundButton
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
-import com.siddhantkushwaha.raven.R
-import com.siddhantkushwaha.raven.utility.GlideUtils
-import com.siddhantkushwaha.raven.entity.User
-import com.siddhantkushwaha.raven.manager.UserManager
-import kotlinx.android.synthetic.main.activity_my_profile.*
-import org.joda.time.DateTimeZone
-import org.joda.time.format.DateTimeFormat
-import com.siddhantkushwaha.raven.custom.CustomMapFragment
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
-import android.widget.CompoundButton
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.MarkerOptions
-import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.storage.FirebaseStorage
+import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.common.utility.ActivityInfo
 import com.siddhantkushwaha.raven.common.utility.Alerts
 import com.siddhantkushwaha.raven.common.utility.DateTimeUtils
+import com.siddhantkushwaha.raven.custom.CustomMapFragment
+import com.siddhantkushwaha.raven.entity.User
+import com.siddhantkushwaha.raven.manager.UserManager
+import com.siddhantkushwaha.raven.utility.GlideUtils
 import com.siddhantkushwaha.raven.utilityActivity.activityRemoveDisplayPicture
 import com.yalantis.ucrop.UCrop
+import kotlinx.android.synthetic.main.activity_my_profile.*
 import kotlinx.android.synthetic.main.layout_toolbar.*
+import org.joda.time.DateTimeZone
+import org.joda.time.format.DateTimeFormat
 import java.io.File
 
 
@@ -303,7 +303,8 @@ class MyProfileActivity : AppCompatActivity() {
 
         map[UserManager.KEY_LOCATION_LATITUDE] = latLng.latitude
         map[UserManager.KEY_LOCATION_LONGITUDE] = latLng.longitude
-        map[UserManager.KEY_LOCATION_PRIVACY] = user?.userLocation?.privacyStatus ?: UserManager.ENUM_USER_PRIVACY_PUBLIC
+        map[UserManager.KEY_LOCATION_PRIVACY] = user?.userLocation?.privacyStatus
+                ?: UserManager.ENUM_USER_PRIVACY_PUBLIC
 
         map[UserManager.KEY_LOCATION_TIMESTAMP] = Timestamp.now()
 
