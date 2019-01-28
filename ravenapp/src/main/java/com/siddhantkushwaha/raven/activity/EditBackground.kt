@@ -9,7 +9,6 @@ import android.view.MenuItem
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.bumptech.glide.request.RequestOptions
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.common.utility.GsonUtils
 import com.siddhantkushwaha.raven.entity.WallpaperMetadata
@@ -68,10 +67,7 @@ class EditBackground : AppCompatActivity() {
         threadId = intentData.threadId
 
         FirebaseStorageUtil().getDownloadUrl(this@EditBackground, wallpaperMetadata!!.highResRef) {
-            val requestOptions = RequestOptions()
-            // requestOptions.placeholder(R.drawable.hourglass)
-            // requestOptions.error(R.drawable.bug)
-            GlideUtils.loadImage(this@EditBackground, it, requestOptions, background)
+            GlideUtils.loadImage(this@EditBackground, it, background, R.color.colorGreyDark, R.color.colorBlack)
         }
 
         infoText.text = wallpaperMetadata?.info ?: "No information available."

@@ -54,11 +54,7 @@ public class ChatBackgroundGalleryAdapter extends BaseAdapter {
         String fileRef = data.get(position).getLowResRef();
         firebaseStorageUtil.getDownloadUrl(context, fileRef, uri -> {
 
-            RequestOptions requestOptions = new RequestOptions();
-            requestOptions.placeholder(R.drawable.hourglass);
-            requestOptions.transform(new CenterCrop());
-
-            GlideUtils.loadImage(context, uri, requestOptions, finalListItem.findViewById(R.id.image));
+            GlideUtils.loadImage(context, uri, finalListItem.findViewById(R.id.image), R.drawable.hourglass, R.drawable.bug);
         });
 
         return listItem;

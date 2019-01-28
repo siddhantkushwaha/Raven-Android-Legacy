@@ -10,17 +10,10 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.GlideApp;
+import com.siddhantkushwaha.android.thugtools.thugtools.utility.GlideUtil;
 import com.siddhantkushwaha.raven.R;
 
-public class GlideUtils {
-
-    public static void loadImage(Context context, String uri, RequestOptions requestOptions, ImageView imageView) {
-
-        GlideApp.with(context.getApplicationContext())
-                .load(uri)
-                .apply(requestOptions)
-                .into(imageView);
-    }
+public class GlideUtils extends GlideUtil {
 
     public static void loadProfilePhotoCircle(Context context, ImageView imageView, String uri) {
 
@@ -68,10 +61,5 @@ public class GlideUtils {
                 .apply(new RequestOptions().error(R.drawable.bug))
                 .transforms(new CenterCrop(), new RoundedCorners(72))
                 .into(imageView);
-    }
-
-    public static void preload(Context context, String uri) {
-
-        GlideApp.with(context).load(uri).preload();
     }
 }

@@ -250,9 +250,6 @@ class HomeActivity : AppCompatActivity() {
 
         threadListView.setOnItemClickListener { _, _, position, _ ->
 
-            //TODO not sure if this brings in any improvements
-            GlideUtils.preload(this@HomeActivity, ravenThreadAdapter?.getItem(position)?.backgroundFileUrl)
-
             ChatActivity.openActivity(this@HomeActivity, false,
                     ChatActivity.Companion.IntentData(ravenThreadAdapter?.getItem(position)?.threadId!!))
         }
