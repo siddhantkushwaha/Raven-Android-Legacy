@@ -1,9 +1,9 @@
 package com.siddhantkushwaha.raven.entity;
 
-import android.support.annotation.NonNull;
-
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.ServerTimestamp;
+
+import androidx.annotation.NonNull;
 
 public class Thread {
 

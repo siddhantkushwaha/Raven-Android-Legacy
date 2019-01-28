@@ -21,7 +21,6 @@ import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil
 import com.siddhantkushwaha.raven.utility.GlideUtils
 import kotlinx.android.synthetic.main.activity_image_full_screen.*
 
-
 class ImageFullScreenActivity : AppCompatActivity() {
 
     companion object {

@@ -35,6 +35,7 @@ class ProfileActivity : AppCompatActivity() {
 
     companion object {
         data class IntentData(val userId: String)
+
         fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
 
             val intent = Intent(activity, ProfileActivity::class.java)

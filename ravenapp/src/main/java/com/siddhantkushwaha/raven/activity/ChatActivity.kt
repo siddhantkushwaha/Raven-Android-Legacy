@@ -249,8 +249,10 @@ class ChatActivity : AppCompatActivity() {
             }
         }
 
-        firstVisibleItemPosition[1] = savedInstanceState?.getInt(getString(R.string.key_first_item_position)) ?: -1
-        lastVisibleItemPosition[1] = savedInstanceState?.getInt(getString(R.string.key_last_item_position)) ?: -1
+        firstVisibleItemPosition[1] = savedInstanceState?.getInt(getString(R.string.key_first_item_position))
+                ?: -1
+        lastVisibleItemPosition[1] = savedInstanceState?.getInt(getString(R.string.key_last_item_position))
+                ?: -1
         listener = OrderedRealmCollectionChangeListener { _, _ ->
 
             ravenMessageAdapter?.notifyDataSetChanged()
@@ -334,7 +336,8 @@ class ChatActivity : AppCompatActivity() {
 
     private fun updateProfileLayout() {
 
-        nameTextView.text = user?.userProfile?.name ?: user?.phoneNumber ?: getString(R.string.default_name)
+        nameTextView.text = user?.userProfile?.name ?: user?.phoneNumber
+                ?: getString(R.string.default_name)
         GlideUtils.loadProfilePhotoCircle(this, imageRelativeLayout, user?.userProfile?.picUrl)
     }
 

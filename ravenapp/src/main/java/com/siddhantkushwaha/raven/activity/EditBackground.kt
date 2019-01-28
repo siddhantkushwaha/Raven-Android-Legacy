@@ -3,12 +3,12 @@ package com.siddhantkushwaha.raven.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.SeekBar
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.request.RequestOptions
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.common.utility.GsonUtils
@@ -123,7 +123,7 @@ class EditBackground : AppCompatActivity() {
 
                     val intentData = getIntentData(this)
                     ChatActivity.openActivity(this, true, ChatActivity.Companion.IntentData(intentData.threadId))
-                }else {
+                } else {
                     Toast.makeText(this, "Background update failed.", Toast.LENGTH_SHORT).show()
                 }
             }
