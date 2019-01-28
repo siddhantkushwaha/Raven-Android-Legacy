@@ -7,9 +7,9 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import com.google.firebase.auth.FirebaseAuth
+import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.adapter.ContactAdapter
-import com.siddhantkushwaha.raven.common.utility.ActivityInfo
 import com.siddhantkushwaha.raven.common.utility.Alerts
 import com.siddhantkushwaha.raven.common.utility.ContactsUtil
 import com.siddhantkushwaha.raven.common.utility.RealmUtil

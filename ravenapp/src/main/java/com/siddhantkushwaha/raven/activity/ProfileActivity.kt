@@ -17,8 +17,8 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
+import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.raven.R
-import com.siddhantkushwaha.raven.common.utility.ActivityInfo
 import com.siddhantkushwaha.raven.common.utility.DateTimeUtils
 import com.siddhantkushwaha.raven.common.utility.PaletteUtils
 import com.siddhantkushwaha.raven.common.utility.UiUtil

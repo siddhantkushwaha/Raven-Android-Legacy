@@ -25,8 +25,8 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.storage.FirebaseStorage
+import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.raven.R
-import com.siddhantkushwaha.raven.common.utility.ActivityInfo
 import com.siddhantkushwaha.raven.common.utility.Alerts
 import com.siddhantkushwaha.raven.common.utility.DateTimeUtils
 import com.siddhantkushwaha.raven.custom.CustomMapFragment
