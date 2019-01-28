@@ -4,14 +4,14 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import com.google.firebase.auth.FirebaseAuth
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
+import com.siddhantkushwaha.android.thugtools.thugtools.utility.ContactsUtil
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.adapter.ContactAdapter
-import com.siddhantkushwaha.raven.common.utility.Alerts
-import com.siddhantkushwaha.raven.common.utility.ContactsUtil
 import com.siddhantkushwaha.raven.common.utility.RealmUtil
 import com.siddhantkushwaha.raven.localEntity.RavenUser
 import com.siddhantkushwaha.raven.syncAdapter.SyncAdapter
@@ -53,7 +53,7 @@ class ContactsActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         refreshButton.setOnClickListener {
-            Alerts.showToast(this@ContactsActivity, "Syncing contacts.", 2000)
+            Toast.makeText(this@ContactsActivity, "Syncing contacts.", 2000).show()
 //            RavenContactSync.reSync(this@ContactsActivity)
 //            AppInfo.openAppInfo(this);
             ContactsUtil.getReadContactsPermission(this@ContactsActivity)

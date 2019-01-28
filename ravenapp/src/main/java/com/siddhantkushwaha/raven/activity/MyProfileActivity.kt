@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
 import android.widget.CompoundButton
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -27,7 +28,6 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.storage.FirebaseStorage
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.raven.R
-import com.siddhantkushwaha.raven.common.utility.Alerts
 import com.siddhantkushwaha.raven.common.utility.DateTimeUtils
 import com.siddhantkushwaha.raven.custom.CustomMapFragment
 import com.siddhantkushwaha.raven.entity.User
@@ -358,7 +358,7 @@ class MyProfileActivity : AppCompatActivity() {
             if (task.isSuccessful) {
                 message = "Successfully updated profile."
             }
-            Alerts.showToast(this@MyProfileActivity, message, 2000)
+            Toast.makeText(this@MyProfileActivity, message, 2000).show()
         }
     }
 }

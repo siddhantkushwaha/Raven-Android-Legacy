@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.palette.graphics.Palette
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
@@ -18,10 +19,9 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
+import com.siddhantkushwaha.android.thugtools.thugtools.utility.UiUtil
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.common.utility.DateTimeUtils
-import com.siddhantkushwaha.raven.common.utility.PaletteUtils
-import com.siddhantkushwaha.raven.common.utility.UiUtil
 import com.siddhantkushwaha.raven.custom.CustomMapFragment
 import com.siddhantkushwaha.raven.entity.User
 import com.siddhantkushwaha.raven.manager.UserManager
@@ -158,8 +158,9 @@ class ProfileActivity : AppCompatActivity() {
         GlideUtils.loadProfilePhotoSquare(this@ProfileActivity, imageRelativeLayout, user?.userProfile?.picUrl)
         GlideUtils.loadImageAsBitmap(this@ProfileActivity, user?.userProfile?.picUrl, RequestOptions(), object : SimpleTarget<Bitmap>() {
             override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                PaletteUtils.createPalette(resource) { pallete ->
-                    val swatch = pallete?.darkMutedSwatch
+
+                Palette.from(resource).generate {
+                    val swatch = it?.darkMutedSwatch
                     if (swatch != null) {
                         collapsingToolbar.setContentScrimColor(swatch.rgb)
                         collapsingToolbar.setBackgroundColor(swatch.rgb)

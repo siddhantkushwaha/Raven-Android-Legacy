@@ -3,20 +3,20 @@ package com.siddhantkushwaha.raven.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.EditText
+import androidx.appcompat.app.AppCompatActivity
 import com.crashlytics.android.Crashlytics
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthProvider
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.raven.R
-import com.siddhantkushwaha.raven.common.utility.Alerts
 import io.fabric.sdk.android.Fabric
 import kotlinx.android.synthetic.main.activity_login.*
 import java.util.concurrent.TimeUnit
@@ -211,7 +211,8 @@ class LoginActivity : AppCompatActivity() {
 
     private fun showAlert(message: String, flag: Int) {
         if (flag == 0)
-            Alerts.showSnackbar(scrollView, message, 2000)
+            Snackbar.make(scrollView, message, 2000).show()
+
     }
 
     private fun setVisibility(visibility: IntArray) {

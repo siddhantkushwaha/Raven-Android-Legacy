@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,10 +21,12 @@ import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.gson.JsonObject
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
+import com.siddhantkushwaha.android.thugtools.thugtools.utility.ImageUtil
 import com.siddhantkushwaha.raven.NotificationSender
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.adapter.MessageAdapter
-import com.siddhantkushwaha.raven.common.utility.*
+import com.siddhantkushwaha.raven.common.utility.GsonUtils
+import com.siddhantkushwaha.raven.common.utility.RealmUtil
 import com.siddhantkushwaha.raven.entity.Message
 import com.siddhantkushwaha.raven.entity.User
 import com.siddhantkushwaha.raven.localEntity.RavenMessage
@@ -33,6 +36,7 @@ import com.siddhantkushwaha.raven.manager.UserManager
 import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil
 import com.siddhantkushwaha.raven.utility.GlideUtils
 import com.siddhantkushwaha.raven.utility.RavenUtils
+import com.siddhantkushwaha.raven.utility.UCropUtil
 import com.yalantis.ucrop.UCrop
 import io.realm.OrderedRealmCollectionChangeListener
 import io.realm.Realm
@@ -118,7 +122,7 @@ class ChatActivity : AppCompatActivity() {
         sendButton.setOnClickListener {
             val message = messageEditText.text.toString().trim()
             if (message.isEmpty()) {
-                Alerts.showToast(this@ChatActivity, "Cannot send an empty message.", 2000)
+                Toast.makeText(this@ChatActivity, "Cannot send an empty message.", 2000).show()
                 return@setOnClickListener
             }
             messageEditText.setText("")
@@ -126,7 +130,7 @@ class ChatActivity : AppCompatActivity() {
         }
 
         sendImageButton.setOnClickListener {
-            ImageFileHandling.openImageIntent(this@ChatActivity)
+            ImageUtil.openImageIntent(this@ChatActivity)
         }
 
         user = User()
@@ -245,7 +249,7 @@ class ChatActivity : AppCompatActivity() {
             if (ravenMessage.sentByUserId == FirebaseAuth.getInstance().uid) {
                 threadManager?.deleteMessageForEveryone(threadId!!, ravenMessage.messageId, ravenMessage.fileRef) {
                     if (it.isSuccessful)
-                        Alerts.showToast(this@ChatActivity, "Deleted.", 2000)
+                        Toast.makeText(this@ChatActivity, "Deleted.", 2000).show()
                 }
             }
         }
@@ -290,10 +294,10 @@ class ChatActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
 
         when (requestCode) {
-            ImageFileHandling.pickImage -> {
+            ImageUtil.pickImage -> {
                 if (resultCode == Activity.RESULT_OK) {
                     Log.i(tag, data?.data?.toString())
-                    ImageFileHandling.startCrop(this@ChatActivity, data?.data ?: return)
+                    UCropUtil.startCrop(this@ChatActivity, data?.data ?: return)
                 }
             }
 
