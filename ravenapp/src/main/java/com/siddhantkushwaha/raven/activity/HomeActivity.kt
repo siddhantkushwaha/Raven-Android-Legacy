@@ -19,7 +19,7 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.adapter.ThreadAdapter
-import com.siddhantkushwaha.raven.common.utility.RealmUtil
+import com.siddhantkushwaha.raven.utility.RealmUtil
 import com.siddhantkushwaha.raven.entity.Message
 import com.siddhantkushwaha.raven.entity.ThreadIndex
 import com.siddhantkushwaha.raven.entity.User

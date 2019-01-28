@@ -12,7 +12,7 @@ import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ContactsUtil
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.adapter.ContactAdapter
-import com.siddhantkushwaha.raven.common.utility.RealmUtil
+import com.siddhantkushwaha.raven.utility.RealmUtil
 import com.siddhantkushwaha.raven.localEntity.RavenUser
 import com.siddhantkushwaha.raven.syncAdapter.SyncAdapter
 import com.siddhantkushwaha.raven.utility.RavenUtils

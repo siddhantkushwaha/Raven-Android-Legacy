@@ -1,4 +1,4 @@
-package com.siddhantkushwaha.raven.common.utility;
+package com.siddhantkushwaha.raven.utility;
 
 
 import android.content.Context;

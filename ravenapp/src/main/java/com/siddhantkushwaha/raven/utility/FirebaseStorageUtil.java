@@ -4,7 +4,6 @@ import android.content.Context;
 import android.util.Log;
 
 import com.google.firebase.storage.FirebaseStorage;
-import com.siddhantkushwaha.raven.common.utility.RealmUtil;
 import com.siddhantkushwaha.raven.localEntity.Pair;
 
 import io.realm.Realm;

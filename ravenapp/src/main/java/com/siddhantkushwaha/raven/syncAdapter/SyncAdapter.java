@@ -15,7 +15,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ContactsUtil;
-import com.siddhantkushwaha.raven.common.utility.RealmUtil;
+import com.siddhantkushwaha.raven.utility.RealmUtil;
 import com.siddhantkushwaha.raven.entity.User;
 import com.siddhantkushwaha.raven.localEntity.RavenUser;
 import com.siddhantkushwaha.raven.manager.UserManager;
