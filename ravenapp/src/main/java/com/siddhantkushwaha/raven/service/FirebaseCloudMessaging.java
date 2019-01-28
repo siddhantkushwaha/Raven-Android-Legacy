@@ -3,6 +3,7 @@ package com.siddhantkushwaha.raven.service;
 import android.content.Intent;
 import android.util.Log;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -12,7 +13,6 @@ import com.siddhantkushwaha.raven.activity.ChatActivity;
 import com.siddhantkushwaha.raven.common.utility.GsonUtils;
 import com.siddhantkushwaha.raven.entity.Message;
 import com.siddhantkushwaha.raven.manager.ThreadManager;
-import com.siddhantkushwaha.raven.utility.CurrentFirebaseUser;
 import com.siddhantkushwaha.raven.utility.RavenUtils;
 
 import java.util.Map;
@@ -52,7 +52,7 @@ public class FirebaseCloudMessaging extends FirebaseMessagingService {
             return;
 
 
-        String currentUserId = CurrentFirebaseUser.getUid();
+        String currentUserId = FirebaseAuth.getInstance().getUid();
         if (currentUserId == null || !currentUserId.equals(messageObject.getSentToUserId())) {
             FirebaseMessaging.getInstance().unsubscribeFromTopic(messageObject.getSentToUserId());
             return;

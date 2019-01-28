@@ -7,9 +7,9 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.siddhantkushwaha.raven.entity.Message;
 import com.siddhantkushwaha.raven.manager.ThreadManager;
-import com.siddhantkushwaha.raven.utility.CurrentFirebaseUser;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.RemoteInput;
@@ -49,7 +49,7 @@ public class NotificationReceiver extends BroadcastReceiver {
             if (message == null || threadId == null || userId == null)
                 return;
 
-            String senderUid = CurrentFirebaseUser.getUid();
+            String senderUid = FirebaseAuth.getInstance().getUid();
             if (senderUid == null)
                 return;
 

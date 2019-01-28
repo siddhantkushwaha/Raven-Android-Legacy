@@ -11,6 +11,7 @@ import android.util.Log;
 import com.crashlytics.android.Crashlytics;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ContactsUtil;
@@ -18,7 +19,6 @@ import com.siddhantkushwaha.raven.common.utility.RealmUtil;
 import com.siddhantkushwaha.raven.entity.User;
 import com.siddhantkushwaha.raven.localEntity.RavenUser;
 import com.siddhantkushwaha.raven.manager.UserManager;
-import com.siddhantkushwaha.raven.utility.CurrentFirebaseUser;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -41,8 +41,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         }
 
         Fabric.with(context, new Crashlytics());
-        Crashlytics.setUserIdentifier(CurrentFirebaseUser.getPhoneNumber());
-        Crashlytics.setUserName(CurrentFirebaseUser.getUid());
+        Crashlytics.setUserIdentifier(FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber());
+        Crashlytics.setUserName(FirebaseAuth.getInstance().getUid());
     }
 
     @Override
