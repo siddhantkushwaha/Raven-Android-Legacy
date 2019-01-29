@@ -13,7 +13,7 @@ import com.siddhantkushwaha.android.thugtools.thugtools.utility.GlideApp;
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.GlideUtil;
 import com.siddhantkushwaha.raven.R;
 
-public class GlideUtils extends GlideUtil {
+public class GlideUtilV2 extends GlideUtil {
 
     public static void loadProfilePhotoCircle(Context context, ImageView imageView, String uri) {
 

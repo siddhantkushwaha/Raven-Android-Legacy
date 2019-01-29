@@ -1,6 +1,6 @@
 package com.siddhantkushwaha.raven.localEntity;
 
-import com.siddhantkushwaha.raven.common.utility.DateTimeUtils;
+import com.siddhantkushwaha.raven.utility.JodaTimeUtilV2;
 import com.siddhantkushwaha.raven.entity.Message;
 
 import org.joda.time.DateTime;
@@ -108,18 +108,18 @@ public class RavenMessage extends RealmObject {
         this.setSentByUserId(message.getSentByUserId());
         this.setSentToUserId(message.getSentToUserId());
 
-        DateTime localTime = DateTimeUtils.getJodaDateTime(message.getSentTime());
+        DateTime localTime = JodaTimeUtilV2.getJodaDateTimeFromFirebaseTimestamp(message.getSentTime());
         if (localTime != null)
             this.setLocalTimestamp(localTime.toString());
 
         if (message.getTimestamp() != null) {
-            DateTime serverTime = DateTimeUtils.getJodaDateTime(message.getTimestamp());
+            DateTime serverTime = JodaTimeUtilV2.getJodaDateTimeFromFirebaseTimestamp(message.getTimestamp());
             if (serverTime != null)
                 this.setTimestamp(serverTime.toString());
         }
 
         if (message.getSeenAt() != null) {
-            DateTime seenTime = DateTimeUtils.getJodaDateTime(message.getSeenAt());
+            DateTime seenTime = JodaTimeUtilV2.getJodaDateTimeFromFirebaseTimestamp(message.getSeenAt());
             if (seenTime != null)
                 this.setSeenAt(seenTime.toString());
         }

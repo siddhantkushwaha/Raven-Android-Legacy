@@ -10,8 +10,8 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.siddhantkushwaha.raven.R;
-import com.siddhantkushwaha.raven.common.utility.DateTimeUtils;
-import com.siddhantkushwaha.raven.utility.GlideUtils;
+import com.siddhantkushwaha.raven.utility.JodaTimeUtilV2;
+import com.siddhantkushwaha.raven.utility.GlideUtilV2;
 import com.siddhantkushwaha.raven.localEntity.RavenMessage;
 import com.siddhantkushwaha.raven.manager.ThreadManager;
 import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil;
@@ -93,7 +93,7 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
             if (previousMessageTime == null)
                 previousMessageTime = previousRavenMessage.getLocalTimestamp();
 
-            if (DateTimeUtils.dateCmp(DateTime.parse(currentMessageTime), DateTime.parse(previousMessageTime)) == 0)
+            if (JodaTimeUtilV2.dateCmp(DateTime.parse(currentMessageTime), DateTime.parse(previousMessageTime)) == 0)
                 showDate = false;
 
             previousMessageType = this.getItemViewType(position - 1);
@@ -315,7 +315,7 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
     private void loadImage(ImageView imageView, String fileRef) {
         firebaseStorageUtil.getDownloadUrl(context, fileRef, uri -> {
 
-            GlideUtils.loadImageInChat(context, uri, imageView);
+            GlideUtilV2.loadImageInChat(context, uri, imageView);
         });
     }
 }

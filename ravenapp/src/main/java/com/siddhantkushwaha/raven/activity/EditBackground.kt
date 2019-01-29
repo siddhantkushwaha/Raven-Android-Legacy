@@ -9,12 +9,12 @@ import android.view.MenuItem
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.siddhantkushwaha.nuttertools.GsonUtil
 import com.siddhantkushwaha.raven.R
-import com.siddhantkushwaha.raven.common.utility.GsonUtils
 import com.siddhantkushwaha.raven.entity.WallpaperMetadata
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil
-import com.siddhantkushwaha.raven.utility.GlideUtils
+import com.siddhantkushwaha.raven.utility.GlideUtilV2
 import kotlinx.android.synthetic.main.activity_edit_background.*
 import kotlinx.android.synthetic.main.layout_toolbar.*
 
@@ -26,7 +26,7 @@ class EditBackground : AppCompatActivity() {
         fun openActivity(activity: Activity, finish: Boolean, intentData: IntentData) {
 
             val intent = Intent(activity, EditBackground::class.java)
-            intent.putExtra("wallpaperMetadataJson", GsonUtils.toGson(intentData.wallpaperMetadata))
+            intent.putExtra("wallpaperMetadataJson", GsonUtil.toGson(intentData.wallpaperMetadata))
             intent.putExtra("userId", intentData.userId)
             intent.putExtra("threadId", intentData.threadId)
             activity.startActivity(intent)
@@ -38,7 +38,7 @@ class EditBackground : AppCompatActivity() {
 
             val intent = activity.intent
             return IntentData(
-                    GsonUtils.fromGson(intent.getStringExtra("wallpaperMetadataJson"), WallpaperMetadata::class.java),
+                    GsonUtil.fromGson(intent.getStringExtra("wallpaperMetadataJson"), WallpaperMetadata::class.java),
                     intent.getStringExtra("userId"),
                     intent.getStringExtra("threadId"))
         }
@@ -67,7 +67,7 @@ class EditBackground : AppCompatActivity() {
         threadId = intentData.threadId
 
         FirebaseStorageUtil().getDownloadUrl(this@EditBackground, wallpaperMetadata!!.highResRef) {
-            GlideUtils.loadImage(this@EditBackground, it, background, R.color.colorGreyDark, R.color.colorBlack)
+            GlideUtilV2.loadImage(this@EditBackground, it, background, R.color.colorGreyDark, R.color.colorBlack)
         }
 
         infoText.text = wallpaperMetadata?.info ?: "No information available."

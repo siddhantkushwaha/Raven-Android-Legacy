@@ -6,12 +6,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
-import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.request.RequestOptions;
 import com.siddhantkushwaha.raven.R;
 import com.siddhantkushwaha.raven.entity.WallpaperMetadata;
 import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil;
-import com.siddhantkushwaha.raven.utility.GlideUtils;
+import com.siddhantkushwaha.raven.utility.GlideUtilV2;
 
 import java.util.ArrayList;
 
@@ -54,7 +52,7 @@ public class ChatBackgroundGalleryAdapter extends BaseAdapter {
         String fileRef = data.get(position).getLowResRef();
         firebaseStorageUtil.getDownloadUrl(context, fileRef, uri -> {
 
-            GlideUtils.loadImage(context, uri, finalListItem.findViewById(R.id.image), R.drawable.hourglass, R.drawable.bug);
+            GlideUtilV2.loadImage(context, uri, finalListItem.findViewById(R.id.image), R.drawable.hourglass, R.drawable.bug);
         });
 
         return listItem;

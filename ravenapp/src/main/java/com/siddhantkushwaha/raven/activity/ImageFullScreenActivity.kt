@@ -18,7 +18,7 @@ import com.bumptech.glide.request.transition.Transition
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.UiUtil
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil
-import com.siddhantkushwaha.raven.utility.GlideUtils
+import com.siddhantkushwaha.raven.utility.GlideUtilV2
 import kotlinx.android.synthetic.main.activity_image_full_screen.*
 
 class ImageFullScreenActivity : AppCompatActivity() {
@@ -120,7 +120,7 @@ class ImageFullScreenActivity : AppCompatActivity() {
 
         FirebaseStorageUtil().getDownloadUrl(this@ImageFullScreenActivity, intentData.fileRef) {
 
-            GlideUtils.loadImageAsBitmap(this@ImageFullScreenActivity, it, RequestOptions(), object : SimpleTarget<Bitmap>() {
+            GlideUtilV2.loadImageAsBitmap(this@ImageFullScreenActivity, it, RequestOptions(), object : SimpleTarget<Bitmap>() {
                 override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
                     image.setImageBitmap(resource)
                 }

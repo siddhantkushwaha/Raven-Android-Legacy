@@ -28,11 +28,11 @@ import com.google.firebase.firestore.FieldValue
 import com.google.firebase.storage.FirebaseStorage
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.raven.R
-import com.siddhantkushwaha.raven.common.utility.DateTimeUtils
+import com.siddhantkushwaha.raven.utility.JodaTimeUtilV2
 import com.siddhantkushwaha.raven.custom.CustomMapFragment
 import com.siddhantkushwaha.raven.entity.User
 import com.siddhantkushwaha.raven.manager.UserManager
-import com.siddhantkushwaha.raven.utility.GlideUtils
+import com.siddhantkushwaha.raven.utility.GlideUtilV2
 import com.siddhantkushwaha.raven.utilityActivity.activityRemoveDisplayPicture
 import com.yalantis.ucrop.UCrop
 import kotlinx.android.synthetic.main.activity_my_profile.*
@@ -319,7 +319,7 @@ class MyProfileActivity : AppCompatActivity() {
         aboutEditText.setText(user?.userProfile?.about ?: getString(R.string.default_about))
         phoneEditText.setText(FirebaseAuth.getInstance().currentUser?.phoneNumber)
 
-        GlideUtils.loadProfilePhotoCircle(this@MyProfileActivity, profilePicture, user?.userProfile?.picUrl)
+        GlideUtilV2.loadProfilePhotoCircle(this@MyProfileActivity, profilePicture, user?.userProfile?.picUrl)
 
         if (user?.userLocation != null) {
 
@@ -338,7 +338,7 @@ class MyProfileActivity : AppCompatActivity() {
                 statusLocationPublicTextView.text = "Your location is private."
             statusLocationPublic.setOnCheckedChangeListener(privacyChangeListener)
 
-            val time = DateTimeUtils.getJodaDateTime(user?.userLocation?.timestamp)
+            val time = JodaTimeUtilV2.getJodaDateTimeFromFirebaseTimestamp(user?.userLocation?.timestamp)
             val build = DateTimeFormat.forPattern("hh:mm a 'on' MMMMMMMMM d, yyyy").withZone(DateTimeZone.getDefault())
             lastUpdatedTextView.text = build.print(time)
 

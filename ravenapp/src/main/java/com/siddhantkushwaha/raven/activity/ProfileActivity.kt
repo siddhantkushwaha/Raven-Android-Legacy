@@ -21,11 +21,11 @@ import com.google.firebase.firestore.EventListener
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.UiUtil
 import com.siddhantkushwaha.raven.R
-import com.siddhantkushwaha.raven.common.utility.DateTimeUtils
+import com.siddhantkushwaha.raven.utility.JodaTimeUtilV2
 import com.siddhantkushwaha.raven.custom.CustomMapFragment
 import com.siddhantkushwaha.raven.entity.User
 import com.siddhantkushwaha.raven.manager.UserManager
-import com.siddhantkushwaha.raven.utility.GlideUtils
+import com.siddhantkushwaha.raven.utility.GlideUtilV2
 import kotlinx.android.synthetic.main.activity_profile.*
 import kotlinx.android.synthetic.main.layout_profile_content_scrolling.*
 import org.joda.time.DateTimeZone
@@ -155,8 +155,8 @@ class ProfileActivity : AppCompatActivity() {
         collapsingToolbar.title = user?.userProfile?.name ?: getString(R.string.default_name)
         aboutTextView.text = user?.userProfile?.about ?: getString(R.string.default_about)
 
-        GlideUtils.loadProfilePhotoSquare(this@ProfileActivity, imageRelativeLayout, user?.userProfile?.picUrl)
-        GlideUtils.loadImageAsBitmap(this@ProfileActivity, user?.userProfile?.picUrl, RequestOptions(), object : SimpleTarget<Bitmap>() {
+        GlideUtilV2.loadProfilePhotoSquare(this@ProfileActivity, imageRelativeLayout, user?.userProfile?.picUrl)
+        GlideUtilV2.loadImageAsBitmap(this@ProfileActivity, user?.userProfile?.picUrl, RequestOptions(), object : SimpleTarget<Bitmap>() {
             override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
 
                 Palette.from(resource).generate {
@@ -180,7 +180,7 @@ class ProfileActivity : AppCompatActivity() {
                         ?: 0.0)
                 moveCamera(latLng, 0, "Last seen here.")
 
-                val time = DateTimeUtils.getJodaDateTime(user?.userLocation?.timestamp)
+                val time = JodaTimeUtilV2.getJodaDateTimeFromFirebaseTimestamp(user?.userLocation?.timestamp)
                 val build = DateTimeFormat.forPattern("hh:mm a 'on' MMMMMMMMM d, yyyy").withZone(DateTimeZone.getDefault())
                 locationInfoTextView.text = build.print(time)
             } else {

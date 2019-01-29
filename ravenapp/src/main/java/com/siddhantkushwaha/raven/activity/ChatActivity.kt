@@ -22,10 +22,10 @@ import com.google.firebase.firestore.QuerySnapshot
 import com.google.gson.JsonObject
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ImageUtil
+import com.siddhantkushwaha.nuttertools.GsonUtil
 import com.siddhantkushwaha.raven.NotificationSender
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.adapter.MessageAdapter
-import com.siddhantkushwaha.raven.common.utility.GsonUtils
 import com.siddhantkushwaha.raven.utility.RealmUtil
 import com.siddhantkushwaha.raven.entity.Message
 import com.siddhantkushwaha.raven.entity.User
@@ -34,7 +34,7 @@ import com.siddhantkushwaha.raven.localEntity.RavenThread
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.manager.UserManager
 import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil
-import com.siddhantkushwaha.raven.utility.GlideUtils
+import com.siddhantkushwaha.raven.utility.GlideUtilV2
 import com.siddhantkushwaha.raven.utility.RavenUtils
 import com.siddhantkushwaha.raven.utility.UCropUtil
 import com.yalantis.ucrop.UCrop
@@ -189,7 +189,7 @@ class ChatActivity : AppCompatActivity() {
                     var fileRef: String? = null
                     var alpha: Float? = null
                     if (docData != null) {
-                        val backgroundMetadata = GsonUtils.fromGson(GsonUtils.toGson(docData), JsonObject::class.java)
+                        val backgroundMetadata = GsonUtil.fromGson(GsonUtil.toGson(docData), JsonObject::class.java)
                         fileRef = backgroundMetadata.getAsJsonPrimitive("fileRef").asString
                         alpha = backgroundMetadata.getAsJsonPrimitive("opacity").asFloat
                     }
@@ -343,7 +343,7 @@ class ChatActivity : AppCompatActivity() {
 
         nameTextView.text = user?.userProfile?.name ?: user?.phoneNumber
                 ?: getString(R.string.default_name)
-        GlideUtils.loadProfilePhotoCircle(this, imageRelativeLayout, user?.userProfile?.picUrl)
+        GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, user?.userProfile?.picUrl)
     }
 
     private fun setScrollPosition(scrollToLast: Boolean?) {
@@ -447,6 +447,6 @@ class ChatActivity : AppCompatActivity() {
         requestOptions.error(R.drawable.artwork_raven)
         requestOptions.placeholder(R.drawable.artwork_raven)
 
-        GlideUtils.loadChatBackground(this@ChatActivity, uri, requestOptions, background)
+        GlideUtilV2.loadChatBackground(this@ChatActivity, uri, requestOptions, background)
     }
 }

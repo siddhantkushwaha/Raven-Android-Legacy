@@ -10,10 +10,10 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.siddhantkushwaha.raven.R
-import com.siddhantkushwaha.raven.common.utility.DateTimeUtils
+import com.siddhantkushwaha.raven.utility.JodaTimeUtilV2
 import com.siddhantkushwaha.raven.localEntity.RavenThread
 import com.siddhantkushwaha.raven.manager.ThreadManager
-import com.siddhantkushwaha.raven.utility.GlideUtils
+import com.siddhantkushwaha.raven.utility.GlideUtilV2
 import io.realm.OrderedRealmCollection
 import io.realm.RealmBaseAdapter
 import org.joda.time.DateTime
@@ -32,7 +32,7 @@ class ThreadAdapter(private val context: Context, private val data: OrderedRealm
         val ravenThread = data[position]
 
         view?.findViewById<TextView>(R.id.name)!!.text = ravenThread.user?.contactName ?: ravenThread.user?.displayName ?: ravenThread.user?.phoneNumber ?: context.getString(R.string.default_name)
-        GlideUtils.loadProfilePhotoCircle(context, view.findViewById(R.id.displayPicImageView), ravenThread?.user?.picUrl)
+        GlideUtilV2.loadProfilePhotoCircle(context, view.findViewById(R.id.displayPicImageView), ravenThread?.user?.picUrl)
 
         when (ravenThread.lastMessage?.getMessageType(FirebaseAuth.getInstance().uid)) {
             1 -> {
@@ -104,8 +104,8 @@ class ThreadAdapter(private val context: Context, private val data: OrderedRealm
 
         if (time != null) {
             when {
-                DateTimeUtils.isToday(time) -> view.findViewById<TextView>(R.id.messageSentTime).text = DateTimeFormat.forPattern("hh:mm:aa").print(time)
-                DateTimeUtils.isYesterday(time) -> view.findViewById<TextView>(R.id.messageSentTime).text = "Yesterday"
+                JodaTimeUtilV2.isToday(time) -> view.findViewById<TextView>(R.id.messageSentTime).text = DateTimeFormat.forPattern("hh:mm:aa").print(time)
+                JodaTimeUtilV2.isYesterday(time) -> view.findViewById<TextView>(R.id.messageSentTime).text = "Yesterday"
                 else -> view.findViewById<TextView>(R.id.messageSentTime).text = DateTimeFormat.forPattern("dd/MM/yy").print(time)
             }
         } else {

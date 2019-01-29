@@ -75,10 +75,6 @@ dependencies {
     //realm adapter for showing realm data
     implementation 'io.realm:android-adapters:2.1.1'
 
-    // some common java libraries
-    implementation 'joda-time:joda-time:2.3'
-    implementation 'com.google.code.gson:gson:2.8.5'
-
     // some thirdparty libs (try to replace or find a better alternative)
     implementation 'com.hbb20:ccp:2.2.0'
     implementation 'com.github.yalantis:ucrop:2.2.2-native'
@@ -89,7 +85,7 @@ dependencies {
         transitive = true
     }
 
-    implementation 'com.github.siddhantkushwaha:thugtools:6ad0cefe64'
+    implementation 'com.github.siddhantkushwaha:thugtools:fa7d0044a2'
 }
 
 apply plugin: 'com.google.gms.google-services'

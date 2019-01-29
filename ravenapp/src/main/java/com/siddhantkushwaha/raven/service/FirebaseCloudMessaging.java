@@ -8,9 +8,9 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo;
+import com.siddhantkushwaha.nuttertools.GsonUtil;
 import com.siddhantkushwaha.raven.NotificationSender;
 import com.siddhantkushwaha.raven.activity.ChatActivity;
-import com.siddhantkushwaha.raven.common.utility.GsonUtils;
 import com.siddhantkushwaha.raven.entity.Message;
 import com.siddhantkushwaha.raven.manager.ThreadManager;
 import com.siddhantkushwaha.raven.utility.RavenUtils;
@@ -43,7 +43,7 @@ public class FirebaseCloudMessaging extends FirebaseMessagingService {
 
         Message messageObject = null;
         try {
-            messageObject = GsonUtils.fromGson(message, Message.class);
+            messageObject = GsonUtil.fromGson(message, Message.class);
         } catch (Exception e) {
             Log.e(FirebaseCloudMessaging.class.toString(), e.toString());
         }

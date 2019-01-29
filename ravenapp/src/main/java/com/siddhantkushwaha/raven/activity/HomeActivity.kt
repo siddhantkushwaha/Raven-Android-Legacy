@@ -28,7 +28,7 @@ import com.siddhantkushwaha.raven.localEntity.RavenThread
 import com.siddhantkushwaha.raven.localEntity.RavenUser
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.manager.UserManager
-import com.siddhantkushwaha.raven.utility.GlideUtils
+import com.siddhantkushwaha.raven.utility.GlideUtilV2
 import io.realm.OrderedRealmCollectionChangeListener
 import io.realm.Realm
 import io.realm.RealmResults
@@ -359,6 +359,6 @@ class HomeActivity : AppCompatActivity() {
 
         navigation.getHeaderView(0).findViewById<TextView>(R.id.nameTextView).text = user?.userProfile?.name ?: getString(R.string.default_name)
         navigation.getHeaderView(0).findViewById<TextView>(R.id.phoneTextView).text = user?.phoneNumber ?: "Phone"
-        GlideUtils.loadProfilePhotoCircle(this@HomeActivity, navigation.getHeaderView(0).findViewById(R.id.displayPicImageView), user?.userProfile?.picUrl)
+        GlideUtilV2.loadProfilePhotoCircle(this@HomeActivity, navigation.getHeaderView(0).findViewById(R.id.displayPicImageView), user?.userProfile?.picUrl)
     }
 }
