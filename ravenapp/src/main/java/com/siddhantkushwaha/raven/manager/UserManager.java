@@ -20,6 +20,8 @@ import com.siddhantkushwaha.raven.utility.FirebaseUtils;
 import java.util.HashMap;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
+
 public class UserManager {
 
     private static String TAG = "USER_MANAGER";
@@ -117,6 +119,11 @@ public class UserManager {
 
         DocumentReference documentReference = db.collection(COLLECTION_NAME).document(userId);
         documentReference.addSnapshotListener(activity, eventListener);
+    }
+
+    public void getUserByUserId(@NonNull String userId, OnCompleteListener<DocumentSnapshot> onCompleteListener) {
+
+        db.collection(COLLECTION_NAME).document(userId).get().addOnCompleteListener(onCompleteListener);
     }
 
     public void startUserSyncByAttribute(Activity activity, String attributeKey, Object attributeValue, EventListener<QuerySnapshot> eventListener) {

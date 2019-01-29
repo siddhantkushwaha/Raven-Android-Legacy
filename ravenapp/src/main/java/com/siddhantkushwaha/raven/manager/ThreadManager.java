@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.net.Uri;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -70,6 +71,7 @@ public class ThreadManager {
             HashMap<String, String> map = new HashMap<>();
             map.put("threadId", threadId);
             map.put("messageId", messageRef.getId());
+            map.put("sentToUserId", message.getSentToUserId());
             FirebaseUtils.getRealtimeDb(true).getReference("messages").push().setValue(map);
         });
     }
@@ -157,6 +159,11 @@ public class ThreadManager {
         db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document(messageId).addSnapshotListener(eventListener);
     }
 
+    public void getMessageByMessageId(@NonNull String threadId, @NonNull String messageId, OnCompleteListener<DocumentSnapshot> onCompleteListener) {
+
+        db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document(messageId).get().addOnCompleteListener(onCompleteListener);
+    }
+
     public static String encryptMessage(String threadId, String message) {
 
         String encryptedMessage = null;
@@ -171,17 +178,6 @@ public class ThreadManager {
     public static String decryptMessage(String threadId, String encryptedMessage) throws Exception {
 
         return AESNygma.decrypt(threadId, encryptedMessage);
-    }
-
-    public static Message decryptMessage(String threadId, Message message) throws Exception {
-
-        if (message == null)
-            return null;
-
-        String decryptedMessage = decryptMessage(threadId, message.getText());
-        message.setText(decryptedMessage);
-
-        return message;
     }
 
     public void changeThreadBackground(@NonNull String fileRef, @NonNull Float opacity, @NonNull String threadId, @NonNull String userId, OnCompleteListener<Void> onCompleteListener) {

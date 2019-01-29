@@ -20,6 +20,8 @@ import java.util.Random;
 
 public class FirebaseCloudMessaging extends FirebaseMessagingService {
 
+    private static final String TAG = FirebaseMessagingService.class.toString();
+
     @Override
     public void onNewToken(String s) {
         super.onNewToken(s);
@@ -29,11 +31,12 @@ public class FirebaseCloudMessaging extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage message) {
 
-        Log.i(FirebaseCloudMessaging.class.toString(), "MESSAGE_RECEIVED");
-        sendMyNotification(message.getData());
+        Log.i(TAG, "MESSAGE_RECEIVED");
+        sendMyNotificationV2(message.getData());
     }
 
-    private void sendMyNotification(Map<String, String> notification) {
+    // TODO this is to support older versions than 1.0.6
+    private void sendMyNotificationV1(Map<String, String> notification) {
 
         String title = notification.get("title");
         String message = notification.get("message");
@@ -41,11 +44,13 @@ public class FirebaseCloudMessaging extends FirebaseMessagingService {
         if (title == null || message == null)
             return;
 
+        Log.i(TAG, "sendMyNotificationV1");
+
         Message messageObject = null;
         try {
             messageObject = GsonUtil.fromGson(message, Message.class);
         } catch (Exception e) {
-            Log.e(FirebaseCloudMessaging.class.toString(), e.toString());
+            Log.e(TAG, e.toString());
         }
 
         if (messageObject == null)
@@ -84,6 +89,7 @@ public class FirebaseCloudMessaging extends FirebaseMessagingService {
         notificationSender.sendNotificationWithReplyAction(messageObject.getSentByUserId(), threadId, "REPLY");
     }
 
+    // TODO this is to support older versions than 1.0.6
     private void setMessageText(String threadId, Message messageObject) {
         try {
             messageObject.setText(ThreadManager.decryptMessage(threadId, messageObject.getText()));
@@ -91,5 +97,21 @@ public class FirebaseCloudMessaging extends FirebaseMessagingService {
             messageObject.setText("Couldn't Decrypt.");
             e.printStackTrace();
         }
+    }
+
+    private void sendMyNotificationV2(Map<String, String> notification) {
+
+        String threadId = notification.get("threadId");
+        String messageId = notification.get("messageId");
+
+        if (threadId == null || messageId == null) {
+
+            sendMyNotificationV1(notification);
+            return;
+        }
+
+        Log.i(TAG, "sendMyNotificationV2");
+
+        FirebaseCloudMessaginUtilKt.sendNewMessageNotification(this, threadId, messageId);
     }
 }
