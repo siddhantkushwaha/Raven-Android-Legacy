@@ -1,6 +1,8 @@
 package com.siddhantkushwaha.raven.service
 
 import android.content.Context
+import android.util.Log
+import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.raven.NotificationSender
 import com.siddhantkushwaha.raven.activity.ChatActivity
 import com.siddhantkushwaha.raven.entity.Message
@@ -22,19 +24,29 @@ fun sendNewMessageNotification(context: Context, threadId: String, messageId: St
                 if (it2.isSuccessful) {
                     val user = it2.result?.toObject(User::class.java) ?: return@getUserByUserId
 
-                    val requestCode = Random().nextInt(100000)
-                    val intent = ChatActivity.getIntent(context, ChatActivity.Companion.IntentData(threadId))
-                    val notificationSender = NotificationSender(context,
-                            threadId,
-                            requestCode,
-                            user.userProfile?.name ?: user.phoneNumber ?: "Message Notification",
-                            message.text,
-                            intent)
-                    notificationSender.sendNotificationWithReplyAction(message.sentByUserId, threadId, "REPLY")
+                   sendNotification(context, threadId, message, user)
                 }
             }
         }
     }
+}
+
+private fun sendNotification(context: Context, threadId: String, message: Message, user: User) {
+
+    if(ActivityInfo.getClassName() == ChatActivity::class.java.toString() && threadId == ActivityInfo.getIntentInfo().getString("threadId")) {
+        Log.i(FirebaseCloudMessaging.TAG, "returning2");
+        return
+    }
+
+    val requestCode = Random().nextInt(100000)
+    val intent = ChatActivity.getIntent(context, ChatActivity.Companion.IntentData(threadId))
+    val notificationSender = NotificationSender(context,
+            threadId,
+            requestCode,
+            user.userProfile?.name ?: user.phoneNumber ?: "Message Notification",
+            message.text,
+            intent)
+    notificationSender.sendNotificationWithReplyAction(message.sentByUserId, threadId, "REPLY")
 }
 
 private fun decryptMessage(message: Message, threadId: String) {

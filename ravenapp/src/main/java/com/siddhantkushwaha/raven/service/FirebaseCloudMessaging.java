@@ -20,7 +20,7 @@ import java.util.Random;
 
 public class FirebaseCloudMessaging extends FirebaseMessagingService {
 
-    private static final String TAG = FirebaseMessagingService.class.toString();
+    static final String TAG = FirebaseMessagingService.class.toString();
 
     @Override
     public void onNewToken(String s) {
@@ -112,15 +112,10 @@ public class FirebaseCloudMessaging extends FirebaseMessagingService {
 
         Log.i(TAG, "sendMyNotificationV2");
 
-        if (FirebaseAuth.getInstance().getUid() != null && !topic.equals(FirebaseAuth.getInstance().getUid())) {
+        if (FirebaseAuth.getInstance().getUid() != null && !topic.replace("/topics/", "").equals(FirebaseAuth.getInstance().getUid())) {
+            Log.i(TAG, "returning1 " + topic);
             FirebaseMessaging.getInstance().unsubscribeFromTopic(topic);
             return;
-        }
-
-        if (ActivityInfo.getClassName() != null && ChatActivity.class.toString().equals(ActivityInfo.getClassName())) {
-            if (ActivityInfo.getIntentInfo() != null && threadId.equals(ActivityInfo.getIntentInfo().getString("threadId"))) {
-                return;
-            }
         }
 
         FirebaseCloudMessaginUtilKt.sendNewMessageNotification(this, threadId, messageId);
