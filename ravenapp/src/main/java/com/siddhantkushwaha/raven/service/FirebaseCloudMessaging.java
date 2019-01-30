@@ -32,7 +32,7 @@ public class FirebaseCloudMessaging extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage message) {
 
         Log.i(TAG, "MESSAGE_RECEIVED");
-        sendMyNotificationV2(message.getData());
+        sendMyNotificationV2(message.getData(), message.getFrom());
     }
 
     // TODO this is to support older versions than 1.0.6
@@ -99,7 +99,7 @@ public class FirebaseCloudMessaging extends FirebaseMessagingService {
         }
     }
 
-    private void sendMyNotificationV2(Map<String, String> notification) {
+    private void sendMyNotificationV2(Map<String, String> notification, String topic) {
 
         String threadId = notification.get("threadId");
         String messageId = notification.get("messageId");
@@ -111,6 +111,17 @@ public class FirebaseCloudMessaging extends FirebaseMessagingService {
         }
 
         Log.i(TAG, "sendMyNotificationV2");
+
+        if (FirebaseAuth.getInstance().getUid() != null && !topic.equals(FirebaseAuth.getInstance().getUid())) {
+            FirebaseMessaging.getInstance().unsubscribeFromTopic(topic);
+            return;
+        }
+
+        if (ActivityInfo.getClassName() != null && ChatActivity.class.toString().equals(ActivityInfo.getClassName())) {
+            if (ActivityInfo.getIntentInfo() != null && threadId.equals(ActivityInfo.getIntentInfo().getString("threadId"))) {
+                return;
+            }
+        }
 
         FirebaseCloudMessaginUtilKt.sendNewMessageNotification(this, threadId, messageId);
     }
