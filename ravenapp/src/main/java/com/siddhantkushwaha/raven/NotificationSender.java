@@ -7,8 +7,17 @@ import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.util.Log;
+import android.widget.RemoteViews;
 
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
+import com.siddhantkushwaha.android.thugtools.thugtools.utility.GlideApp;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.RemoteInput;
 import androidx.core.content.ContextCompat;
@@ -16,6 +25,8 @@ import androidx.core.content.ContextCompat;
 import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class NotificationSender {
+
+    private static final String REPLY_LABEL = "REPLY";
 
     private Context context;
 
@@ -51,30 +62,57 @@ public class NotificationSender {
         }
     }
 
-    public void sendNotificationWithReplyAction(String userId, String threadId, String replyLabel) {
+    public void sendNotificationWithReplyAction(String userId, String threadId, String picUrl) {
 
-        PendingIntent pendingIntent = TaskStackBuilder.create(context).addNextIntentWithParentStack(intent).getPendingIntent(requestCode, PendingIntent.FLAG_ONE_SHOT);
+        RemoteViews notificationLayout = new RemoteViews(context.getPackageName(), R.layout.layout_new_message_notification);
+        notificationLayout.setTextViewText(R.id.title, contentTitle);
+        notificationLayout.setTextViewText(R.id.message, contentText);
 
-//        PendingIntent pendingIntent = PendingIntent.getActivity(context, requestCode, intent, PendingIntent.FLAG_ONE_SHOT);
+        RequestOptions requestOptions = new RequestOptions();
+        requestOptions.error(R.drawable.image_unknown_user_circle);
+        requestOptions.placeholder(R.drawable.image_unknown_user_circle);
+
+        GlideApp.with(context)
+                .asBitmap()
+                .load(picUrl)
+                .circleCrop()
+                .apply(requestOptions)
+                .into(new SimpleTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+
+                        notificationLayout.setImageViewBitmap(R.id.displayPic, resource);
+                        buildAndSend(notificationLayout, userId, threadId);
+                    }
+                });
+    }
+
+    private void buildAndSend(RemoteViews notificationLayout, String userId, String threadId) {
+
+        PendingIntent pendingIntent = TaskStackBuilder.create(context)
+                .addNextIntentWithParentStack(intent)
+                .getPendingIntent(requestCode, PendingIntent.FLAG_ONE_SHOT);
+        // PendingIntent pendingIntent = PendingIntent.getActivity(context, requestCode, intent, PendingIntent.FLAG_ONE_SHOT);
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
                 .setDefaults(Notification.DEFAULT_SOUND)
                 .setSmallIcon(R.drawable.logo_raven_silhoutte)
                 .setColor(ContextCompat.getColor(context, R.color.colorAccent))
-                .setContentTitle(contentTitle)
-                .setContentText(contentText)
                 .setContentIntent(pendingIntent)
+                .setCustomContentView(notificationLayout)
+                .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
                 .setAutoCancel(true);
 
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
 
             RemoteInput remoteInput = new RemoteInput.Builder(NotificationReceiver.NOTIFICATION_REPLY)
-                    .setLabel(replyLabel).build();
+                    .setLabel(REPLY_LABEL).build();
 
             Intent intent = NotificationReceiver.getIntent(context, userId, threadId);
             PendingIntent replyPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), requestCode, intent, PendingIntent.FLAG_ONE_SHOT);
 
-            NotificationCompat.Action action = new NotificationCompat.Action.Builder(R.drawable.button_send_message, replyLabel, replyPendingIntent)
+            NotificationCompat.Action action = new NotificationCompat.Action.Builder(R.drawable.button_send_message, REPLY_LABEL, replyPendingIntent)
                     .addRemoteInput(remoteInput).build();
 
             builder.addAction(action);

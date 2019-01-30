@@ -43,7 +43,7 @@
         <activity
             android:name=".activity.AboutActivity"
             android:parentActivityName=".activity.HomeActivity" />
-        <activity android:name=".activity.ChatBackgroundGallery"/>
+        <activity android:name=".activity.ChatBackgroundGallery" />
         <activity android:name=".activity.EditBackground" />
 
         <!-- _____________________________________________________________________ -->

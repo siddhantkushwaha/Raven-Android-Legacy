@@ -1,6 +1,7 @@
 package com.siddhantkushwaha.raven.service
 
 import android.content.Context
+import android.content.Intent
 import android.util.Log
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.raven.NotificationSender
@@ -24,7 +25,7 @@ fun sendNewMessageNotification(context: Context, threadId: String, messageId: St
                 if (it2.isSuccessful) {
                     val user = it2.result?.toObject(User::class.java) ?: return@getUserByUserId
 
-                   sendNotification(context, threadId, message, user)
+                    sendNotification(context, threadId, message, user)
                 }
             }
         }
@@ -33,20 +34,23 @@ fun sendNewMessageNotification(context: Context, threadId: String, messageId: St
 
 private fun sendNotification(context: Context, threadId: String, message: Message, user: User) {
 
-    if(ActivityInfo.getClassName() == ChatActivity::class.java.toString() && threadId == ActivityInfo.getIntentInfo().getString("threadId")) {
+    if (ActivityInfo.getClassName() == ChatActivity::class.java.toString() && threadId == ActivityInfo.getIntentInfo().getString("threadId")) {
         Log.i(FirebaseCloudMessaging.TAG, "returning2");
         return
     }
 
     val requestCode = Random().nextInt(100000)
-    val intent = ChatActivity.getIntent(context, ChatActivity.Companion.IntentData(threadId))
+    // val intent = ChatActivity.getIntent(context, ChatActivity.Companion.IntentData(threadId))
+    val intent = Intent(context, ChatActivity::class.java)
+    intent.putExtra("threadId", threadId)
     val notificationSender = NotificationSender(context,
             threadId,
             requestCode,
             user.userProfile?.name ?: user.phoneNumber ?: "Message Notification",
             message.text,
             intent)
-    notificationSender.sendNotificationWithReplyAction(message.sentByUserId, threadId, "REPLY")
+
+    notificationSender.sendNotificationWithReplyAction(message.sentByUserId, threadId, user.userProfile?.picUrl)
 }
 
 private fun decryptMessage(message: Message, threadId: String) {
