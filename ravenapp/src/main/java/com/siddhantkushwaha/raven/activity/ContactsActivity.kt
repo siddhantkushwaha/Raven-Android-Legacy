@@ -53,7 +53,7 @@ class ContactsActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         refreshButton.setOnClickListener {
-            Toast.makeText(this@ContactsActivity, "Syncing contacts.", 2000).show()
+            Toast.makeText(this@ContactsActivity, "Syncing contacts.", Toast.LENGTH_LONG).show()
 //            RavenContactSync.reSync(this@ContactsActivity)
 //            AppInfo.openAppInfo(this);
             ContactsUtil.getReadContactsPermission(this@ContactsActivity)

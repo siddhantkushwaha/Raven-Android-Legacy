@@ -358,7 +358,7 @@ class MyProfileActivity : AppCompatActivity() {
             if (task.isSuccessful) {
                 message = "Successfully updated profile."
             }
-            Toast.makeText(this@MyProfileActivity, message, 2000).show()
+            Toast.makeText(this@MyProfileActivity, message, Toast.LENGTH_LONG).show()
         }
     }
 }

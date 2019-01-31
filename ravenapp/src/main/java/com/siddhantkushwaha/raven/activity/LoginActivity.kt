@@ -209,7 +209,7 @@ class LoginActivity : AppCompatActivity() {
 
     private fun showAlert(message: String, flag: Int) {
         if (flag == 0)
-            Snackbar.make(scrollView, message, 2000).show()
+            Snackbar.make(scrollView, message, Snackbar.LENGTH_LONG).show()
 
     }
 
