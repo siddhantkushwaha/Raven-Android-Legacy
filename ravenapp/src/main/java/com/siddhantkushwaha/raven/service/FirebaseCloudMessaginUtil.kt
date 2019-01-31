@@ -1,7 +1,6 @@
 package com.siddhantkushwaha.raven.service
 
 import android.content.Context
-import android.content.Intent
 import android.util.Log
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.raven.NotificationSender
@@ -40,9 +39,7 @@ private fun sendNotification(context: Context, threadId: String, message: Messag
     }
 
     val requestCode = Random().nextInt(100000)
-    // val intent = ChatActivity.getIntent(context, ChatActivity.Companion.IntentData(threadId))
-    val intent = Intent(context, ChatActivity::class.java)
-    intent.putExtra("threadId", threadId)
+    val intent = ChatActivity.getIntent(context, ChatActivity.Companion.IntentData(threadId))
     val notificationSender = NotificationSender(context,
             threadId,
             requestCode,

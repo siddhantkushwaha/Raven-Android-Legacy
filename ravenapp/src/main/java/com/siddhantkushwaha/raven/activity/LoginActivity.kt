@@ -17,7 +17,6 @@ import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthProvider
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.raven.R
-import io.fabric.sdk.android.Fabric
 import kotlinx.android.synthetic.main.activity_login.*
 import java.util.concurrent.TimeUnit
 
@@ -55,7 +54,6 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Fabric.with(this@LoginActivity, Crashlytics())
         Crashlytics.setUserIdentifier("NONE")
         Crashlytics.setUserName("NONE")
 
@@ -232,7 +230,8 @@ class LoginActivity : AppCompatActivity() {
 
     private fun verifyOtp() {
         if (phoneVerificationId != null) {
-            signIn(PhoneAuthProvider.getCredential(phoneVerificationId.toString(), otp.text.toString()))
+            signIn(PhoneAuthProvider.getCredential(phoneVerificationId.toString(), otp.text?.toString()
+                    ?: ""))
         } else {
             updateActivityState(activityStateCodeVerificationFailed, 0)
         }

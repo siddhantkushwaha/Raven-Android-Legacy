@@ -8,7 +8,6 @@ import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.bumptech.glide.request.RequestOptions;
@@ -92,7 +91,6 @@ public class NotificationSender {
         PendingIntent pendingIntent = TaskStackBuilder.create(context)
                 .addNextIntentWithParentStack(intent)
                 .getPendingIntent(requestCode, PendingIntent.FLAG_ONE_SHOT);
-        // PendingIntent pendingIntent = PendingIntent.getActivity(context, requestCode, intent, PendingIntent.FLAG_ONE_SHOT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
                 .setDefaults(Notification.DEFAULT_SOUND)
@@ -125,7 +123,7 @@ public class NotificationSender {
             NotificationChannel notificationChannel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
             notificationManager.createNotificationChannel(notificationChannel);
         }
-        Log.i(getClass().toString(), notificationId);
+
         notificationManager.notify(notificationId, 0, newMessageNotification);
     }
 }

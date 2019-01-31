@@ -35,6 +35,7 @@ import io.realm.RealmResults
 import io.realm.Sort
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.layout_toolbar.*
+import java.util.*
 
 
 class HomeActivity : AppCompatActivity() {
@@ -107,6 +108,22 @@ class HomeActivity : AppCompatActivity() {
 
         contacts.setOnClickListener {
             ContactsActivity.openActivity(this@HomeActivity, false)
+
+            // Do not remove the below piece of code, comment it instead.
+
+            /*
+            val threadId = "OIVpvvIjA6fJFbkL4mrlX95zTke2S2HeXgDdtPgwQFk6gRtzyg6dAol1"
+            val requestCode = Random().nextInt(100000)
+            val intent = ChatActivity.getIntent(this@HomeActivity, ChatActivity.Companion.IntentData(threadId))
+            val notificationSender = NotificationSender(this@HomeActivity,
+                    threadId,
+                    requestCode,
+                    "admin",
+                    "notificaiton pending intent test..",
+                    intent)
+
+            notificationSender.sendNotificationWithReplyAction("12345", threadId, user?.userProfile?.picUrl)
+            */
         }
 
         userThreadHashMap = HashMap()

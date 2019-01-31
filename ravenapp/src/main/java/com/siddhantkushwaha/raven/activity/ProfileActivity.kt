@@ -21,11 +21,11 @@ import com.google.firebase.firestore.EventListener
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.UiUtil
 import com.siddhantkushwaha.raven.R
-import com.siddhantkushwaha.raven.utility.JodaTimeUtilV2
 import com.siddhantkushwaha.raven.custom.CustomMapFragment
 import com.siddhantkushwaha.raven.entity.User
 import com.siddhantkushwaha.raven.manager.UserManager
 import com.siddhantkushwaha.raven.utility.GlideUtilV2
+import com.siddhantkushwaha.raven.utility.JodaTimeUtilV2
 import kotlinx.android.synthetic.main.activity_profile.*
 import kotlinx.android.synthetic.main.layout_profile_content_scrolling.*
 import org.joda.time.DateTimeZone
@@ -105,6 +105,10 @@ class ProfileActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return super.onSupportNavigateUp()
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
     }
 
     /*------------------------------------------- MAP STUFF ---------------------------------------------*/

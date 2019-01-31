@@ -1,5 +1,6 @@
 package com.siddhantkushwaha.raven.activity
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -26,17 +27,13 @@ import com.siddhantkushwaha.nuttertools.GsonUtil
 import com.siddhantkushwaha.raven.NotificationSender
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.adapter.MessageAdapter
-import com.siddhantkushwaha.raven.utility.RealmUtil
 import com.siddhantkushwaha.raven.entity.Message
 import com.siddhantkushwaha.raven.entity.User
 import com.siddhantkushwaha.raven.localEntity.RavenMessage
 import com.siddhantkushwaha.raven.localEntity.RavenThread
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.manager.UserManager
-import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil
-import com.siddhantkushwaha.raven.utility.GlideUtilV2
-import com.siddhantkushwaha.raven.utility.RavenUtils
-import com.siddhantkushwaha.raven.utility.UCropUtil
+import com.siddhantkushwaha.raven.utility.*
 import com.yalantis.ucrop.UCrop
 import io.realm.OrderedRealmCollectionChangeListener
 import io.realm.Realm
@@ -48,14 +45,12 @@ import kotlin.math.max
 class ChatActivity : AppCompatActivity() {
 
     companion object {
-        // data class IntentData(val userId: String, val threadId: String)
         data class IntentData(val threadId: String)
 
         @JvmStatic
         fun getIntent(context: Context, intentData: IntentData): Intent {
 
             val intent = Intent(context, ChatActivity::class.java)
-            // intent.putExtra("userId", intentData.userId)
             intent.putExtra("threadId", intentData.threadId)
 
             return intent
@@ -122,7 +117,7 @@ class ChatActivity : AppCompatActivity() {
         sendButton.setOnClickListener {
             val message = messageEditText.text.toString().trim()
             if (message.isEmpty()) {
-                Toast.makeText(this@ChatActivity, "Cannot send an empty message.", 2000).show()
+                Toast.makeText(this@ChatActivity, "Cannot send an empty message.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             messageEditText.setText("")
@@ -249,7 +244,7 @@ class ChatActivity : AppCompatActivity() {
             if (ravenMessage.sentByUserId == FirebaseAuth.getInstance().uid) {
                 threadManager?.deleteMessageForEveryone(threadId!!, ravenMessage.messageId, ravenMessage.fileRef) {
                     if (it.isSuccessful)
-                        Toast.makeText(this@ChatActivity, "Deleted.", 2000).show()
+                        Toast.makeText(this@ChatActivity, "Deleted.", Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -439,6 +434,7 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("CheckResult")
     private fun loadChatBackground(uri: String?, alpha: Float?) {
 
         background.alpha = alpha ?: 1F
