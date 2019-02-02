@@ -59,7 +59,7 @@ class ThreadAdapter(private val context: Context, private val data: OrderedRealm
                 // based on whether you have seen the message or not
                 view.findViewById<ImageView>(R.id.sentMessageStatus).visibility = View.GONE
 
-                if (ravenThread.lastMessage.seenAt == null) {
+                if (ravenThread.lastMessage?.seenAt == null) {
 
                     view.findViewById<TextView>(R.id.messageText).setTextColor(ContextCompat.getColor(context, R.color.colorBlack))
                     view.findViewById<TextView>(R.id.messageText).setTypeface(null, Typeface.BOLD)

@@ -210,18 +210,23 @@ class ChatActivity : AppCompatActivity() {
 
             ravenMessageAdapter?.notifyDataSetChanged()
 
-            val lastMessage = res.last()!!
+            try {
+                val lastMessage = res.last()
+                if (lastMessage != null) {
+                    // when this user sends a new message, scroll to the bottom
+                    if (lastMessage.timestamp == null && lastMessage.sentByUserId == FirebaseAuth.getInstance().uid) {
+                        linearLayoutManager?.scrollToPosition(ravenMessageAdapter!!.itemCount - 1)
+                    }
+                    // if this user receives a new message
+                    else if (lastMessage.sentByUserId != FirebaseAuth.getInstance().uid && lastMessage.seenAt == null) {
 
-            // when this user sends a new message, scroll to the bottom
-            if (lastMessage.timestamp == null && lastMessage.sentByUserId == FirebaseAuth.getInstance().uid) {
-                linearLayoutManager?.scrollToPosition(ravenMessageAdapter!!.itemCount - 1)
-            }
-            // if this user receives a new message
-            else if (lastMessage.sentByUserId != FirebaseAuth.getInstance().uid && lastMessage.seenAt == null) {
-
-                // scroll to bottom only if user is already at the bottom
-                if (linearLayoutManager?.findLastCompletelyVisibleItemPosition() == ravenMessageAdapter!!.itemCount - 2)
-                    linearLayoutManager?.scrollToPosition(ravenMessageAdapter!!.itemCount - 1)
+                        // scroll to bottom only if user is already at the bottom
+                        if (linearLayoutManager?.findLastCompletelyVisibleItemPosition() == ravenMessageAdapter!!.itemCount - 2)
+                            linearLayoutManager?.scrollToPosition(ravenMessageAdapter!!.itemCount - 1)
+                    }
+                }
+            }catch (e:Exception) {
+                e.printStackTrace()
             }
         }
 
