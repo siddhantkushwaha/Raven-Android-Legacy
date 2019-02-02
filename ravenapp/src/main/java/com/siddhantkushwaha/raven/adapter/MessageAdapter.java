@@ -76,6 +76,11 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
     }
 
     @Override
+    public int getItemCount() {
+        return data.size();
+    }
+
+    @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 
         RavenMessage ravenMessage = data.get(position);

@@ -88,6 +88,7 @@ class ChatActivity : AppCompatActivity() {
     private var allMessages: RealmResults<RavenMessage>? = null
     private var ravenMessageAdapter: MessageAdapter? = null
     private var allMessagesListener: OrderedRealmCollectionChangeListener<RealmResults<RavenMessage>>? = null
+    private var linearLayoutManager: LinearLayoutManager? = null
 
     private var selectedMessages: RealmResults<RavenMessage>? = null
     private var selectedMessagesListener: OrderedRealmCollectionChangeListener<RealmResults<RavenMessage>>? = null
@@ -205,9 +206,23 @@ class ChatActivity : AppCompatActivity() {
         }
 
         allMessages = realm?.where(RavenMessage::class.java)?.equalTo("threadId", threadId)?.sort("localTimestamp", Sort.ASCENDING, "timestamp", Sort.ASCENDING)?.findAllAsync()
-        allMessagesListener = OrderedRealmCollectionChangeListener { _, _ ->
+        allMessagesListener = OrderedRealmCollectionChangeListener { res, _ ->
 
             ravenMessageAdapter?.notifyDataSetChanged()
+
+            val lastMessage = res.last()!!
+
+            // when this user sends a new message, scroll to the bottom
+            if (lastMessage.timestamp == null && lastMessage.sentByUserId == FirebaseAuth.getInstance().uid) {
+                linearLayoutManager?.scrollToPosition(ravenMessageAdapter!!.itemCount - 1)
+            }
+            // if this user receives a new message
+            else if (lastMessage.sentByUserId != FirebaseAuth.getInstance().uid && lastMessage.seenAt == null) {
+
+                // scroll to bottom only if user is already at the bottom
+                if (linearLayoutManager?.findLastCompletelyVisibleItemPosition() == ravenMessageAdapter!!.itemCount - 2)
+                    linearLayoutManager?.scrollToPosition(ravenMessageAdapter!!.itemCount - 1)
+            }
         }
 
         selectedMessages = realm?.where(RavenMessage::class.java)?.equalTo("threadId", threadId)?.equalTo("selected", true)?.findAllAsync()
@@ -215,7 +230,8 @@ class ChatActivity : AppCompatActivity() {
             Log.i(tag, selectedMessages?.size.toString())
         }
 
-        val linearLayoutManager = LinearLayoutManager(this@ChatActivity)
+        linearLayoutManager = LinearLayoutManager(this@ChatActivity)
+        linearLayoutManager?.stackFromEnd = true
         ravenMessageAdapter = MessageAdapter(this@ChatActivity, allMessages, false)
 
         messageRecyclerView.layoutManager = linearLayoutManager
