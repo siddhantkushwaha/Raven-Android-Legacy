@@ -225,7 +225,7 @@ class ChatActivity : AppCompatActivity() {
                             linearLayoutManager?.scrollToPosition(ravenMessageAdapter!!.itemCount - 1)
                     }
                 }
-            }catch (e:Exception) {
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
@@ -318,7 +318,8 @@ class ChatActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
 
-        setMessageSelectedPropertyForAll(false)
+        if (selectedMessages?.size ?: 0 > 0)
+            setMessageSelectedPropertyForAll(false)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -338,10 +339,14 @@ class ChatActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    //TODO -- make this better, this is just a quick fix
     override fun onBackPressed() {
-        super.onBackPressed()
 
+        if (selectedMessages?.size ?: 0 > 0) {
+            setMessageSelectedPropertyForAll(false)
+            return
+        }
+
+        super.onBackPressed()
         onSupportNavigateUp()
     }
 
