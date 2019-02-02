@@ -236,8 +236,6 @@ class HomeActivity : AppCompatActivity() {
                             val ravenThread = realm.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
                             ravenThread!!.lastMessage = ravenMessage
 
-                            ravenThread.read = ravenMessage.seenAt != null
-
                             realm.insertOrUpdate(ravenThread)
                         }
                     } catch (exception: Exception) {

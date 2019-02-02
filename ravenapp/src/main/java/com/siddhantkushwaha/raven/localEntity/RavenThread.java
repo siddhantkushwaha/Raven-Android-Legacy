@@ -15,8 +15,6 @@ public class RavenThread extends RealmObject {
     private RavenUser user;
     private RavenMessage lastMessage;
 
-    private Boolean isRead;
-
     private String backgroundFileUrl;
     private Float backgroundOpacity;
 
@@ -54,14 +52,6 @@ public class RavenThread extends RealmObject {
 
     public RavenMessage getLastMessage() {
         return lastMessage;
-    }
-
-    public void setRead(Boolean read) {
-        isRead = read;
-    }
-
-    public Boolean getRead() {
-        return isRead;
     }
 
     public String getBackgroundFileUrl() {

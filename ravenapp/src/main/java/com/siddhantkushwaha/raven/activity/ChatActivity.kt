@@ -167,7 +167,7 @@ class ChatActivity : AppCompatActivity() {
                                 realm.insertOrUpdate(ravenMessage)
                             }
                         } catch (e: Exception) {
-                            Log.e(tag, e.toString())
+                            e.printStackTrace()
                         }
                     }
                     DocumentChange.Type.REMOVED -> {
@@ -243,7 +243,6 @@ class ChatActivity : AppCompatActivity() {
             // val fileRef = ravenMessage?.fileRef ?: return@setOnClickListener
             // ImageFullScreenActivity.openActivity(this@ChatActivity, false, ImageFullScreenActivity.Companion.IntentData(fileRef))
 
-            Log.i(tag, selectedMessages?.size.toString())
             if (selectedMessages?.size ?: 0 > 0) {
 
                 val messageId = ravenMessageAdapter?.getItem(position)?.messageId
@@ -275,7 +274,6 @@ class ChatActivity : AppCompatActivity() {
 
         NotificationSender.cancelNotification(this@ChatActivity, threadId, 0)
 
-        markThreadRead()
         loadBackGround()
 
         userManager?.startUserSyncByUserId(this@ChatActivity, userId, userEventListener)
@@ -363,17 +361,6 @@ class ChatActivity : AppCompatActivity() {
 
             val progress: Double = it.bytesTransferred.toDouble() / it.totalByteCount.toDouble()
             Log.i(tag, progress.toString())
-        }
-    }
-
-    private fun markThreadRead() {
-
-        realm?.executeTransactionAsync { realmIns ->
-            val ravenThread = realmIns.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
-            if (ravenThread != null) {
-                ravenThread.read = true
-                realmIns.insertOrUpdate(ravenThread)
-            }
         }
     }
 

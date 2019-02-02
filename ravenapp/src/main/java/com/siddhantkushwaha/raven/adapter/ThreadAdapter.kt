@@ -10,10 +10,10 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.siddhantkushwaha.raven.R
-import com.siddhantkushwaha.raven.utility.JodaTimeUtilV2
 import com.siddhantkushwaha.raven.localEntity.RavenThread
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.utility.GlideUtilV2
+import com.siddhantkushwaha.raven.utility.JodaTimeUtilV2
 import io.realm.OrderedRealmCollection
 import io.realm.RealmBaseAdapter
 import org.joda.time.DateTime
@@ -31,7 +31,9 @@ class ThreadAdapter(private val context: Context, private val data: OrderedRealm
 
         val ravenThread = data[position]
 
-        view?.findViewById<TextView>(R.id.name)!!.text = ravenThread.user?.contactName ?: ravenThread.user?.displayName ?: ravenThread.user?.phoneNumber ?: context.getString(R.string.default_name)
+        view?.findViewById<TextView>(R.id.name)!!.text = ravenThread.user?.contactName
+                ?: ravenThread.user?.displayName ?: ravenThread.user?.phoneNumber
+                        ?: context.getString(R.string.default_name)
         GlideUtilV2.loadProfilePhotoCircle(context, view.findViewById(R.id.displayPicImageView), ravenThread?.user?.picUrl)
 
         when (ravenThread.lastMessage?.getMessageType(FirebaseAuth.getInstance().uid)) {
@@ -57,7 +59,7 @@ class ThreadAdapter(private val context: Context, private val data: OrderedRealm
                 // based on whether you have seen the message or not
                 view.findViewById<ImageView>(R.id.sentMessageStatus).visibility = View.GONE
 
-                if (ravenThread.read == false) {
+                if (ravenThread.lastMessage.seenAt == null) {
 
                     view.findViewById<TextView>(R.id.messageText).setTextColor(ContextCompat.getColor(context, R.color.colorBlack))
                     view.findViewById<TextView>(R.id.messageText).setTypeface(null, Typeface.BOLD)
