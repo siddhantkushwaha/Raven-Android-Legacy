@@ -7,13 +7,15 @@ import androidx.annotation.NonNull;
 
 public class RavenUtils {
 
+    public static final String INVALID = "INVALID";
+
     public static String getThreadId(String userId1, String userId2) {
 
         if (userId1 == null || userId2 == null)
             return null;
 
         if (userId1.equals(userId2))
-            return null;
+            return INVALID;
 
         ArrayList<String> userIds = new ArrayList<>();
         userIds.add(userId1);

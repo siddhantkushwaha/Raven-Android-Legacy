@@ -10,11 +10,11 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.siddhantkushwaha.raven.R;
-import com.siddhantkushwaha.raven.utility.JodaTimeUtilV2;
-import com.siddhantkushwaha.raven.utility.GlideUtilV2;
 import com.siddhantkushwaha.raven.localEntity.RavenMessage;
 import com.siddhantkushwaha.raven.manager.ThreadManager;
 import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil;
+import com.siddhantkushwaha.raven.utility.GlideUtilV2;
+import com.siddhantkushwaha.raven.utility.JodaTimeUtilV2;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -115,6 +115,7 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
         ImageView image;
         TextView messageText;
         TextView timeText;
+        LinearLayout messageBody;
 
         ReceivedMessageHolder(View itemView) {
             super(itemView);
@@ -124,6 +125,7 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
             image = itemView.findViewById(R.id.image);
             messageText = itemView.findViewById(R.id.text);
             timeText = itemView.findViewById(R.id.sent_time);
+            messageBody = itemView.findViewById(R.id.messageBody);
         }
 
         void bind(RavenMessage ravenMessage, int previousMessageType, boolean showDate, final int position) {
@@ -133,6 +135,8 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
             setMessageContent(image, messageText, ravenMessage);
 
             setMessageTime(timeText, ravenMessage);
+
+            setMessageProperties(ravenMessage, messageBody);
 
             setListener(view, position);
         }
@@ -146,6 +150,7 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
         TextView messageText;
         TextView timeText;
         ImageView status;
+        LinearLayout messageBody;
 
         SentMessageHolder(View itemView) {
             super(itemView);
@@ -156,6 +161,7 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
             messageText = itemView.findViewById(R.id.text);
             timeText = itemView.findViewById(R.id.sent_time);
             status = itemView.findViewById(R.id.status);
+            messageBody = itemView.findViewById(R.id.messageBody);
         }
 
         void bind(RavenMessage ravenMessage, int previousMessageType, boolean showDate, final int position) {
@@ -172,6 +178,8 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
                 status.setBackground(context.getDrawable(R.drawable.badge_message_status_sent));
             else
                 status.setBackground(context.getDrawable(R.drawable.badge_message_status_pending));
+
+            setMessageProperties(ravenMessage, messageBody);
 
             setListener(view, position);
         }
@@ -276,6 +284,14 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
         } else {
             timeText.setVisibility(View.GONE);
         }
+    }
+
+    private void setMessageProperties(RavenMessage ravenMessage, LinearLayout messageBody) {
+
+        if (ravenMessage.getSelected())
+            messageBody.setBackgroundResource(R.color.colorMessageSelected);
+        else
+            messageBody.setBackgroundResource(android.R.color.transparent);
     }
 
     private void setListener(View view, Integer position) {

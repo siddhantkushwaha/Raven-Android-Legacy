@@ -12,7 +12,6 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -40,7 +39,6 @@ import io.realm.Realm
 import io.realm.RealmResults
 import io.realm.Sort
 import kotlinx.android.synthetic.main.activity_chat.*
-import kotlin.math.max
 
 class ChatActivity : AppCompatActivity() {
 
@@ -78,9 +76,6 @@ class ChatActivity : AppCompatActivity() {
     private var userId: String? = null
     private var threadId: String? = null
 
-    private var firstVisibleItemPosition: IntArray = intArrayOf(-1, -1)
-    private var lastVisibleItemPosition: IntArray = intArrayOf(-1, -1)
-
     private var userManager: UserManager? = null
     private var threadManager: ThreadManager? = null
 
@@ -90,9 +85,12 @@ class ChatActivity : AppCompatActivity() {
     private var user: User? = null
 
     private var realm: Realm? = null
-    private var results: RealmResults<RavenMessage>? = null
+    private var allMessages: RealmResults<RavenMessage>? = null
     private var ravenMessageAdapter: MessageAdapter? = null
-    private var listener: OrderedRealmCollectionChangeListener<RealmResults<RavenMessage>>? = null
+    private var allMessagesListener: OrderedRealmCollectionChangeListener<RealmResults<RavenMessage>>? = null
+
+    private var selectedMessages: RealmResults<RavenMessage>? = null
+    private var selectedMessagesListener: OrderedRealmCollectionChangeListener<RealmResults<RavenMessage>>? = null
 
     private var threadDocEventListener: EventListener<DocumentSnapshot>? = null
 
@@ -105,6 +103,10 @@ class ChatActivity : AppCompatActivity() {
         realm = RealmUtil.getCustomRealmInstance(this)
 
         threadId = intentData.threadId
+
+        if (threadId == RavenUtils.INVALID)
+            finish()
+
         userId = RavenUtils.getUserId(threadId!!, FirebaseAuth.getInstance().uid!!)
 
         setSupportActionBar(toolbar)
@@ -202,61 +204,51 @@ class ChatActivity : AppCompatActivity() {
             }
         }
 
-        results = realm?.where(RavenMessage::class.java)?.equalTo("threadId", threadId)?.sort("localTimestamp", Sort.ASCENDING, "timestamp", Sort.ASCENDING)?.findAllAsync()
+        allMessages = realm?.where(RavenMessage::class.java)?.equalTo("threadId", threadId)?.sort("localTimestamp", Sort.ASCENDING, "timestamp", Sort.ASCENDING)?.findAllAsync()
+        allMessagesListener = OrderedRealmCollectionChangeListener { _, _ ->
+
+            ravenMessageAdapter?.notifyDataSetChanged()
+        }
+
+        selectedMessages = realm?.where(RavenMessage::class.java)?.equalTo("threadId", threadId)?.equalTo("selected", true)?.findAllAsync()
+        selectedMessagesListener = OrderedRealmCollectionChangeListener { _, _ ->
+            Log.i(tag, selectedMessages?.size.toString())
+        }
 
         val linearLayoutManager = LinearLayoutManager(this@ChatActivity)
-        ravenMessageAdapter = MessageAdapter(this@ChatActivity, results, false)
+        ravenMessageAdapter = MessageAdapter(this@ChatActivity, allMessages, false)
 
         messageRecyclerView.layoutManager = linearLayoutManager
         messageRecyclerView.adapter = ravenMessageAdapter
 
-        messageRecyclerView.addOnLayoutChangeListener { _, _, _, _, bottom, _, _, _, oldBottom ->
-            if (bottom < oldBottom) {
-                setScrollPosition(lastVisibleItemPosition[0] == getLastItemPosition())
-            }
-        }
-
-        messageRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-
-                firstVisibleItemPosition[0] = firstVisibleItemPosition[1]
-                lastVisibleItemPosition[0] = lastVisibleItemPosition[1]
-
-                firstVisibleItemPosition[1] = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
-                lastVisibleItemPosition[1] = linearLayoutManager.findLastCompletelyVisibleItemPosition()
-
-                updateMessageStatus(firstVisibleItemPosition[1], lastVisibleItemPosition[1])
-            }
-        })
-
         ravenMessageAdapter?.setOnClickListener { _, position ->
 
-            val ravenMessage = ravenMessageAdapter?.getItem(position)
-            val fileRef = ravenMessage?.fileRef ?: return@setOnClickListener
-            ImageFullScreenActivity.openActivity(this@ChatActivity, false, ImageFullScreenActivity.Companion.IntentData(fileRef))
+            // val ravenMessage = ravenMessageAdapter?.getItem(position)
+            // val fileRef = ravenMessage?.fileRef ?: return@setOnClickListener
+            // ImageFullScreenActivity.openActivity(this@ChatActivity, false, ImageFullScreenActivity.Companion.IntentData(fileRef))
+
+            Log.i(tag, selectedMessages?.size.toString())
+            if (selectedMessages?.size ?: 0 > 0) {
+
+                val messageId = ravenMessageAdapter?.getItem(position)?.messageId
+                        ?: return@setOnClickListener
+                setMessageSelectedProperty(messageId, true)
+            }
         }
         ravenMessageAdapter?.setOnLongClickListener { _, position ->
 
-            val ravenMessage = ravenMessageAdapter?.getItem(position)
+            // val ravenMessage = ravenMessageAdapter?.getItem(position)
+            //        ?: return@setOnLongClickListener
+            // if (ravenMessage.sentByUserId == FirebaseAuth.getInstance().uid) {
+            //    threadManager?.deleteMessageForEveryone(threadId!!, ravenMessage.messageId, ravenMessage.fileRef) {
+            //        if (it.isSuccessful)
+            //            Toast.makeText(this@ChatActivity, "Deleted.", Toast.LENGTH_LONG).show()
+            //    }
+            // }
+
+            val messageId = ravenMessageAdapter?.getItem(position)?.messageId
                     ?: return@setOnLongClickListener
-            if (ravenMessage.sentByUserId == FirebaseAuth.getInstance().uid) {
-                threadManager?.deleteMessageForEveryone(threadId!!, ravenMessage.messageId, ravenMessage.fileRef) {
-                    if (it.isSuccessful)
-                        Toast.makeText(this@ChatActivity, "Deleted.", Toast.LENGTH_LONG).show()
-                }
-            }
-        }
-
-        firstVisibleItemPosition[1] = savedInstanceState?.getInt(getString(R.string.key_first_item_position))
-                ?: -1
-        lastVisibleItemPosition[1] = savedInstanceState?.getInt(getString(R.string.key_last_item_position))
-                ?: -1
-        listener = OrderedRealmCollectionChangeListener { _, _ ->
-
-            ravenMessageAdapter?.notifyDataSetChanged()
-            setScrollPosition(lastVisibleItemPosition[1] == getLastItemPosition() - 1)
+            setMessageSelectedProperty(messageId, true)
         }
     }
 
@@ -274,15 +266,8 @@ class ChatActivity : AppCompatActivity() {
         threadManager?.startThreadSyncByThreadId(this@ChatActivity, threadId, threadEventListener)
         threadManager?.startThreadDocSyncByThreadId(this@ChatActivity, threadId, threadDocEventListener)
 
-        results?.addChangeListener(listener!!)
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-
-        outState.putInt(getString(R.string.key_first_item_position), firstVisibleItemPosition[1])
-
-        outState.putInt(getString(R.string.key_last_item_position), lastVisibleItemPosition[1])
+        allMessages!!.addChangeListener(allMessagesListener!!)
+        selectedMessages!!.addChangeListener(selectedMessagesListener!!)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -307,7 +292,14 @@ class ChatActivity : AppCompatActivity() {
 
         ActivityInfo.setActivityInfo(null, null)
 
-        results?.removeAllChangeListeners()
+        allMessages?.removeAllChangeListeners()
+        selectedMessages?.removeAllChangeListeners()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        setMessageSelectedPropertyForAll(false)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -341,47 +333,11 @@ class ChatActivity : AppCompatActivity() {
         GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, user?.userProfile?.picUrl)
     }
 
-    private fun setScrollPosition(scrollToLast: Boolean?) {
-
-        when {
-            lastVisibleItemPosition[1] == -1 || lastVisibleItemPosition[1] == getLastItemPosition() -> {
-                messageRecyclerView.scrollToPosition(getLastItemPosition())
-            }
-
-            scrollToLast ?: false -> {
-                messageRecyclerView.smoothScrollToPosition(getLastItemPosition())
-            }
-
-            firstVisibleItemPosition[1] > -1 -> {
-                messageRecyclerView.scrollToPosition(firstVisibleItemPosition[1])
-            }
-        }
-    }
-
-    private fun getLastItemPosition(): Int {
-        val pos: Int = (ravenMessageAdapter?.itemCount ?: 0) - 1
-        return max(0, pos)
-    }
-
     private fun sendMessage(message: String) {
 
         val encryptedMessage = ThreadManager.encryptMessage(threadId, message) ?: return
-
         val messageObject = Message(encryptedMessage, Timestamp.now(), FirebaseAuth.getInstance().uid!!, userId!!)
         threadManager?.sendMessage(threadId!!, messageObject)
-    }
-
-    private fun updateMessageStatus(low: Int, high: Int) {
-        for (i in low..high) {
-            try {
-                val ravenMessage = ravenMessageAdapter?.getItem(i) ?: continue
-                if (ravenMessage.seenAt == null && ravenMessage.sentByUserId != FirebaseAuth.getInstance().uid) {
-                    threadManager?.markMessageAsRead(threadId!!, ravenMessage.messageId, Timestamp.now(), null)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
     }
 
     private fun handleCropResult(uri: Uri) {
@@ -444,5 +400,33 @@ class ChatActivity : AppCompatActivity() {
         requestOptions.placeholder(R.drawable.artwork_raven)
 
         GlideUtilV2.loadChatBackground(this@ChatActivity, uri, requestOptions, background)
+    }
+
+    private fun setMessageSelectedProperty(messageId: String, toggle: Boolean) {
+
+        realm?.executeTransactionAsync {
+            val ravenMessage = it.where(RavenMessage::class.java).equalTo("messageId", messageId).findFirst()
+                    ?: return@executeTransactionAsync
+
+            if (toggle)
+                ravenMessage.selected = !ravenMessage.selected
+            else
+                ravenMessage.selected = false
+
+            it.insertOrUpdate(ravenMessage)
+        }
+    }
+
+    private fun setMessageSelectedPropertyForAll(select: Boolean) {
+
+        realm?.executeTransactionAsync {
+
+            // find all messages in thread with inverted property
+            val res = it.where(RavenMessage::class.java).equalTo("threadId", threadId).equalTo("selected", !select).findAll()
+            res.forEach { mess ->
+                mess.selected = select
+                it.insertOrUpdate(mess)
+            }
+        }
     }
 }

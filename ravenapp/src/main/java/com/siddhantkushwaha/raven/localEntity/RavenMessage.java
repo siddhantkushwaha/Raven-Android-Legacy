@@ -1,7 +1,7 @@
 package com.siddhantkushwaha.raven.localEntity;
 
-import com.siddhantkushwaha.raven.utility.JodaTimeUtilV2;
 import com.siddhantkushwaha.raven.entity.Message;
+import com.siddhantkushwaha.raven.utility.JodaTimeUtilV2;
 
 import org.joda.time.DateTime;
 
@@ -25,8 +25,11 @@ public class RavenMessage extends RealmObject {
     private String localTimestamp;
     private String seenAt;
 
+    private boolean selected;
+
     public RavenMessage() {
 
+        setSelected(false);
     }
 
     public String getMessageId() {
@@ -99,6 +102,14 @@ public class RavenMessage extends RealmObject {
 
     public void setSeenAt(String seenAt) {
         this.seenAt = seenAt;
+    }
+
+    public boolean getSelected() {
+        return this.selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 
     public void cloneObject(Message message) {
