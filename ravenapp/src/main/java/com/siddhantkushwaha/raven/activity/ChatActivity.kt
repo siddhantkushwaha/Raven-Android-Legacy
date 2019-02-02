@@ -315,7 +315,7 @@ class ChatActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
 
-        setMessageSelectedPropertyForAll(false)
+        unselectAllMessages()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -433,14 +433,12 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun setMessageSelectedPropertyForAll(select: Boolean) {
+    private fun unselectAllMessages() {
 
         realm?.executeTransactionAsync {
 
-            // find all messages in thread with inverted property
-            val res = it.where(RavenMessage::class.java).equalTo("threadId", threadId).equalTo("selected", !select).findAll()
-            res.forEach { mess ->
-                mess.selected = select
+            selectedMessages?.forEach { mess ->
+                mess.selected = false
                 it.insertOrUpdate(mess)
             }
         }
