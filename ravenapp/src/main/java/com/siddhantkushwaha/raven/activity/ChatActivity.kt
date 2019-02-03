@@ -12,6 +12,7 @@ import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -235,12 +236,35 @@ class ChatActivity : AppCompatActivity() {
             Log.i(tag, selectedMessages?.size.toString())
         }
 
+        ravenMessageAdapter = MessageAdapter(this@ChatActivity, allMessages, false)
+
         linearLayoutManager = LinearLayoutManager(this@ChatActivity)
         linearLayoutManager?.stackFromEnd = true
-        ravenMessageAdapter = MessageAdapter(this@ChatActivity, allMessages, false)
 
         messageRecyclerView.layoutManager = linearLayoutManager
         messageRecyclerView.adapter = ravenMessageAdapter
+        messageRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                val firstVisibleItemPosition = linearLayoutManager?.findFirstCompletelyVisibleItemPosition()
+                        ?: 1
+                val lastVisibleItemPosition = linearLayoutManager?.findLastCompletelyVisibleItemPosition()
+                        ?: 1
+
+                if (firstVisibleItemPosition == -1 || lastVisibleItemPosition == -1)
+                    return
+
+                for (i in firstVisibleItemPosition..lastVisibleItemPosition) {
+
+                    val ravenMessage = ravenMessageAdapter!!.getItem(i)!!
+                    if (ravenMessage.sentByUserId != FirebaseAuth.getInstance().uid && ravenMessage.seenAt == null) {
+                        threadManager!!.markMessageAsRead(threadId!!, ravenMessage.messageId, Timestamp.now(), null)
+                    }
+                }
+            }
+        })
 
         ravenMessageAdapter?.setOnClickListener { _, position ->
 
