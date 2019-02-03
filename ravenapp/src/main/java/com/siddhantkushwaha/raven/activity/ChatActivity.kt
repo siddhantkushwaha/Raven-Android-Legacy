@@ -9,8 +9,10 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.ActionMode
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.request.RequestOptions
@@ -95,6 +97,8 @@ class ChatActivity : AppCompatActivity() {
     private var selectedMessagesListener: OrderedRealmCollectionChangeListener<RealmResults<RavenMessage>>? = null
 
     private var threadDocEventListener: EventListener<DocumentSnapshot>? = null
+
+    private var actionMode: ActionMode? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -232,8 +236,50 @@ class ChatActivity : AppCompatActivity() {
         }
 
         selectedMessages = realm?.where(RavenMessage::class.java)?.equalTo("threadId", threadId)?.equalTo("selected", true)?.findAllAsync()
+
+        val actionModeCallback = object : ActionMode.Callback {
+
+            override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+                mode.menuInflater.inflate(R.menu.chat_context_menu, menu)
+                return true
+            }
+
+            override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+                return false
+            }
+
+            override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+
+                when (item.itemId) {
+                    R.id.action_trial -> {
+                        return true
+                    }
+                }
+                return false
+            }
+
+            override fun onDestroyActionMode(mode: ActionMode) {
+
+                setMessageSelectedPropertyForAll(false)
+
+                actionMode = null
+            }
+        }
+
         selectedMessagesListener = OrderedRealmCollectionChangeListener { _, _ ->
             Log.i(tag, selectedMessages?.size.toString())
+
+            if (selectedMessages?.size ?: 0 > 0) {
+
+                if (actionMode == null) {
+                    toolbar.visibility = View.GONE
+                    actionMode = startSupportActionMode(actionModeCallback)
+                }
+                actionMode?.title = selectedMessages?.size.toString()
+            } else {
+                toolbar.visibility = View.VISIBLE
+                actionMode?.finish()
+            }
         }
 
         ravenMessageAdapter = MessageAdapter(this@ChatActivity, allMessages, false)
