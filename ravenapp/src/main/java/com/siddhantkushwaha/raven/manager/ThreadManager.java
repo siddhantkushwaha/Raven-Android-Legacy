@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.net.Uri;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -102,14 +101,33 @@ public class ThreadManager {
     public void markMessageAsRead(@NonNull String threadId, @NonNull String messageId, Timestamp timestamp, OnCompleteListener<Object> onCompleteListener) {
 
         HashMap<String, Object> map = new HashMap<>();
-        map.put("seenAt", timestamp);
+        map.put("seenBy." + FirebaseAuth.getInstance().getUid(), timestamp);
 
         DocumentReference messageRef = db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document(messageId);
         db.runTransaction(transaction -> {
-            DocumentSnapshot message = transaction.get(messageRef);
-            if (!FirebaseAuth.getInstance().getUid().equals(message.get("sentByUserId")) && message.get("seenAt") == null) {
-                transaction.update(messageRef, map);
+
+            // v1 soon to be deprecated
+            DocumentSnapshot messageSnap = transaction.get(messageRef);
+            if (!FirebaseAuth.getInstance().getUid().equals(messageSnap.get("sentByUserId")) && messageSnap.get("seenAt") == null) {
+
+                HashMap<String, Object> oldMap = new HashMap<>();
+                oldMap.put("seenAt", timestamp);
+                transaction.update(messageRef, oldMap);
             }
+
+            // v2
+            try {
+                Message message = messageSnap.toObject(Message.class);
+                if (!message.getSentByUserId().equals(FirebaseAuth.getInstance().getUid())) {
+                    if (message.getSeenBy() == null)
+                        transaction.update(messageRef, map);
+                    else if (!message.getSeenBy().containsKey(FirebaseAuth.getInstance().getUid()))
+                        transaction.update(messageRef, map);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             return null;
         }).addOnCompleteListener(onCompleteListener);
     }
@@ -125,6 +143,38 @@ public class ThreadManager {
         }
 
         db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document(messageId).update(map).addOnCompleteListener(onCompleteListener);
+    }
+
+    public void deleteForCurrentUser(@NonNull String threadId, @NonNull String messageId, OnCompleteListener<Object> onCompleteListener) {
+
+
+        DocumentReference messageRef = db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document(messageId);
+        db.runTransaction(transaction -> {
+
+            DocumentSnapshot messageSnap = transaction.get(messageRef);
+            try {
+                Message message = messageSnap.toObject(Message.class);
+                // means the message the message belongs to a chat between two users
+                if (message.getSentToUserId() != null) {
+                    if (message.getDeletedBy() == null) {
+
+                        HashMap<String, Object> map = new HashMap<>();
+                        map.put("deletedBy." + FirebaseAuth.getInstance().getUid(), true);
+                        transaction.update(messageRef, map);
+                    } else if (!message.getDeletedBy().containsKey(FirebaseAuth.getInstance().getUid())) {
+
+                        if (message.getFileRef() != null)
+                            new FirebaseStorageUtil().deleteFile(message.getFileRef());
+
+                        transaction.delete(messageRef);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }).addOnCompleteListener(onCompleteListener);
     }
 
     public void startThreadSyncByThreadId(Activity activity, String threadId, EventListener<QuerySnapshot> eventListener) {

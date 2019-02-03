@@ -3,6 +3,9 @@ package com.siddhantkushwaha.raven.entity;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.ServerTimestamp;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -20,6 +23,10 @@ public class Message {
     private Timestamp timestamp;
 
     private Timestamp seenAt;
+
+    private HashMap<String, Timestamp> seenBy;
+
+    private HashMap<String, Boolean> deletedBy;
 
     public Message() {
 
@@ -87,5 +94,21 @@ public class Message {
 
     public Timestamp getSeenAt() {
         return seenAt;
+    }
+
+    public void setSeenBy(HashMap<String, Timestamp> seenBy) {
+        this.seenBy = seenBy;
+    }
+
+    public HashMap<String, Timestamp> getSeenBy() {
+        return seenBy;
+    }
+
+    public void setDeletedBy(HashMap<String, Boolean> deletedBy) {
+        this.deletedBy = deletedBy;
+    }
+
+    public HashMap<String, Boolean> getDeletedBy() {
+        return deletedBy;
     }
 }

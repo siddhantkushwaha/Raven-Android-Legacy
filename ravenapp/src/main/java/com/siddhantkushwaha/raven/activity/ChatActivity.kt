@@ -255,6 +255,9 @@ class ChatActivity : AppCompatActivity() {
                 when (item.itemId) {
                     R.id.action_delete -> {
 
+                        selectedMessages?.forEach {
+                            threadManager?.deleteForCurrentUser(threadId!!, it.messageId, null)
+                        }
                         returnValue = true
                     }
 
