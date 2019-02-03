@@ -57,9 +57,8 @@
                 android:text="@string/default_name" />
 
         </LinearLayout>
-
-
     </androidx.appcompat.widget.Toolbar>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/messageRecyclerView"

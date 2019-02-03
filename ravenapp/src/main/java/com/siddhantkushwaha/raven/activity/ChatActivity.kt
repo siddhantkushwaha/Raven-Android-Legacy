@@ -9,7 +9,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
@@ -250,12 +249,16 @@ class ChatActivity : AppCompatActivity() {
 
             override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
 
+                var value = false
                 when (item.itemId) {
                     R.id.action_trial -> {
-                        return true
+                        value = true
                     }
                 }
-                return false
+
+                setMessageSelectedPropertyForAll(false)
+
+                return value
             }
 
             override fun onDestroyActionMode(mode: ActionMode) {
@@ -271,15 +274,10 @@ class ChatActivity : AppCompatActivity() {
 
             if (selectedMessages?.size ?: 0 > 0) {
 
-                if (actionMode == null) {
-                    toolbar.visibility = View.GONE
-                    actionMode = startSupportActionMode(actionModeCallback)
-                }
+                if (actionMode == null) actionMode = startSupportActionMode(actionModeCallback)
                 actionMode?.title = selectedMessages?.size.toString()
-            } else {
-                toolbar.visibility = View.VISIBLE
+            } else
                 actionMode?.finish()
-            }
         }
 
         ravenMessageAdapter = MessageAdapter(this@ChatActivity, allMessages, false)
