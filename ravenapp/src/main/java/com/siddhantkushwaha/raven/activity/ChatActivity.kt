@@ -249,16 +249,26 @@ class ChatActivity : AppCompatActivity() {
 
             override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
 
-                var value = false
+                var returnValue = false
+                var selectValue = false
+
                 when (item.itemId) {
-                    R.id.action_trial -> {
-                        value = true
+                    R.id.action_delete -> {
+
+                        returnValue = true
+                    }
+
+                    R.id.action_select_all -> {
+                        setMessageSelectedPropertyForAll(true)
+
+                        selectValue = true
+                        returnValue = true
                     }
                 }
 
-                setMessageSelectedPropertyForAll(false)
+                setMessageSelectedPropertyForAll(selectValue)
 
-                return value
+                return returnValue
             }
 
             override fun onDestroyActionMode(mode: ActionMode) {
@@ -312,15 +322,16 @@ class ChatActivity : AppCompatActivity() {
 
         ravenMessageAdapter?.setOnClickListener { _, position ->
 
-            // val ravenMessage = ravenMessageAdapter?.getItem(position)
-            // val fileRef = ravenMessage?.fileRef ?: return@setOnClickListener
-            // ImageFullScreenActivity.openActivity(this@ChatActivity, false, ImageFullScreenActivity.Companion.IntentData(fileRef))
+            val ravenMessage = ravenMessageAdapter?.getItem(position)
 
             if (selectedMessages?.size ?: 0 > 0) {
 
                 val messageId = ravenMessageAdapter?.getItem(position)?.messageId
                         ?: return@setOnClickListener
                 setMessageSelectedProperty(messageId, true)
+            } else if (ravenMessage?.fileRef != null) {
+
+                ImageFullScreenActivity.openActivity(this@ChatActivity, false, ImageFullScreenActivity.Companion.IntentData(ravenMessage.fileRef))
             }
         }
         ravenMessageAdapter?.setOnLongClickListener { _, position ->
@@ -347,7 +358,7 @@ class ChatActivity : AppCompatActivity() {
 
         NotificationSender.cancelNotification(this@ChatActivity, threadId, 0)
 
-        loadBackGround()
+        loadThreadLocalDetails()
 
         userManager?.startUserSyncByUserId(this@ChatActivity, userId, userEventListener)
         threadManager?.startThreadSyncByThreadId(this@ChatActivity, threadId, threadEventListener)
@@ -453,12 +464,12 @@ class ChatActivity : AppCompatActivity() {
             }
 
             runOnUiThread {
-                loadBackGround()
+                loadThreadLocalDetails()
             }
         }
     }
 
-    private fun loadBackGround() {
+    private fun loadThreadLocalDetails() {
 
         realm?.executeTransactionAsync { realmIns ->
             val ravenThread = realmIns.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()

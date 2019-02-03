@@ -2,8 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/action_trial"
-        android:icon="@drawable/badge_message_status_seen"
+        android:id="@+id/action_delete"
+        android:icon="@drawable/button_delete_white"
         android:orderInCategory="0"
-        android:title="trial" />
+        android:title="Delete Selected Messages" />
+
+    <item
+        android:id="@+id/action_select_all"
+        android:icon="@drawable/button_select_all_white"
+        android:orderInCategory="1"
+        android:title="Select All Messages" />
 </menu>
