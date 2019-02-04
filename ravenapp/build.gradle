@@ -16,8 +16,8 @@ android {
         applicationId "com.siddhantkushwaha.raven"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 34
-        versionName "1.0.7"
+        versionCode 35
+        versionName "1.0.8"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -56,17 +56,17 @@ dependencies {
     /* ----------------------------------------------------------------------------- */
 
     // for UI (material design)
-    implementation 'com.google.android.material:material:1.1.0-alpha02'
+    implementation 'com.google.android.material:material:1.1.0-alpha03'
     implementation 'androidx.palette:palette:1.0.0'
     implementation 'androidx.cardview:cardview:1.0.0'
 
     // firebase modules
-    implementation 'com.google.firebase:firebase-core:16.0.6'
+    implementation 'com.google.firebase:firebase-core:16.0.7'
     implementation 'com.google.firebase:firebase-auth:16.1.0'
     implementation 'com.google.firebase:firebase-storage:16.0.5'
-    implementation 'com.google.firebase:firebase-database:16.0.5'
+    implementation 'com.google.firebase:firebase-database:16.0.6'
     implementation 'com.google.firebase:firebase-messaging:17.3.4'
-    implementation 'com.google.firebase:firebase-firestore:17.1.5'
+    implementation 'com.google.firebase:firebase-firestore:18.0.0'
 
     // for google maps
     implementation 'com.google.android.gms:play-services-maps:16.0.0'

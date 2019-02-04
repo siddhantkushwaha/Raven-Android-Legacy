@@ -73,7 +73,7 @@ public class ThreadManager {
             HashMap<String, String> map = new HashMap<>();
             map.put("threadId", threadId);
             map.put("messageId", messageRef.getId());
-            map.put("sentToUserId", message.getSentToUserId());
+            map.put("sentByUserId", FirebaseAuth.getInstance().getUid());
             FirebaseUtils.getRealtimeDb(true).getReference("messages").push().setValue(map);
         });
     }
