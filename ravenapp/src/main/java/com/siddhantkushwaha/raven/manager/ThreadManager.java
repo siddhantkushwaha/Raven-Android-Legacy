@@ -11,6 +11,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
@@ -208,12 +209,12 @@ public class ThreadManager {
         db.collection(USER_INDEX_COLLECTION_NAME).document(userId).addSnapshotListener(activity, eventListener);
     }
 
-    public void startMessageSyncByMessageId(Activity activity, String threadId, String messageId, EventListener<DocumentSnapshot> eventListener) {
+    public void startLastMessageSyncByTimestamp(Activity activity, String threadId, EventListener<QuerySnapshot> eventListener) {
 
         if (activity == null)
             return;
 
-        db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document(messageId).addSnapshotListener(eventListener);
+        db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).orderBy("timestamp", Query.Direction.DESCENDING).limit(1).addSnapshotListener(eventListener);
     }
 
     public void getMessageByMessageId(@NonNull String threadId, @NonNull String messageId, OnCompleteListener<DocumentSnapshot> onCompleteListener) {

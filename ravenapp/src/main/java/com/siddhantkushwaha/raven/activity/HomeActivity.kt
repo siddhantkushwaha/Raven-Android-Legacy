@@ -20,14 +20,13 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.adapter.ThreadAdapter
-import com.siddhantkushwaha.raven.entity.Message
 import com.siddhantkushwaha.raven.entity.User
-import com.siddhantkushwaha.raven.localEntity.RavenMessage
 import com.siddhantkushwaha.raven.localEntity.RavenThread
 import com.siddhantkushwaha.raven.localEntity.RavenUser
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.manager.UserManager
 import com.siddhantkushwaha.raven.utility.GlideUtilV2
+import com.siddhantkushwaha.raven.utility.RavenUtils
 import com.siddhantkushwaha.raven.utility.RealmUtil
 import io.realm.OrderedRealmCollectionChangeListener
 import io.realm.Realm
@@ -64,12 +63,6 @@ class HomeActivity : AppCompatActivity() {
     private var results: RealmResults<RavenThread>? = null
     private var ravenThreadAdapter: ThreadAdapter? = null
     private var listener: OrderedRealmCollectionChangeListener<RealmResults<RavenThread>>? = null
-
-    private var userThreadHashMap: HashMap<String, String>? = null
-    private var threadUserEventListener: EventListener<DocumentSnapshot>? = null
-
-    private var lastMessageThreadHashMap: HashMap<String, String>? = null
-    private var lastMessageEventListener: EventListener<DocumentSnapshot>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -125,72 +118,15 @@ class HomeActivity : AppCompatActivity() {
             */
         }
 
-        userThreadHashMap = HashMap()
-        lastMessageThreadHashMap = HashMap()
-
-//        threadIndexEventListener = EventListener { querySnapshot, _ ->
-//
-//            val documentChangeList = querySnapshot?.documentChanges
-//            documentChangeList?.forEach {
-//                when (it.type) {
-//
-//                    DocumentChange.Type.ADDED, DocumentChange.Type.MODIFIED -> {
-//
-//                        try {
-//                            val threadIndex = it.document.toObject(ThreadIndex::class.java)
-//                            realm?.executeTransaction { realm ->
-//
-//                                var ravenThread: RavenThread? = realm.where(RavenThread::class.java).equalTo("threadId", threadIndex.threadId).findFirst()
-//
-//                                if (ravenThread == null) {
-//                                    ravenThread = RavenThread()
-//                                    ravenThread.threadId = threadIndex.threadId
-//                                }
-//
-//                                ravenThread.userId = FirebaseAuth.getInstance().uid
-//                                realm.insertOrUpdate(ravenThread)
-//                            }
-//
-//                            userThreadHashMap!![it.document.id] = threadIndex.threadId
-//                            userManager!!.startUserSyncByUserId(this@HomeActivity, it.document.id, threadUserEventListener)
-//
-//                            if (threadIndex.lastMessageId != null) {
-//                                lastMessageThreadHashMap!![threadIndex.lastMessageId] = threadIndex.threadId
-//                                threadManager!!.startMessageSyncByMessageId(this@HomeActivity, threadIndex.threadId, threadIndex.lastMessageId, lastMessageEventListener)
-//                            }
-//
-//                        } catch (e: Exception) {
-//                            e.printStackTrace()
-//                        }
-//                    }
-//
-//                    DocumentChange.Type.REMOVED -> {
-//
-//                        try {
-//                            val threadIndex = it.document.toObject(ThreadIndex::class.java)
-//                            realm?.executeTransaction { realm ->
-//                                realm.where(RavenThread::class.java).equalTo("threadId", threadIndex.threadId).findAll().deleteAllFromRealm()
-//                            }
-//
-//                        } catch (e: Exception) {
-//                            e.printStackTrace()
-//                        }
-//                    }
-//                }
-//            }
-//        }
-
         threadIndexEventListener = EventListener { documentSnapshot, firebaseFirestoreException ->
 
-            if (documentSnapshot != null && documentSnapshot.exists()) {
-                try {
-                    val data = documentSnapshot.data!!
-                    val threadIndexes = (data["threadIndexes"] as? HashMap<String, String>)!!
-                    Log.i(tag, threadIndexes.toString())
+            realm?.executeTransaction {
+                val all = it.where(RavenThread::class.java).equalTo("userId", FirebaseAuth.getInstance().uid).findAll()
+                if (documentSnapshot != null && documentSnapshot.exists()) {
+                    try {
+                        val data = documentSnapshot.data!!
+                        val threadIndexes = (data["threadIndexes"] as? HashMap<String, String>)!!
 
-                    realm?.executeTransactionAsync {
-
-                        val all = it.where(RavenThread::class.java).findAll()
                         all.forEach { rt ->
                             if (!threadIndexes.containsKey(rt.threadId))
                                 rt.deleteFromRealm()
@@ -202,88 +138,25 @@ class HomeActivity : AppCompatActivity() {
                             rt.threadId = threadId
                             rt.userId = FirebaseAuth.getInstance().uid
                             it.insertOrUpdate(rt)
+
+                            // assuming one to one thread
+                            // sync user
+                            val userId = RavenUtils.getUserId(threadId, FirebaseAuth.getInstance().uid!!)
+                            userManager!!.startUserSyncByUserId(this@HomeActivity, userId, getThreadUserEventListener(threadId))
+
+                            //sync last available message
+                            // TODO
+                            // threadManager!!.startLastMessageSyncByTimestamp(this@HomeActivity, threadId, getThreadLastMessageEventListener(threadId))
                         }
-                    }
-
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            } else {
-                firebaseFirestoreException?.printStackTrace()
-            }
-        }
-
-        threadUserEventListener = EventListener { snapshot, _ ->
-
-            if (snapshot != null) {
-
-                val userId = snapshot.id
-                val threadId = userThreadHashMap!![userId]!!
-                if (snapshot.exists()) {
-                    try {
-                        realm?.executeTransaction { realm ->
-
-                            var ravenUser = realm.where(RavenUser::class.java).equalTo("userId", userId).findFirst()
-                            if (ravenUser == null) {
-                                ravenUser = RavenUser()
-                                ravenUser.userId = userId
-                            }
-                            ravenUser.cloneObject(snapshot.toObject(User::class.java))
-                            ravenUser = realm.copyToRealmOrUpdate(ravenUser)
-
-                            val ravenThread = realm.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
-                            ravenThread!!.user = ravenUser
-                            realm.insertOrUpdate(ravenThread)
-                        }
-                    } catch (exception: Exception) {
-                        exception.printStackTrace()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
                     }
                 } else {
-                    realm?.executeTransaction { realm ->
-                        val ravenThread = realm.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
-                        ravenThread!!.user = null
-                        realm.insertOrUpdate(ravenThread)
-                    }
+                    all.deleteAllFromRealm()
                 }
             }
-        }
 
-        lastMessageEventListener = EventListener { snapshot, _ ->
-
-            if (snapshot != null) {
-
-                val messageId = snapshot.id
-                val threadId = lastMessageThreadHashMap!![messageId]!!
-                if (snapshot.exists()) {
-                    try {
-                        realm?.executeTransaction { realm ->
-                            var ravenMessage = realm.where(RavenMessage::class.java).equalTo("messageId", messageId).findFirst()
-                            if (ravenMessage == null) {
-                                ravenMessage = RavenMessage()
-                                ravenMessage.messageId = messageId
-                            }
-                            ravenMessage.threadId = threadId
-                            ravenMessage.cloneObject(snapshot.toObject(Message::class.java))
-                            ravenMessage = realm.copyToRealmOrUpdate(ravenMessage)
-
-                            val ravenThread = realm.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
-                            ravenThread!!.lastMessage = ravenMessage
-
-                            realm.insertOrUpdate(ravenThread)
-                        }
-                    } catch (exception: Exception) {
-                        exception.printStackTrace()
-                    }
-                } else {
-                    realm?.executeTransaction { realm ->
-                        val ravenThread = realm.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
-                        ravenThread!!.lastMessage = null
-                        realm.insertOrUpdate(ravenThread)
-
-                        realm.where(RavenMessage::class.java).equalTo("messageId", messageId).findAll().deleteAllFromRealm()
-                    }
-                }
-            }
+            firebaseFirestoreException?.printStackTrace()
         }
 
         results = realm?.where(RavenThread::class.java)?.equalTo("userId", FirebaseAuth.getInstance().uid)?.sort("lastMessage.localTimestamp", Sort.DESCENDING, "lastMessage.timestamp", Sort.DESCENDING)?.findAllAsync()
@@ -413,4 +286,38 @@ class HomeActivity : AppCompatActivity() {
                 ?: "Phone"
         GlideUtilV2.loadProfilePhotoCircle(this@HomeActivity, navigation.getHeaderView(0).findViewById(R.id.displayPicImageView), user?.userProfile?.picUrl)
     }
+
+    private fun getThreadUserEventListener(threadId: String): EventListener<DocumentSnapshot> {
+
+        return EventListener { snapshot, firestoreException ->
+
+            realm?.executeTransactionAsync {
+                val ravenThread = it.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
+                var ravenUser: RavenUser? = null
+                if (snapshot != null && snapshot.exists()) {
+                    val userId = snapshot.id
+                    ravenUser = it.where(RavenUser::class.java).equalTo("userId", userId).findFirst()
+                    if (ravenUser == null) {
+                        ravenUser = RavenUser()
+                        ravenUser.userId = userId
+                    }
+                    ravenUser.cloneObject(snapshot.toObject(User::class.java))
+                    ravenUser = it.copyToRealmOrUpdate<RavenUser?>(ravenUser)
+                }
+                ravenThread!!.user = ravenUser
+                it.insertOrUpdate(ravenThread)
+            }
+        }
+    }
+
+//    private fun getThreadLastMessageEventListener(threadId: String): EventListener<QuerySnapshot> {
+//
+//        return EventListener { querySnapshot, firestoreException ->
+//
+//            if (querySnapshot != null) {
+//
+//            }
+//            firestoreException?.printStackTrace()
+//        }
+//    }
 }
