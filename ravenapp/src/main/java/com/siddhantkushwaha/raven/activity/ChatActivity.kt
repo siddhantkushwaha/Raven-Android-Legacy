@@ -95,6 +95,9 @@ class ChatActivity : AppCompatActivity() {
     private var selectedMessages: RealmResults<RavenMessage>? = null
     private var selectedMessagesListener: OrderedRealmCollectionChangeListener<RealmResults<RavenMessage>>? = null
 
+    private var deletedMessages: RealmResults<RavenMessage>? = null
+    private var deletedMessagesListener: OrderedRealmCollectionChangeListener<RealmResults<RavenMessage>>? = null
+
     private var threadDocEventListener: EventListener<DocumentSnapshot>? = null
 
     private var actionMode: ActionMode? = null
@@ -209,7 +212,8 @@ class ChatActivity : AppCompatActivity() {
             }
         }
 
-        allMessages = realm?.where(RavenMessage::class.java)?.equalTo("threadId", threadId)?.sort("localTimestamp", Sort.ASCENDING, "timestamp", Sort.ASCENDING)?.findAllAsync()
+        val messageQuery = realm?.where(RavenMessage::class.java)?.equalTo("threadId", threadId)?.notEqualTo("deletedBy", FirebaseAuth.getInstance().uid)
+        allMessages = messageQuery?.sort("localTimestamp", Sort.ASCENDING, "timestamp", Sort.ASCENDING)?.findAllAsync()
         allMessagesListener = OrderedRealmCollectionChangeListener { res, _ ->
 
             ravenMessageAdapter?.notifyDataSetChanged()
@@ -234,7 +238,7 @@ class ChatActivity : AppCompatActivity() {
             }
         }
 
-        selectedMessages = realm?.where(RavenMessage::class.java)?.equalTo("threadId", threadId)?.equalTo("selected", true)?.findAllAsync()
+        selectedMessages = messageQuery?.equalTo("selected", true)?.findAllAsync()
 
         val actionModeCallback = object : ActionMode.Callback {
 
@@ -255,9 +259,18 @@ class ChatActivity : AppCompatActivity() {
                 when (item.itemId) {
                     R.id.action_delete -> {
 
-                        selectedMessages?.forEach {
-                            threadManager?.deleteForCurrentUser(threadId!!, it.messageId, null)
+                        realm?.executeTransactionAsync {
+                            val list = it.where(RavenMessage::class.java)
+                                    .equalTo("threadId", threadId)
+                                    .notEqualTo("deletedBy", FirebaseAuth.getInstance().uid)
+                                    .equalTo("selected", true).findAll()
+
+                            list.forEach { mess ->
+                                mess.deletedBy = FirebaseAuth.getInstance().uid
+                                it.insertOrUpdate(mess)
+                            }
                         }
+
                         returnValue = true
                     }
 
@@ -291,6 +304,20 @@ class ChatActivity : AppCompatActivity() {
                 actionMode?.title = selectedMessages?.size.toString()
             } else
                 actionMode?.finish()
+        }
+
+        deletedMessages = realm?.where(RavenMessage::class.java)
+                ?.equalTo("threadId", threadId)
+                ?.equalTo("deletedBy", FirebaseAuth.getInstance().uid)
+                ?.findAllAsync()
+        deletedMessagesListener = OrderedRealmCollectionChangeListener { _, _ ->
+            Log.i(tag, "size is ${deletedMessages?.size}")
+            deletedMessages?.forEach {
+                if (!it.deletedByList.contains(FirebaseAuth.getInstance().uid)) {
+                    Log.i(tag, "deleting ${it.messageId}")
+                    threadManager?.deleteForCurrentUser(it.threadId, it.messageId, null)
+                }
+            }
         }
 
         ravenMessageAdapter = MessageAdapter(this@ChatActivity, allMessages, false)
@@ -369,6 +396,7 @@ class ChatActivity : AppCompatActivity() {
 
         allMessages!!.addChangeListener(allMessagesListener!!)
         selectedMessages!!.addChangeListener(selectedMessagesListener!!)
+        deletedMessages!!.addChangeListener(deletedMessagesListener!!)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -395,6 +423,7 @@ class ChatActivity : AppCompatActivity() {
 
         allMessages?.removeAllChangeListeners()
         selectedMessages?.removeAllChangeListeners()
+        deletedMessages?.removeAllChangeListeners()
     }
 
     override fun onDestroy() {
@@ -517,7 +546,11 @@ class ChatActivity : AppCompatActivity() {
         realm?.executeTransactionAsync {
 
             // find all messages in thread with inverted property
-            val res = it.where(RavenMessage::class.java).equalTo("threadId", threadId).equalTo("selected", !select).findAll()
+            val res = it.where(RavenMessage::class.java)
+                    .equalTo("threadId", threadId)
+                    .notEqualTo("deletedBy", FirebaseAuth.getInstance().uid)
+                    .equalTo("selected", !select).findAll()
+
             res.forEach { mess ->
                 mess.selected = select
                 it.insertOrUpdate(mess)

@@ -20,7 +20,6 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.siddhantkushwaha.raven.custom.AESNygma;
 import com.siddhantkushwaha.raven.entity.Message;
-import com.siddhantkushwaha.raven.entity.ThreadIndex;
 import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil;
 import com.siddhantkushwaha.raven.utility.FirebaseUtils;
 
@@ -57,13 +56,21 @@ public class ThreadManager {
         WriteBatch batch = db.batch();
 
         DocumentReference messageRef = db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document();
-        ThreadIndex threadIndex = new ThreadIndex(threadId, messageRef.getId());
+        // ThreadIndex threadIndex = new ThreadIndex(threadId, messageRef.getId());
 
         batch.set(db.collection(THREAD_COLLECTION_NAME).document(threadId), threadMap, SetOptions.merge());
         batch.set(messageRef, message);
 
-        batch.set(db.collection(USER_INDEX_COLLECTION_NAME).document(message.getSentByUserId()).collection(THREAD_INDEX_COLLECTION_NAME).document(message.getSentToUserId()), threadIndex);
-        batch.set(db.collection(USER_INDEX_COLLECTION_NAME).document(message.getSentToUserId()).collection(THREAD_INDEX_COLLECTION_NAME).document(message.getSentByUserId()), threadIndex);
+        // batch.set(db.collection(USER_INDEX_COLLECTION_NAME).document(message.getSentByUserId()).collection(THREAD_INDEX_COLLECTION_NAME).document(message.getSentToUserId()), threadIndex);
+        // batch.set(db.collection(USER_INDEX_COLLECTION_NAME).document(message.getSentToUserId()).collection(THREAD_INDEX_COLLECTION_NAME).document(message.getSentByUserId()), threadIndex);
+
+        HashMap<String, String> map1 = new HashMap<>();
+        HashMap<String, HashMap<String, String>> map2 = new HashMap<>();
+        map1.put(threadId, "UN_ARCHIVED");
+        map2.put("threadIndexes", map1);
+
+        batch.set(db.collection(USER_INDEX_COLLECTION_NAME).document(message.getSentByUserId()), map2, SetOptions.merge());
+        batch.set(db.collection(USER_INDEX_COLLECTION_NAME).document(message.getSentToUserId()), map2, SetOptions.merge());
 
         batch.commit().addOnCompleteListener(task -> {
 
@@ -159,9 +166,9 @@ public class ThreadManager {
                     if (message.getDeletedBy() == null) {
 
                         HashMap<String, Object> map = new HashMap<>();
-                        map.put("deletedBy." + FirebaseAuth.getInstance().getUid(), true);
+                        map.put("deletedBy", FieldValue.arrayUnion(FirebaseAuth.getInstance().getUid()));
                         transaction.update(messageRef, map);
-                    } else if (!message.getDeletedBy().containsKey(FirebaseAuth.getInstance().getUid())) {
+                    } else if (!message.getDeletedBy().contains(FirebaseAuth.getInstance().getUid())) {
 
                         if (message.getFileRef() != null)
                             new FirebaseStorageUtil().deleteFile(message.getFileRef());
@@ -193,12 +200,12 @@ public class ThreadManager {
         db.collection(THREAD_COLLECTION_NAME).document(threadId).addSnapshotListener(activity, eventListener);
     }
 
-    public void startSyncThreadIndexByUserId(Activity activity, String userId, EventListener<QuerySnapshot> eventListener) {
+    public void startSyncThreadIndexByUserId(Activity activity, String userId, EventListener<DocumentSnapshot> eventListener) {
 
         if (activity == null)
             return;
 
-        db.collection(USER_INDEX_COLLECTION_NAME).document(userId).collection(THREAD_INDEX_COLLECTION_NAME).addSnapshotListener(activity, eventListener);
+        db.collection(USER_INDEX_COLLECTION_NAME).document(userId).addSnapshotListener(activity, eventListener);
     }
 
     public void startMessageSyncByMessageId(Activity activity, String threadId, String messageId, EventListener<DocumentSnapshot> eventListener) {

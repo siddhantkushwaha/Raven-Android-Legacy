@@ -13,14 +13,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import com.crashlytics.android.Crashlytics
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.*
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.messaging.FirebaseMessaging
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.adapter.ThreadAdapter
 import com.siddhantkushwaha.raven.entity.Message
-import com.siddhantkushwaha.raven.entity.ThreadIndex
 import com.siddhantkushwaha.raven.entity.User
 import com.siddhantkushwaha.raven.localEntity.RavenMessage
 import com.siddhantkushwaha.raven.localEntity.RavenThread
@@ -35,7 +35,6 @@ import io.realm.RealmResults
 import io.realm.Sort
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.layout_toolbar.*
-import java.util.*
 
 
 class HomeActivity : AppCompatActivity() {
@@ -59,7 +58,7 @@ class HomeActivity : AppCompatActivity() {
     private var currentUserEventListener: EventListener<DocumentSnapshot>? = null
 
     private var threadManager: ThreadManager? = null
-    private var threadIndexEventListener: EventListener<QuerySnapshot>? = null
+    private var threadIndexEventListener: EventListener<DocumentSnapshot>? = null
 
     private var realm: Realm? = null
     private var results: RealmResults<RavenThread>? = null
@@ -128,55 +127,89 @@ class HomeActivity : AppCompatActivity() {
 
         userThreadHashMap = HashMap()
         lastMessageThreadHashMap = HashMap()
-        threadIndexEventListener = EventListener { querySnapshot, _ ->
 
-            val documentChangeList = querySnapshot?.documentChanges
-            documentChangeList?.forEach {
-                when (it.type) {
+//        threadIndexEventListener = EventListener { querySnapshot, _ ->
+//
+//            val documentChangeList = querySnapshot?.documentChanges
+//            documentChangeList?.forEach {
+//                when (it.type) {
+//
+//                    DocumentChange.Type.ADDED, DocumentChange.Type.MODIFIED -> {
+//
+//                        try {
+//                            val threadIndex = it.document.toObject(ThreadIndex::class.java)
+//                            realm?.executeTransaction { realm ->
+//
+//                                var ravenThread: RavenThread? = realm.where(RavenThread::class.java).equalTo("threadId", threadIndex.threadId).findFirst()
+//
+//                                if (ravenThread == null) {
+//                                    ravenThread = RavenThread()
+//                                    ravenThread.threadId = threadIndex.threadId
+//                                }
+//
+//                                ravenThread.userId = FirebaseAuth.getInstance().uid
+//                                realm.insertOrUpdate(ravenThread)
+//                            }
+//
+//                            userThreadHashMap!![it.document.id] = threadIndex.threadId
+//                            userManager!!.startUserSyncByUserId(this@HomeActivity, it.document.id, threadUserEventListener)
+//
+//                            if (threadIndex.lastMessageId != null) {
+//                                lastMessageThreadHashMap!![threadIndex.lastMessageId] = threadIndex.threadId
+//                                threadManager!!.startMessageSyncByMessageId(this@HomeActivity, threadIndex.threadId, threadIndex.lastMessageId, lastMessageEventListener)
+//                            }
+//
+//                        } catch (e: Exception) {
+//                            e.printStackTrace()
+//                        }
+//                    }
+//
+//                    DocumentChange.Type.REMOVED -> {
+//
+//                        try {
+//                            val threadIndex = it.document.toObject(ThreadIndex::class.java)
+//                            realm?.executeTransaction { realm ->
+//                                realm.where(RavenThread::class.java).equalTo("threadId", threadIndex.threadId).findAll().deleteAllFromRealm()
+//                            }
+//
+//                        } catch (e: Exception) {
+//                            e.printStackTrace()
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
-                    DocumentChange.Type.ADDED, DocumentChange.Type.MODIFIED -> {
+        threadIndexEventListener = EventListener { documentSnapshot, firebaseFirestoreException ->
 
-                        try {
-                            val threadIndex = it.document.toObject(ThreadIndex::class.java)
-                            realm?.executeTransaction { realm ->
+            if (documentSnapshot != null && documentSnapshot.exists()) {
+                try {
+                    val data = documentSnapshot.data!!
+                    val threadIndexes = (data["threadIndexes"] as? HashMap<String, String>)!!
+                    Log.i(tag, threadIndexes.toString())
 
-                                var ravenThread: RavenThread? = realm.where(RavenThread::class.java).equalTo("threadId", threadIndex.threadId).findFirst()
+                    realm?.executeTransactionAsync {
 
-                                if (ravenThread == null) {
-                                    ravenThread = RavenThread()
-                                    ravenThread.threadId = threadIndex.threadId
-                                }
+                        val all = it.where(RavenThread::class.java).findAll()
+                        all.forEach { rt ->
+                            if (!threadIndexes.containsKey(rt.threadId))
+                                rt.deleteFromRealm()
+                        }
 
-                                ravenThread.userId = FirebaseAuth.getInstance().uid
-                                realm.insertOrUpdate(ravenThread)
-                            }
+                        threadIndexes.keys.forEach { threadId ->
 
-                            userThreadHashMap!![it.document.id] = threadIndex.threadId
-                            userManager!!.startUserSyncByUserId(this@HomeActivity, it.document.id, threadUserEventListener)
-
-                            if (threadIndex.lastMessageId != null) {
-                                lastMessageThreadHashMap!![threadIndex.lastMessageId] = threadIndex.threadId
-                                threadManager!!.startMessageSyncByMessageId(this@HomeActivity, threadIndex.threadId, threadIndex.lastMessageId, lastMessageEventListener)
-                            }
-
-                        } catch (e: Exception) {
-                            e.printStackTrace()
+                            val rt = RavenThread()
+                            rt.threadId = threadId
+                            rt.userId = FirebaseAuth.getInstance().uid
+                            it.insertOrUpdate(rt)
                         }
                     }
 
-                    DocumentChange.Type.REMOVED -> {
-
-                        try {
-                            val threadIndex = it.document.toObject(ThreadIndex::class.java)
-                            realm?.executeTransaction { realm ->
-                                realm.where(RavenThread::class.java).equalTo("threadId", threadIndex.threadId).findAll().deleteAllFromRealm()
-                            }
-
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
                 }
+            } else {
+                firebaseFirestoreException?.printStackTrace()
             }
         }
 
@@ -259,7 +292,9 @@ class HomeActivity : AppCompatActivity() {
         threadListView.emptyView = emptyView
         threadListView.adapter = ravenThreadAdapter
 
-        listener = OrderedRealmCollectionChangeListener { results, _ ->
+        listener = OrderedRealmCollectionChangeListener { _, _ ->
+
+            Log.i(tag, results?.size.toString())
             ravenThreadAdapter!!.notifyDataSetChanged()
         }
 

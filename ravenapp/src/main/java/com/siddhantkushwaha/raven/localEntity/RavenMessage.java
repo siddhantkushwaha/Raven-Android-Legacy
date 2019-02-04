@@ -1,10 +1,16 @@
 package com.siddhantkushwaha.raven.localEntity;
 
+import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.siddhantkushwaha.nuttertools.GsonUtil;
 import com.siddhantkushwaha.raven.entity.Message;
-import com.siddhantkushwaha.raven.utility.JodaTimeUtilV2;
 
 import org.joda.time.DateTime;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -25,12 +31,13 @@ public class RavenMessage extends RealmObject {
     private String localTimestamp;
     private String seenAt;
 
-    private boolean selected;
+    private String seenBy;
 
-    public RavenMessage() {
+    private String deletedBy;
 
-        setSelected(false);
-    }
+    private RealmList<String> deletedByList;
+
+    private boolean selected = false;
 
     public String getMessageId() {
         return messageId;
@@ -104,6 +111,30 @@ public class RavenMessage extends RealmObject {
         this.seenAt = seenAt;
     }
 
+    public void setSeenBy(String seenBy) {
+        this.seenBy = seenBy;
+    }
+
+    public String getSeenBy() {
+        return seenBy;
+    }
+
+    public void setDeletedBy(String deletedBy) {
+        this.deletedBy = deletedBy;
+    }
+
+    public String getDeletedBy() {
+        return deletedBy;
+    }
+
+    public void setDeletedByList(RealmList<String> deletedByList) {
+        this.deletedByList = deletedByList;
+    }
+
+    public RealmList<String> getDeletedByList() {
+        return deletedByList;
+    }
+
     public boolean getSelected() {
         return this.selected;
     }
@@ -114,25 +145,34 @@ public class RavenMessage extends RealmObject {
 
     public void cloneObject(Message message) {
 
-        this.setText(message.getText());
-        this.setFileRef(message.getFileRef());
-        this.setSentByUserId(message.getSentByUserId());
-        this.setSentToUserId(message.getSentToUserId());
+        setText(message.getText());
+        setFileRef(message.getFileRef());
+        setSentByUserId(message.getSentByUserId());
+        setSentToUserId(message.getSentToUserId());
 
-        DateTime localTime = JodaTimeUtilV2.getJodaDateTimeFromFirebaseTimestamp(message.getSentTime());
-        if (localTime != null)
-            this.setLocalTimestamp(localTime.toString());
+        setLocalTimestamp(new DateTime(message.getSentTime().toDate()).toString());
 
-        if (message.getTimestamp() != null) {
-            DateTime serverTime = JodaTimeUtilV2.getJodaDateTimeFromFirebaseTimestamp(message.getTimestamp());
-            if (serverTime != null)
-                this.setTimestamp(serverTime.toString());
+        if (message.getTimestamp() != null)
+            setTimestamp(new DateTime(message.getTimestamp().toDate()).toString());
+
+        if (message.getDeletedBy() != null) {
+            RealmList<String> arr = new RealmList<>();
+            arr.addAll(message.getDeletedBy());
+            setDeletedByList(arr);
+
+            if (message.getDeletedBy().contains(FirebaseAuth.getInstance().getUid()))
+                setDeletedBy(FirebaseAuth.getInstance().getUid());
         }
 
-        if (message.getSeenAt() != null) {
-            DateTime seenTime = JodaTimeUtilV2.getJodaDateTimeFromFirebaseTimestamp(message.getSeenAt());
-            if (seenTime != null)
-                this.setSeenAt(seenTime.toString());
+        if (message.getSeenAt() != null)
+            setSeenAt(new DateTime(message.getSeenAt().toDate()).toString());
+
+        if (message.getSeenBy() != null) {
+            HashMap<String, String> temp = new HashMap<>();
+            for (Map.Entry<String, Timestamp> entry : message.getSeenBy().entrySet()) {
+                temp.put(entry.getKey(), new DateTime(entry.getValue().toDate()).toString());
+            }
+            setSeenBy(GsonUtil.toGson(temp));
         }
     }
 
