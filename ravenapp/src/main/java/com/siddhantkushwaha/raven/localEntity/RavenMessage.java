@@ -10,6 +10,7 @@ import org.joda.time.DateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -103,14 +104,6 @@ public class RavenMessage extends RealmObject {
         this.localTimestamp = localTimestamp;
     }
 
-    public String getSeenAt() {
-        return seenAt;
-    }
-
-    public void setSeenAt(String seenAt) {
-        this.seenAt = seenAt;
-    }
-
     public void setSeenBy(String seenBy) {
         this.seenBy = seenBy;
     }
@@ -164,9 +157,6 @@ public class RavenMessage extends RealmObject {
                 setDeletedBy(FirebaseAuth.getInstance().getUid());
         }
 
-        if (message.getSeenAt() != null)
-            setSeenAt(new DateTime(message.getSeenAt().toDate()).toString());
-
         if (message.getSeenBy() != null) {
             HashMap<String, String> temp = new HashMap<>();
             for (Map.Entry<String, Timestamp> entry : message.getSeenBy().entrySet()) {
@@ -181,5 +171,16 @@ public class RavenMessage extends RealmObject {
             return 1;
         else
             return 2;
+    }
+
+    public String getSeenByUserId(@NonNull String userId) {
+        String value = null;
+        try {
+            HashMap<String, String> map = GsonUtil.fromGson(seenBy, HashMap.class);
+            value = map.get(userId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return value;
     }
 }

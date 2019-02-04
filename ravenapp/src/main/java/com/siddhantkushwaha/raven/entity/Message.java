@@ -22,8 +22,6 @@ public class Message {
     @ServerTimestamp
     private Timestamp timestamp;
 
-    private Timestamp seenAt;
-
     private HashMap<String, Timestamp> seenBy;
 
     private ArrayList<String> deletedBy;
@@ -86,14 +84,6 @@ public class Message {
 
     public Timestamp getTimestamp() {
         return timestamp;
-    }
-
-    public void setSeenAt(Timestamp seenAt) {
-        this.seenAt = seenAt;
-    }
-
-    public Timestamp getSeenAt() {
-        return seenAt;
     }
 
     public void setSeenBy(HashMap<String, Timestamp> seenBy) {

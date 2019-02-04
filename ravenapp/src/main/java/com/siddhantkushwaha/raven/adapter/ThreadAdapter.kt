@@ -36,75 +36,74 @@ class ThreadAdapter(private val context: Context, private val data: OrderedRealm
                         ?: context.getString(R.string.default_name)
         GlideUtilV2.loadProfilePhotoCircle(context, view.findViewById(R.id.displayPicImageView), ravenThread?.user?.picUrl)
 
-        when (ravenThread.lastMessage?.getMessageType(FirebaseAuth.getInstance().uid)) {
-            1 -> {
+        if (ravenThread.lastMessage == null) {
 
-                // sent message
-                // based on whether other user has seen your message or not
-                view.findViewById<ImageView>(R.id.sentMessageStatus).visibility = View.VISIBLE
-                if (ravenThread.lastMessage?.seenAt != null) {
-                    view.findViewById<ImageView>(R.id.sentMessageStatus).setImageDrawable(context.getDrawable(R.drawable.badge_message_status_seen))
-                } else if (ravenThread.lastMessage?.timestamp != null) {
-                    view.findViewById<ImageView>(R.id.sentMessageStatus).setImageDrawable(context.getDrawable(R.drawable.badge_message_status_sent))
-                } else {
-                    view.findViewById<ImageView>(R.id.sentMessageStatus).setImageDrawable(context.getDrawable(R.drawable.badge_message_status_pending))
-                }
+            view.findViewById<ImageView>(R.id.sentMessageStatus).visibility = View.GONE
+            view.findViewById<ImageView>(R.id.messageIcon).visibility = View.GONE
 
-                view.findViewById<TextView>(R.id.messageText).setTextColor(ContextCompat.getColor(context, R.color.colorGreyDark))
-                view.findViewById<TextView>(R.id.messageText).setTypeface(null, Typeface.NORMAL)
-            }
-            2 -> {
+            view.findViewById<TextView>(R.id.messageText).setTextColor(ContextCompat.getColor(context, R.color.colorGreyDark))
+            view.findViewById<TextView>(R.id.messageText).setTypeface(null, Typeface.NORMAL)
 
-                // received message
-                // based on whether you have seen the message or not
-                view.findViewById<ImageView>(R.id.sentMessageStatus).visibility = View.GONE
+            view.findViewById<TextView>(R.id.messageText).text = "No Messages."
+        } else {
 
-                if (ravenThread.lastMessage?.seenAt == null) {
+            when (ravenThread.lastMessage.getMessageType(FirebaseAuth.getInstance().uid)) {
+                1 -> {
+                    // sent message
 
-                    view.findViewById<TextView>(R.id.messageText).setTextColor(ContextCompat.getColor(context, R.color.colorBlack))
-                    view.findViewById<TextView>(R.id.messageText).setTypeface(null, Typeface.BOLD)
-                } else {
+                    view.findViewById<ImageView>(R.id.sentMessageStatus).visibility = View.VISIBLE
+
+                    when {
+                        ravenThread.lastMessage.getSeenByUserId(ravenThread.lastMessage.sentToUserId) != null -> view.findViewById<ImageView>(R.id.sentMessageStatus).setImageDrawable(context.getDrawable(R.drawable.badge_message_status_seen))
+                        ravenThread.lastMessage.timestamp != null -> view.findViewById<ImageView>(R.id.sentMessageStatus).setImageDrawable(context.getDrawable(R.drawable.badge_message_status_sent))
+                        else -> view.findViewById<ImageView>(R.id.sentMessageStatus).setImageDrawable(context.getDrawable(R.drawable.badge_message_status_pending))
+                    }
+
+                    if (ravenThread.lastMessage.fileRef != null)
+                        view.findViewById<ImageView>(R.id.messageIcon).visibility = View.VISIBLE
+                    else
+                        view.findViewById<ImageView>(R.id.messageIcon).visibility = View.GONE
+
+
                     view.findViewById<TextView>(R.id.messageText).setTextColor(ContextCompat.getColor(context, R.color.colorGreyDark))
                     view.findViewById<TextView>(R.id.messageText).setTypeface(null, Typeface.NORMAL)
                 }
-            }
-        }
 
-        var messageText = "Message Deleted."
-        view.findViewById<ImageView>(R.id.messageIcon).visibility = View.GONE
-        var time: DateTime? = null
-        if (ravenThread?.lastMessage != null) {
+                2 -> {
+                    //received messaged
+
+                    view.findViewById<ImageView>(R.id.sentMessageStatus).visibility = View.GONE
+
+                    if (ravenThread.lastMessage.getSeenByUserId(FirebaseAuth.getInstance().uid!!) == null) {
+                        view.findViewById<TextView>(R.id.messageText).setTextColor(ContextCompat.getColor(context, R.color.colorBlack))
+                        view.findViewById<TextView>(R.id.messageText).setTypeface(null, Typeface.BOLD)
+                    } else {
+                        view.findViewById<TextView>(R.id.messageText).setTextColor(ContextCompat.getColor(context, R.color.colorGreyDark))
+                        view.findViewById<TextView>(R.id.messageText).setTypeface(null, Typeface.NORMAL)
+                    }
+                }
+            }
+
+            var messageText = "Message Deleted."
 
             val text = ravenThread.lastMessage.text
             val fileRef = ravenThread.lastMessage.fileRef
 
-            if (text == null && fileRef == null) {
-                messageText = "Message Deleted."
-                view.findViewById<ImageView>(R.id.messageIcon).visibility = View.GONE
-
+            messageText = if (text == null && fileRef == null) {
+                "Message Deleted."
             } else if (text == null) {
-                messageText = "Photo."
-                view.findViewById<ImageView>(R.id.messageIcon).visibility = View.VISIBLE
-
+                "Photo."
             } else if (fileRef == null) {
-                messageText = decryptMessage(ravenThread.lastMessage.threadId, text)
-                view.findViewById<ImageView>(R.id.messageIcon).visibility = View.GONE
-
+                decryptMessage(ravenThread.lastMessage.threadId, text)
             } else {
-                messageText = decryptMessage(ravenThread.lastMessage.threadId, text)
-                view.findViewById<ImageView>(R.id.messageIcon).visibility = View.VISIBLE
+                decryptMessage(ravenThread.lastMessage.threadId, text)
             }
 
-            val strTime = ravenThread.lastMessage?.timestamp
-                    ?: ravenThread.lastMessage?.localTimestamp
-            if (strTime != null)
-                time = DateTime.parse(strTime)
-
+            view.findViewById<TextView>(R.id.messageText).text = messageText
         }
 
-        view.findViewById<TextView>(R.id.messageText).text = messageText
-
-        if (time != null) {
+        if (ravenThread.timestamp != null) {
+            val time = DateTime.parse(ravenThread.timestamp)
             when {
                 JodaTimeUtilV2.isToday(time) -> view.findViewById<TextView>(R.id.messageSentTime).text = DateTimeFormat.forPattern("hh:mm:aa").print(time)
                 JodaTimeUtilV2.isYesterday(time) -> view.findViewById<TextView>(R.id.messageSentTime).text = "Yesterday"

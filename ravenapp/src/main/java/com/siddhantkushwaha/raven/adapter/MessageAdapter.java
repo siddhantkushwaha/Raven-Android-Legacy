@@ -177,7 +177,7 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
 
             setMessageTime(timeText, ravenMessage);
 
-            if (ravenMessage.getSeenAt() != null)
+            if (ravenMessage.getSeenByUserId(ravenMessage.getSentToUserId()) != null)
                 status.setBackground(context.getDrawable(R.drawable.badge_message_status_seen));
             else if (ravenMessage.getTimestamp() != null)
                 status.setBackground(context.getDrawable(R.drawable.badge_message_status_sent));

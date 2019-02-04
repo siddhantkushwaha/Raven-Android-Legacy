@@ -38,7 +38,6 @@ public class ThreadManager {
     private static final String THREAD_COLLECTION_NAME = "threads";
     private static final String MESSAGE_COLLECTION_NAME = "messages";
 
-    private static final String THREAD_INDEX_COLLECTION_NAME = "threadIndexes";
     private static final String USER_INDEX_COLLECTION_NAME = "userIndexes";
 
     private FirebaseFirestore db;
@@ -57,13 +56,9 @@ public class ThreadManager {
         WriteBatch batch = db.batch();
 
         DocumentReference messageRef = db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document();
-        // ThreadIndex threadIndex = new ThreadIndex(threadId, messageRef.getId());
 
         batch.set(db.collection(THREAD_COLLECTION_NAME).document(threadId), threadMap, SetOptions.merge());
         batch.set(messageRef, message);
-
-        // batch.set(db.collection(USER_INDEX_COLLECTION_NAME).document(message.getSentByUserId()).collection(THREAD_INDEX_COLLECTION_NAME).document(message.getSentToUserId()), threadIndex);
-        // batch.set(db.collection(USER_INDEX_COLLECTION_NAME).document(message.getSentToUserId()).collection(THREAD_INDEX_COLLECTION_NAME).document(message.getSentByUserId()), threadIndex);
 
         HashMap<String, String> map1 = new HashMap<>();
         HashMap<String, HashMap<String, String>> map2 = new HashMap<>();
@@ -114,16 +109,7 @@ public class ThreadManager {
         DocumentReference messageRef = db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document(messageId);
         db.runTransaction(transaction -> {
 
-            // v1 soon to be deprecated
             DocumentSnapshot messageSnap = transaction.get(messageRef);
-            if (!FirebaseAuth.getInstance().getUid().equals(messageSnap.get("sentByUserId")) && messageSnap.get("seenAt") == null) {
-
-                HashMap<String, Object> oldMap = new HashMap<>();
-                oldMap.put("seenAt", timestamp);
-                transaction.update(messageRef, oldMap);
-            }
-
-            // v2
             try {
                 Message message = messageSnap.toObject(Message.class);
                 if (!message.getSentByUserId().equals(FirebaseAuth.getInstance().getUid())) {

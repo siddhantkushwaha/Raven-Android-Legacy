@@ -2,6 +2,8 @@ package com.siddhantkushwaha.raven.localEntity;
 
 import android.os.Bundle;
 
+import java.util.HashMap;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -17,6 +19,8 @@ public class RavenThread extends RealmObject {
 
     private String backgroundFileUrl;
     private Float backgroundOpacity;
+
+    private String timestamp;
 
     public RavenThread() {
 
@@ -68,5 +72,13 @@ public class RavenThread extends RealmObject {
 
     public void setBackgroundOpacity(Float backgroundOpacity) {
         this.backgroundOpacity = backgroundOpacity;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 }

@@ -35,78 +35,12 @@ public class FirebaseCloudMessaging extends FirebaseMessagingService {
         sendMyNotificationV2(message.getData(), message.getFrom());
     }
 
-    // TODO this is to support older versions than 1.0.6
-    private void sendMyNotificationV1(Map<String, String> notification) {
-
-        String title = notification.get("title");
-        String message = notification.get("message");
-
-        if (title == null || message == null)
-            return;
-
-        Log.i(TAG, "sendMyNotificationV1");
-
-        Message messageObject = null;
-        try {
-            messageObject = GsonUtil.fromGson(message, Message.class);
-        } catch (Exception e) {
-            Log.e(TAG, e.toString());
-        }
-
-        if (messageObject == null)
-            return;
-
-
-        String currentUserId = FirebaseAuth.getInstance().getUid();
-        if (currentUserId == null || !currentUserId.equals(messageObject.getSentToUserId())) {
-            FirebaseMessaging.getInstance().unsubscribeFromTopic(messageObject.getSentToUserId());
-            return;
-        }
-
-        String threadId = RavenUtils.getThreadId(messageObject.getSentToUserId(), messageObject.getSentByUserId());
-
-        if (ActivityInfo.getClassName() != null && ChatActivity.class.toString().equals(ActivityInfo.getClassName())) {
-            if (ActivityInfo.getIntentInfo() != null && threadId.equals(ActivityInfo.getIntentInfo().getString("threadId"))) {
-                return;
-            }
-        }
-
-        if (messageObject.getText() == null && messageObject.getFileRef() == null) {
-            messageObject.setText("Message Deleted.");
-        } else if (messageObject.getText() == null) {
-            messageObject.setText("Photo.");
-        } else if (messageObject.getFileRef() == null) {
-            setMessageText(threadId, messageObject);
-        } else {
-            setMessageText(threadId, messageObject);
-        }
-
-        Random rand = new Random();
-        int requestCode = rand.nextInt(1000000);
-
-        Intent intent = ChatActivity.getIntent(this, new ChatActivity.Companion.IntentData(threadId));
-        NotificationSender notificationSender = new NotificationSender(FirebaseCloudMessaging.this, threadId, requestCode, title, messageObject.getText(), intent);
-        notificationSender.sendNotificationWithReplyAction(messageObject.getSentByUserId(), threadId, "REPLY");
-    }
-
-    // TODO this is to support older versions than 1.0.6
-    private void setMessageText(String threadId, Message messageObject) {
-        try {
-            messageObject.setText(ThreadManager.decryptMessage(threadId, messageObject.getText()));
-        } catch (Exception e) {
-            messageObject.setText("Couldn't Decrypt.");
-            e.printStackTrace();
-        }
-    }
-
     private void sendMyNotificationV2(Map<String, String> notification, String topic) {
 
         String threadId = notification.get("threadId");
         String messageId = notification.get("messageId");
 
         if (threadId == null || messageId == null) {
-
-            sendMyNotificationV1(notification);
             return;
         }
 

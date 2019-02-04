@@ -151,40 +151,7 @@ class ChatActivity : AppCompatActivity() {
             updateProfileLayout()
         }
 
-        threadEventListener = EventListener { querySnapshot, _ ->
-
-            val documentChangeList = querySnapshot!!.documentChanges
-            documentChangeList.forEach {
-
-                val document = it.document
-                val messageId = document.id
-                when (it.type) {
-                    DocumentChange.Type.ADDED, DocumentChange.Type.MODIFIED -> {
-                        try {
-                            val message = document.toObject(Message::class.java)
-                            realm?.executeTransaction { realm ->
-
-                                var ravenMessage = realm.where(RavenMessage::class.java).equalTo("messageId", messageId).findFirst()
-                                if (ravenMessage == null) {
-                                    ravenMessage = RavenMessage()
-                                    ravenMessage.messageId = messageId
-                                    ravenMessage.threadId = threadId
-                                }
-                                ravenMessage.cloneObject(message)
-                                realm.insertOrUpdate(ravenMessage)
-                            }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    }
-                    DocumentChange.Type.REMOVED -> {
-                        realm?.executeTransaction { realm ->
-                            realm.where(RavenMessage::class.java).equalTo("messageId", messageId).findAll().deleteAllFromRealm()
-                        }
-                    }
-                }
-            }
-        }
+        threadEventListener = getThreadEventListener(threadId!!, realm)
 
         threadDocEventListener = EventListener { doc, _ ->
 
@@ -226,7 +193,7 @@ class ChatActivity : AppCompatActivity() {
                         linearLayoutManager?.scrollToPosition(ravenMessageAdapter!!.itemCount - 1)
                     }
                     // if this user receives a new message
-                    else if (lastMessage.sentByUserId != FirebaseAuth.getInstance().uid && lastMessage.seenAt == null) {
+                    else if (lastMessage.sentByUserId != FirebaseAuth.getInstance().uid && lastMessage.getSeenByUserId(FirebaseAuth.getInstance().uid!!) == null) {
 
                         // scroll to bottom only if user is already at the bottom
                         if (linearLayoutManager?.findLastCompletelyVisibleItemPosition() == ravenMessageAdapter!!.itemCount - 2)
@@ -343,7 +310,7 @@ class ChatActivity : AppCompatActivity() {
                 for (i in firstVisibleItemPosition..lastVisibleItemPosition) {
 
                     val ravenMessage = ravenMessageAdapter!!.getItem(i)!!
-                    if (ravenMessage.sentByUserId != FirebaseAuth.getInstance().uid && ravenMessage.seenAt == null) {
+                    if (ravenMessage.sentByUserId != FirebaseAuth.getInstance().uid && ravenMessage.getSeenByUserId(FirebaseAuth.getInstance().uid!!) == null) {
                         threadManager!!.markMessageAsRead(threadId!!, ravenMessage.messageId, Timestamp.now(), null)
                     }
                 }
@@ -554,6 +521,59 @@ class ChatActivity : AppCompatActivity() {
             res.forEach { mess ->
                 mess.selected = select
                 it.insertOrUpdate(mess)
+            }
+        }
+    }
+
+    private fun getThreadEventListener(threadId: String, realm: Realm?): EventListener<QuerySnapshot> {
+
+        return EventListener { querySnapshot, _ ->
+
+            val documentChangeList = querySnapshot!!.documentChanges
+            documentChangeList.forEach {
+
+                val document = it.document
+                val messageId = document.id
+                when (it.type) {
+                    DocumentChange.Type.ADDED, DocumentChange.Type.MODIFIED -> {
+                        try {
+                            val message = document.toObject(Message::class.java)
+                            realm?.executeTransaction { realm ->
+
+                                var ravenMessage = realm.where(RavenMessage::class.java).equalTo("messageId", messageId).findFirst()
+                                if (ravenMessage == null) {
+                                    ravenMessage = RavenMessage()
+                                    ravenMessage.messageId = messageId
+                                    ravenMessage.threadId = threadId
+                                }
+                                ravenMessage.cloneObject(message)
+                                realm.insertOrUpdate(ravenMessage)
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                    DocumentChange.Type.REMOVED -> {
+                        realm?.executeTransaction { realm ->
+                            realm.where(RavenMessage::class.java).equalTo("messageId", messageId).findAll().deleteAllFromRealm()
+                        }
+                    }
+                }
+            }
+
+            realm?.executeTransactionAsync {
+
+                val lastMessage = it.where(RavenMessage::class.java)
+                        ?.equalTo("threadId", threadId)
+                        ?.notEqualTo("deletedBy", FirebaseAuth.getInstance().uid)
+                        ?.sort("localTimestamp", Sort.DESCENDING, "timestamp", Sort.DESCENDING)
+                        ?.findFirst()
+
+                val ravenThread = it.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
+                        ?: return@executeTransactionAsync
+                ravenThread.lastMessage = lastMessage
+
+                it.insertOrUpdate(ravenThread)
             }
         }
     }
