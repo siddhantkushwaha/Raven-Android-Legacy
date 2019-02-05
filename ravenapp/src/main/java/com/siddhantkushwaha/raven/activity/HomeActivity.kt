@@ -177,6 +177,9 @@ class HomeActivity : AppCompatActivity() {
                                     realm.copyToRealmOrUpdate(ravenMessage)
 
                                     rt.lastMessage = ravenMessage
+                                    rt.timestamp = ravenMessage.timestamp
+                                            ?: ravenMessage.localTimestamp
+
                                 } catch (e: Exception) {
                                     Log.e(tag, "No last message for $threadId")
 
