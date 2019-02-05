@@ -1,49 +1,21 @@
 package com.siddhantkushwaha.raven.entity;
 
-import com.google.firebase.Timestamp;
-import com.google.firebase.firestore.ServerTimestamp;
-
-import androidx.annotation.NonNull;
+import java.util.ArrayList;
 
 public class Thread {
 
-    private String userId1;
-    private String userId2;
+    private ArrayList<String> users;
 
-    @ServerTimestamp
-    private Timestamp timestamp;
 
     public Thread() {
 
     }
 
-    public Thread(@NonNull String userId1, @NonNull String userId2) {
-
-        setUserId1(userId1);
-        setUserId2(userId2);
+    public ArrayList<String> getUsers() {
+        return users;
     }
 
-    public String getUserId1() {
-        return userId1;
-    }
-
-    public void setUserId1(String userId1) {
-        this.userId1 = userId1;
-    }
-
-    public String getUserId2() {
-        return userId2;
-    }
-
-    public void setUserId2(String userId2) {
-        this.userId2 = userId2;
-    }
-
-    public Timestamp getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(Timestamp timestamp) {
-        this.timestamp = timestamp;
+    public void setUsers(ArrayList<String> users) {
+        this.users = users;
     }
 }

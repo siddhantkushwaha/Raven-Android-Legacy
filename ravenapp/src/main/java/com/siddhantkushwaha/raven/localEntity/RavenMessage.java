@@ -30,13 +30,12 @@ public class RavenMessage extends RealmObject {
     // These are in JodaTime
     private String timestamp;
     private String localTimestamp;
-    private String seenAt;
 
     private String seenBy;
 
     private String deletedBy;
 
-    private RealmList<String> deletedByList;
+    private RealmList<String> notDeletedBy;
 
     private boolean selected = false;
 
@@ -120,12 +119,12 @@ public class RavenMessage extends RealmObject {
         return deletedBy;
     }
 
-    public void setDeletedByList(RealmList<String> deletedByList) {
-        this.deletedByList = deletedByList;
+    public void setNotDeletedBy(RealmList<String> notDeletedBy) {
+        this.notDeletedBy = notDeletedBy;
     }
 
-    public RealmList<String> getDeletedByList() {
-        return deletedByList;
+    public RealmList<String> getNotDeletedBy() {
+        return notDeletedBy;
     }
 
     public boolean getSelected() {
@@ -148,13 +147,15 @@ public class RavenMessage extends RealmObject {
         if (message.getTimestamp() != null)
             setTimestamp(new DateTime(message.getTimestamp().toDate()).toString());
 
-        if (message.getDeletedBy() != null) {
+        if (message.getNotDeletedBy() != null) {
             RealmList<String> arr = new RealmList<>();
-            arr.addAll(message.getDeletedBy());
-            setDeletedByList(arr);
+            arr.addAll(message.getNotDeletedBy());
+            setNotDeletedBy(arr);
 
-            if (message.getDeletedBy().contains(FirebaseAuth.getInstance().getUid()))
+            if (!getNotDeletedBy().contains(FirebaseAuth.getInstance().getUid()))
                 setDeletedBy(FirebaseAuth.getInstance().getUid());
+            else
+                setDeletedBy(null);
         }
 
         if (message.getSeenBy() != null) {
@@ -179,7 +180,7 @@ public class RavenMessage extends RealmObject {
             HashMap<String, String> map = GsonUtil.fromGson(seenBy, HashMap.class);
             value = map.get(userId);
         } catch (Exception e) {
-            e.printStackTrace();
+            //pass
         }
         return value;
     }

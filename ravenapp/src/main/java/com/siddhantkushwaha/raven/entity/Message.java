@@ -24,7 +24,7 @@ public class Message {
 
     private HashMap<String, Timestamp> seenBy;
 
-    private ArrayList<String> deletedBy;
+    private ArrayList<String> notDeletedBy;
 
     public Message() {
 
@@ -94,11 +94,11 @@ public class Message {
         return seenBy;
     }
 
-    public void setDeletedBy(ArrayList<String> deletedBy) {
-        this.deletedBy = deletedBy;
+    public void setNotDeletedBy(ArrayList<String> notDeletedBy) {
+        this.notDeletedBy = notDeletedBy;
     }
 
-    public ArrayList<String> getDeletedBy() {
-        return deletedBy;
+    public ArrayList<String> getNotDeletedBy() {
+        return notDeletedBy;
     }
 }

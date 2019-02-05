@@ -25,6 +25,7 @@ import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil;
 import com.siddhantkushwaha.raven.utility.FirebaseUtils;
 
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import androidx.annotation.NonNull;
@@ -32,13 +33,8 @@ import androidx.annotation.Nullable;
 
 public class ThreadManager {
 
-    private static final String KEY_USER_ID_1 = "userId1";
-    private static final String KEY_USER_ID_2 = "userId2";
-
     private static final String THREAD_COLLECTION_NAME = "threads";
     private static final String MESSAGE_COLLECTION_NAME = "messages";
-
-    private static final String USER_INDEX_COLLECTION_NAME = "userIndexes";
 
     private FirebaseFirestore db;
 
@@ -49,24 +45,21 @@ public class ThreadManager {
 
     public void sendMessage(@NonNull String threadId, @NonNull Message message) {
 
-        HashMap<String, Object> threadMap = new HashMap<>();
-        threadMap.put(ThreadManager.KEY_USER_ID_1, message.getSentByUserId());
-        threadMap.put(ThreadManager.KEY_USER_ID_2, message.getSentToUserId());
-
         WriteBatch batch = db.batch();
 
         DocumentReference messageRef = db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document();
 
+        HashMap<String, Object> threadMap = new HashMap<>();
+
+        threadMap.put("users", FieldValue.arrayUnion(message.getSentByUserId(), message.getSentToUserId()));
+
         batch.set(db.collection(THREAD_COLLECTION_NAME).document(threadId), threadMap, SetOptions.merge());
+
+        ArrayList<String> notDeletedBy = new ArrayList<>();
+        notDeletedBy.add(message.getSentByUserId());
+        notDeletedBy.add(message.getSentToUserId());
+        message.setNotDeletedBy(notDeletedBy);
         batch.set(messageRef, message);
-
-        HashMap<String, String> map1 = new HashMap<>();
-        HashMap<String, HashMap<String, String>> map2 = new HashMap<>();
-        map1.put(threadId, "UN_ARCHIVED");
-        map2.put("threadIndexes", map1);
-
-        batch.set(db.collection(USER_INDEX_COLLECTION_NAME).document(message.getSentByUserId()), map2, SetOptions.merge());
-        batch.set(db.collection(USER_INDEX_COLLECTION_NAME).document(message.getSentToUserId()), map2, SetOptions.merge());
 
         batch.commit().addOnCompleteListener(task -> {
 
@@ -139,36 +132,12 @@ public class ThreadManager {
         db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document(messageId).update(map).addOnCompleteListener(onCompleteListener);
     }
 
-    public void deleteForCurrentUser(@NonNull String threadId, @NonNull String messageId, OnCompleteListener<Object> onCompleteListener) {
+    public void deleteForCurrentUser(@NonNull String threadId, @NonNull String messageId) {
 
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("notDeletedBy", FieldValue.arrayRemove(FirebaseAuth.getInstance().getUid()));
 
-        DocumentReference messageRef = db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document(messageId);
-        db.runTransaction(transaction -> {
-
-            DocumentSnapshot messageSnap = transaction.get(messageRef);
-            try {
-                Message message = messageSnap.toObject(Message.class);
-                // means the message the message belongs to a chat between two users
-                if (message.getSentToUserId() != null) {
-                    if (message.getDeletedBy() == null) {
-
-                        HashMap<String, Object> map = new HashMap<>();
-                        map.put("deletedBy", FieldValue.arrayUnion(FirebaseAuth.getInstance().getUid()));
-                        transaction.update(messageRef, map);
-                    } else if (!message.getDeletedBy().contains(FirebaseAuth.getInstance().getUid())) {
-
-                        if (message.getFileRef() != null)
-                            new FirebaseStorageUtil().deleteFile(message.getFileRef());
-
-                        transaction.delete(messageRef);
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            return null;
-        }).addOnCompleteListener(onCompleteListener);
+        db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document(messageId).update(map);
     }
 
     public void startThreadSyncByThreadId(Activity activity, String threadId, EventListener<QuerySnapshot> eventListener) {
@@ -176,7 +145,7 @@ public class ThreadManager {
         if (activity == null)
             return;
 
-        db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).addSnapshotListener(activity, eventListener);
+        db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).whereArrayContains("notDeletedBy", FirebaseAuth.getInstance().getUid()).addSnapshotListener(activity, eventListener);
     }
 
     public void startThreadDocSyncByThreadId(Activity activity, String threadId, EventListener<DocumentSnapshot> eventListener) {
@@ -187,12 +156,12 @@ public class ThreadManager {
         db.collection(THREAD_COLLECTION_NAME).document(threadId).addSnapshotListener(activity, eventListener);
     }
 
-    public void startSyncThreadIndexByUserId(Activity activity, String userId, EventListener<DocumentSnapshot> eventListener) {
+    public void syncAllThreadsByUserId(Activity activity, String userId, EventListener<QuerySnapshot> eventListener) {
 
         if (activity == null)
             return;
 
-        db.collection(USER_INDEX_COLLECTION_NAME).document(userId).addSnapshotListener(activity, eventListener);
+        db.collection(THREAD_COLLECTION_NAME).whereArrayContains("users", userId).addSnapshotListener(eventListener);
     }
 
     public void startLastMessageSyncByTimestamp(Activity activity, String threadId, EventListener<QuerySnapshot> eventListener) {
@@ -200,7 +169,11 @@ public class ThreadManager {
         if (activity == null)
             return;
 
-        db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).orderBy("timestamp", Query.Direction.DESCENDING).limit(1).addSnapshotListener(eventListener);
+        db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME)
+                .whereArrayContains("notDeletedBy", FirebaseAuth.getInstance().getUid())
+                .orderBy("timestamp", Query.Direction.DESCENDING)
+                .limit(1)
+                .addSnapshotListener(eventListener);
     }
 
     public void getMessageByMessageId(@NonNull String threadId, @NonNull String messageId, OnCompleteListener<DocumentSnapshot> onCompleteListener) {
