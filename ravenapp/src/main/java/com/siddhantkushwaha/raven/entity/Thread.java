@@ -6,7 +6,6 @@ public class Thread {
 
     private ArrayList<String> users;
 
-
     public Thread() {
 
     }

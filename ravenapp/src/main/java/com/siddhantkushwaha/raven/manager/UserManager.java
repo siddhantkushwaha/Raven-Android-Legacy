@@ -137,7 +137,7 @@ public class UserManager {
 
     public void startGetUserByAttribute(String attributeKey, Object attributeValue, OnCompleteListener<QuerySnapshot> eventListener) {
 
-        FirebaseUtils.getFirestoreDb(false).collection(COLLECTION_NAME).whereEqualTo(attributeKey, attributeValue).get().addOnCompleteListener(eventListener);
+        FirebaseUtils.getFirestoreDb(true).collection(COLLECTION_NAME).whereEqualTo(attributeKey, attributeValue).get().addOnCompleteListener(eventListener);
     }
 
     public void updateProfilePicture(Uri uri, OnCompleteListener<UploadTask.TaskSnapshot> onCompleteListener) {

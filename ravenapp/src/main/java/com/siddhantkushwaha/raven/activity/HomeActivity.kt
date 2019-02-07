@@ -139,6 +139,7 @@ class HomeActivity : AppCompatActivity() {
 
                         val users = it.document["users"] as? ArrayList<String> ?: return@forEach
 
+                        Log.i(tag, users.toString())
                         // for threadProfile
                         when {
                             users.size == 2 -> {
@@ -174,15 +175,14 @@ class HomeActivity : AppCompatActivity() {
                                         ravenMessage.threadId = threadId
                                     }
                                     ravenMessage.cloneObject(message)
-                                    realm.copyToRealmOrUpdate(ravenMessage)
+                                    ravenMessage = realm.copyToRealmOrUpdate<RavenMessage?>(ravenMessage)
 
                                     rt.lastMessage = ravenMessage
-                                    rt.timestamp = ravenMessage.timestamp
-                                            ?: ravenMessage.localTimestamp
+                                    rt.timestamp = ravenMessage?.timestamp
+                                            ?: ravenMessage?.localTimestamp
 
                                 } catch (e: Exception) {
                                     Log.e(tag, "No last message for $threadId")
-
                                     rt.lastMessage = null
                                 }
                                 realm.insertOrUpdate(rt)

@@ -123,11 +123,10 @@ public class ThreadManager {
 
         HashMap<String, Object> map = new HashMap<>();
         map.put("text", FieldValue.delete());
+        map.put("fileRef", FieldValue.delete());
 
-        if (fileRef != null) {
-            map.put("fileRef", FieldValue.delete());
+        if (fileRef != null)
             new FirebaseStorageUtil().deleteFile(fileRef);
-        }
 
         db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document(messageId).update(map).addOnCompleteListener(onCompleteListener);
     }

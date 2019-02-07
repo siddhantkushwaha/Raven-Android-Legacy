@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -218,29 +219,22 @@ class ChatActivity : AppCompatActivity() {
             override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
 
                 var returnValue = false
-                var selectValue = false
-
                 when (item.itemId) {
                     R.id.action_delete -> {
 
-                        // TODO, set deletedBy = userId if along with above if this feels laggy
-
-                        selectedMessages?.forEach {
-                            threadManager?.deleteForCurrentUser(threadId!!, it.messageId)
+                        val m = selectedMessages?.findLast {
+                            it.sentByUserId != FirebaseAuth.getInstance().uid
                         }
 
+                        showDeleteDialog(m == null)
                         returnValue = true
                     }
 
                     R.id.action_select_all -> {
                         setMessageSelectedPropertyForAll(true)
-
-                        selectValue = true
                         returnValue = true
                     }
                 }
-
-                setMessageSelectedPropertyForAll(selectValue)
 
                 return returnValue
             }
@@ -340,6 +334,8 @@ class ChatActivity : AppCompatActivity() {
 
         allMessages!!.addChangeListener(allMessagesListener!!)
         selectedMessages!!.addChangeListener(selectedMessagesListener!!)
+
+        // showDeleteDialog(1)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -368,13 +364,6 @@ class ChatActivity : AppCompatActivity() {
         selectedMessages?.removeAllChangeListeners()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-
-        if (selectedMessages?.size ?: 0 > 0)
-            setMessageSelectedPropertyForAll(false)
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
 
         menuInflater.inflate(R.menu.chat_menu, menu)
@@ -401,103 +390,6 @@ class ChatActivity : AppCompatActivity() {
 
         super.onBackPressed()
         onSupportNavigateUp()
-    }
-
-    private fun updateProfileLayout() {
-
-        nameTextView.text = user?.userProfile?.name ?: user?.phoneNumber
-                ?: getString(R.string.default_name)
-        GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, user?.userProfile?.picUrl)
-    }
-
-    private fun sendMessage(message: String) {
-
-        val encryptedMessage = ThreadManager.encryptMessage(threadId, message) ?: return
-        val messageObject = Message(encryptedMessage, Timestamp.now(), FirebaseAuth.getInstance().uid!!, userId!!)
-        threadManager?.sendMessage(threadId!!, messageObject)
-    }
-
-    private fun handleCropResult(uri: Uri) {
-
-        val messageObject = Message(null, Timestamp.now(), FirebaseAuth.getInstance().uid!!, userId!!)
-        threadManager?.sendMessage(threadId!!, messageObject, uri) {
-
-            val progress: Double = it.bytesTransferred.toDouble() / it.totalByteCount.toDouble()
-            Log.i(tag, progress.toString())
-        }
-    }
-
-    private fun updateBackground(fileUrl: String?, alpha: Float?) {
-
-        realm?.executeTransactionAsync { realmIns ->
-            val ravenThread = realmIns.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
-            if (ravenThread != null) {
-                ravenThread.backgroundFileUrl = fileUrl
-                ravenThread.backgroundOpacity = alpha
-                realmIns.insertOrUpdate(ravenThread)
-            }
-
-            runOnUiThread {
-                loadThreadLocalDetails()
-            }
-        }
-    }
-
-    private fun loadThreadLocalDetails() {
-
-        realm?.executeTransactionAsync { realmIns ->
-            val ravenThread = realmIns.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
-
-            val uri = ravenThread?.backgroundFileUrl
-            val opacity = ravenThread?.backgroundOpacity ?: 1F
-            runOnUiThread {
-                loadChatBackground(uri, opacity)
-            }
-        }
-    }
-
-    @SuppressLint("CheckResult")
-    private fun loadChatBackground(uri: String?, alpha: Float?) {
-
-        background.alpha = alpha ?: 1F
-
-        val requestOptions = RequestOptions()
-        requestOptions.error(R.drawable.artwork_raven)
-        requestOptions.placeholder(R.drawable.artwork_raven)
-
-        GlideUtilV2.loadChatBackground(this@ChatActivity, uri, requestOptions, background)
-    }
-
-    private fun setMessageSelectedProperty(messageId: String, toggle: Boolean) {
-
-        realm?.executeTransactionAsync {
-            val ravenMessage = it.where(RavenMessage::class.java).equalTo("messageId", messageId).findFirst()
-                    ?: return@executeTransactionAsync
-
-            if (toggle)
-                ravenMessage.selected = !ravenMessage.selected
-            else
-                ravenMessage.selected = false
-
-            it.insertOrUpdate(ravenMessage)
-        }
-    }
-
-    private fun setMessageSelectedPropertyForAll(select: Boolean) {
-
-        realm?.executeTransactionAsync {
-
-            // find all messages in thread with inverted property
-            val res = it.where(RavenMessage::class.java)
-                    .equalTo("threadId", threadId)
-                    .notEqualTo("deletedBy", FirebaseAuth.getInstance().uid)
-                    .equalTo("selected", !select).findAll()
-
-            res.forEach { mess ->
-                mess.selected = select
-                it.insertOrUpdate(mess)
-            }
-        }
     }
 
     private fun getThreadEventListener(threadId: String, realm: Realm?): EventListener<QuerySnapshot> {
@@ -551,5 +443,139 @@ class ChatActivity : AppCompatActivity() {
                 it.insertOrUpdate(ravenThread)
             }
         }
+    }
+
+    private fun sendMessage(message: String) {
+
+        val encryptedMessage = ThreadManager.encryptMessage(threadId, message) ?: return
+        val messageObject = Message(encryptedMessage, Timestamp.now(), FirebaseAuth.getInstance().uid!!, userId!!)
+        threadManager?.sendMessage(threadId!!, messageObject)
+    }
+
+    private fun updateProfileLayout() {
+
+        nameTextView.text = user?.userProfile?.name ?: user?.phoneNumber
+                ?: getString(R.string.default_name)
+        GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, user?.userProfile?.picUrl)
+    }
+
+    private fun handleCropResult(uri: Uri) {
+
+        val messageObject = Message(null, Timestamp.now(), FirebaseAuth.getInstance().uid!!, userId!!)
+        threadManager?.sendMessage(threadId!!, messageObject, uri) {
+
+            val progress: Double = it.bytesTransferred.toDouble() / it.totalByteCount.toDouble()
+            Log.i(tag, progress.toString())
+        }
+    }
+
+    private fun updateBackground(fileUrl: String?, alpha: Float?) {
+
+        realm?.executeTransactionAsync { realmIns ->
+            val ravenThread = realmIns.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
+            if (ravenThread != null) {
+                ravenThread.backgroundFileUrl = fileUrl
+                ravenThread.backgroundOpacity = alpha
+                realmIns.insertOrUpdate(ravenThread)
+            }
+
+            runOnUiThread {
+                loadThreadLocalDetails()
+            }
+        }
+    }
+
+    private fun loadThreadLocalDetails() {
+
+        realm?.executeTransactionAsync { realmIns ->
+            val ravenThread = realmIns.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
+
+            val uri = ravenThread?.backgroundFileUrl
+            val opacity = ravenThread?.backgroundOpacity ?: 1F
+            runOnUiThread {
+                loadChatBackground(uri, opacity)
+            }
+        }
+    }
+
+    @SuppressLint("CheckResult")
+    private fun loadChatBackground(uri: String?, alpha: Float?) {
+
+        background.alpha = alpha ?: 1F
+
+        val requestOptions = RequestOptions()
+        requestOptions.error(R.drawable.artwork_raven)
+        requestOptions.placeholder(R.drawable.artwork_raven)
+
+        GlideUtilV2.loadChatBackground(this@ChatActivity, uri, requestOptions, background)
+    }
+
+    private fun setMessageSelectedProperty(messageId: String, toggle: Boolean, value: Boolean = false) {
+
+        realm?.executeTransactionAsync {
+            val ravenMessage = it.where(RavenMessage::class.java).equalTo("messageId", messageId).findFirst()
+                    ?: return@executeTransactionAsync
+
+            if (toggle)
+                ravenMessage.selected = !ravenMessage.selected
+            else
+                ravenMessage.selected = value
+
+            it.insertOrUpdate(ravenMessage)
+        }
+    }
+
+    private fun setMessageSelectedPropertyForAll(select: Boolean) {
+
+        realm?.executeTransactionAsync {
+
+            // find all messages in thread with inverted property
+            val res = it.where(RavenMessage::class.java)
+                    .equalTo("threadId", threadId)
+                    .notEqualTo("deletedBy", FirebaseAuth.getInstance().uid)
+                    .equalTo("selected", !select).findAll()
+
+            res.forEach { mess ->
+                mess.selected = select
+                it.insertOrUpdate(mess)
+            }
+        }
+    }
+
+    private fun showDeleteDialog(flag: Boolean) {
+        val builder = AlertDialog.Builder(this)
+        builder.apply {
+
+            setPositiveButton(
+                    "Delete for me"
+            ) { _, _ ->
+
+                selectedMessages?.forEach {
+                    threadManager?.deleteForCurrentUser(threadId!!, it.messageId)
+                }
+            }
+
+            setNegativeButton(
+                    "Cancel"
+            ) { _, _ ->
+
+            }
+
+            if (flag) {
+                setNeutralButton(
+                        "Delete for Everyone"
+                ) { _, _ ->
+                    selectedMessages?.forEach {
+                        threadManager?.deleteMessageForEveryone(threadId!!, it.messageId, it.fileRef, null)
+                    }
+
+                    setMessageSelectedPropertyForAll(false)
+                }
+            }
+        }
+
+        val alertDialog = builder.create()
+        alertDialog.setMessage("Delete messages ?")
+        alertDialog.show()
     }
 }
