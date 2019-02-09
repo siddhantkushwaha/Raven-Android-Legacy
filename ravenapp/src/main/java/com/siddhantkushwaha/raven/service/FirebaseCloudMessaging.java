@@ -52,6 +52,8 @@ public class FirebaseCloudMessaging extends FirebaseMessagingService {
             return;
         }
 
+        Log.i(TAG, "HERE");
+
         FirebaseCloudMessaginUtilKt.sendNewMessageNotification(this, threadId, messageId);
     }
 }

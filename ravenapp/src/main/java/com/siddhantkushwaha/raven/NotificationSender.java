@@ -8,6 +8,8 @@ import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.bumptech.glide.request.RequestOptions;
@@ -71,6 +73,7 @@ public class NotificationSender {
         requestOptions.error(R.drawable.image_unknown_user_circle);
         requestOptions.placeholder(R.drawable.image_unknown_user_circle);
 
+        Log.i(NotificationSender.class.toString(), "HERE6");
         GlideApp.with(context)
                 .asBitmap()
                 .load(picUrl)
@@ -81,6 +84,13 @@ public class NotificationSender {
                     public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
 
                         notificationLayout.setImageViewBitmap(R.id.displayPic, resource);
+                        buildAndSend(notificationLayout, userId, threadId);
+                    }
+
+                    @Override
+                    public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                        super.onLoadFailed(errorDrawable);
+
                         buildAndSend(notificationLayout, userId, threadId);
                     }
                 });

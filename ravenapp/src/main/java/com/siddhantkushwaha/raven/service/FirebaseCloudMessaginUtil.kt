@@ -15,15 +15,15 @@ fun sendNewMessageNotification(context: Context, threadId: String, messageId: St
 
     ThreadManager().getMessageByMessageId(threadId, messageId) {
         if (it.isSuccessful) {
+
             val message = it.result?.toObject(Message::class.java)
                     ?: return@getMessageByMessageId
-
             decryptMessage(message, threadId)
 
             UserManager().getUserByUserId(message.sentByUserId) { it2 ->
                 if (it2.isSuccessful) {
-                    val user = it2.result?.toObject(User::class.java) ?: return@getUserByUserId
 
+                    val user = it2.result?.toObject(User::class.java) ?: return@getUserByUserId
                     sendNotification(context, threadId, message, user)
                 }
             }
