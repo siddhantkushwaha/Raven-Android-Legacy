@@ -22,28 +22,28 @@
 
         <!-- __________________________ app activities __________________________ -->
 
-        <activity android:name=".activity.LoginActivity">
+        <activity android:name=".activity.main.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.HomeActivity" />
+        <activity android:name=".activity.main.HomeActivity" />
         <activity
-            android:name=".activity.MyProfileActivity"
-            android:parentActivityName=".activity.HomeActivity" />
+            android:name=".activity.main.MyProfileActivity"
+            android:parentActivityName=".activity.main.HomeActivity" />
         <activity
-            android:name=".activity.ChatActivity"
-            android:parentActivityName=".activity.HomeActivity" />
+            android:name=".activity.main.ChatActivity"
+            android:parentActivityName=".activity.main.HomeActivity" />
         <activity android:name=".activity.ProfileActivity" />
         <activity
             android:name=".activity.ContactsActivity"
-            android:parentActivityName=".activity.HomeActivity" />
+            android:parentActivityName=".activity.main.HomeActivity" />
         <activity android:name=".activity.ImageFullScreenActivity" />
         <activity
             android:name=".activity.AboutActivity"
-            android:parentActivityName=".activity.HomeActivity" />
+            android:parentActivityName=".activity.main.HomeActivity" />
         <activity android:name=".activity.ChatBackgroundGallery" />
         <activity android:name=".activity.EditBackground" />
 

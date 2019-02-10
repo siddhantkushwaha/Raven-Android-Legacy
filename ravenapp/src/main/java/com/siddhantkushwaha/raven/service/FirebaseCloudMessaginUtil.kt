@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.raven.NotificationSender
-import com.siddhantkushwaha.raven.activity.ChatActivity
+import com.siddhantkushwaha.raven.activity.main.ChatActivity
 import com.siddhantkushwaha.raven.entity.Message
 import com.siddhantkushwaha.raven.entity.User
 import com.siddhantkushwaha.raven.manager.ThreadManager

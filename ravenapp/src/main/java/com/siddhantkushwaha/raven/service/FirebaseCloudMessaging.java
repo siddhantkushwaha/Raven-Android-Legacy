@@ -1,22 +1,13 @@
 package com.siddhantkushwaha.raven.service;
 
-import android.content.Intent;
 import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo;
-import com.siddhantkushwaha.nuttertools.GsonUtil;
-import com.siddhantkushwaha.raven.NotificationSender;
-import com.siddhantkushwaha.raven.activity.ChatActivity;
-import com.siddhantkushwaha.raven.entity.Message;
-import com.siddhantkushwaha.raven.manager.ThreadManager;
-import com.siddhantkushwaha.raven.utility.RavenUtils;
 
 import java.util.Map;
-import java.util.Random;
 
 public class FirebaseCloudMessaging extends FirebaseMessagingService {
 

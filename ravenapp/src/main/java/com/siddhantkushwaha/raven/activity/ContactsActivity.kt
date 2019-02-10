@@ -11,6 +11,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ContactsUtil
 import com.siddhantkushwaha.raven.R
+import com.siddhantkushwaha.raven.activity.main.ChatActivity
 import com.siddhantkushwaha.raven.adapter.ContactAdapter
 import com.siddhantkushwaha.raven.utility.RealmUtil
 import com.siddhantkushwaha.raven.localEntity.RavenUser

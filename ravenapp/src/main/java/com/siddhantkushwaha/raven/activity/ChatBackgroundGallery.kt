@@ -9,6 +9,7 @@ import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.siddhantkushwaha.raven.R
+import com.siddhantkushwaha.raven.activity.main.ChatActivity
 import com.siddhantkushwaha.raven.adapter.ChatBackgroundGalleryAdapter
 import com.siddhantkushwaha.raven.entity.WallpaperMetadata
 import com.siddhantkushwaha.raven.manager.ThreadManager

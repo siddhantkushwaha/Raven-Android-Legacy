@@ -1,4 +1,4 @@
-package com.siddhantkushwaha.raven.activity
+package com.siddhantkushwaha.raven.activity.main
 
 import android.app.Activity
 import android.content.Intent

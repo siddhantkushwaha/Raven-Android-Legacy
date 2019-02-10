@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.siddhantkushwaha.nuttertools.GsonUtil
 import com.siddhantkushwaha.raven.R
+import com.siddhantkushwaha.raven.activity.main.ChatActivity
 import com.siddhantkushwaha.raven.entity.WallpaperMetadata
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil

@@ -1,4 +1,4 @@
-package com.siddhantkushwaha.raven.activity
+package com.siddhantkushwaha.raven.activity.main
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -28,6 +28,9 @@ import com.siddhantkushwaha.android.thugtools.thugtools.utility.ImageUtil
 import com.siddhantkushwaha.nuttertools.GsonUtil
 import com.siddhantkushwaha.raven.NotificationSender
 import com.siddhantkushwaha.raven.R
+import com.siddhantkushwaha.raven.activity.ChatBackgroundGallery
+import com.siddhantkushwaha.raven.activity.ImageFullScreenActivity
+import com.siddhantkushwaha.raven.activity.ProfileActivity
 import com.siddhantkushwaha.raven.adapter.MessageAdapter
 import com.siddhantkushwaha.raven.entity.Message
 import com.siddhantkushwaha.raven.entity.User

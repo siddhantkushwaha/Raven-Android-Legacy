@@ -1,4 +1,4 @@
-package com.siddhantkushwaha.raven.activity
+package com.siddhantkushwaha.raven.activity.main
 
 import android.app.Activity
 import android.content.Intent
@@ -17,6 +17,8 @@ import com.google.firebase.firestore.*
 import com.google.firebase.messaging.FirebaseMessaging
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.raven.R
+import com.siddhantkushwaha.raven.activity.AboutActivity
+import com.siddhantkushwaha.raven.activity.ContactsActivity
 import com.siddhantkushwaha.raven.adapter.ThreadAdapter
 import com.siddhantkushwaha.raven.entity.Message
 import com.siddhantkushwaha.raven.entity.User
