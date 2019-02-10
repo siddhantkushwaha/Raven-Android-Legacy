@@ -71,17 +71,17 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
-                <!--<TextView-->
-                    <!--android:id="@+id/chatBackground"-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_margin="16dp"-->
-                    <!--android:layout_marginBottom="2dp"-->
-                    <!--android:background="@color/colorGrey"-->
-                    <!--android:padding="12dp"-->
-                    <!--android:text="Chat Background"-->
-                    <!--android:textColor="@color/colorBlack"-->
-                    <!--android:textSize="16sp" />-->
+                <TextView
+                    android:id="@+id/newGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="16dp"
+                    android:layout_marginBottom="2dp"
+                    android:background="@color/colorGrey"
+                    android:padding="12dp"
+                    android:text="Create a Group"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="16sp" />
 
             </LinearLayout>
         </LinearLayout>

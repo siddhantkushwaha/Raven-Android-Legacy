@@ -1,9 +1,5 @@
 package com.siddhantkushwaha.raven.localEntity;
 
-import android.os.Bundle;
-
-import java.util.HashMap;
-
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -14,7 +10,15 @@ public class RavenThread extends RealmObject {
 
     private String userId;
 
+    // either one of the below two set of properties will be used for thread profiling
+    /* -------------------------------------- */
     private RavenUser user;
+
+    private String groupName;
+    private String picUrl;
+    /* -------------------------------------- */
+
+
     private RavenMessage lastMessage;
 
     private String backgroundFileUrl;
@@ -50,6 +54,22 @@ public class RavenThread extends RealmObject {
         return user;
     }
 
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
+    }
+
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public void setPicUrl(String picUrl) {
+        this.picUrl = picUrl;
+    }
+
+    public String getPicUrl() {
+        return picUrl;
+    }
+
     public void setLastMessage(RavenMessage lastMessage) {
         this.lastMessage = lastMessage;
     }
@@ -80,5 +100,10 @@ public class RavenThread extends RealmObject {
 
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
+    }
+
+    // utility function
+    public boolean isGroup() {
+        return user == null;
     }
 }

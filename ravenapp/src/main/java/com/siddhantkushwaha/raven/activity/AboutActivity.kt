@@ -40,5 +40,9 @@ class AboutActivity : AppCompatActivity() {
                 e.printStackTrace()
             }
         }
+
+        newGroup.setOnClickListener {
+            NewGroupActivity.openActivity(this@AboutActivity, false)
+        }
     }
 }

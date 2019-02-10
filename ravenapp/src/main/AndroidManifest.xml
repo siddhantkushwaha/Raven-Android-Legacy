@@ -12,7 +12,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
-        android:name="Raven"
+        android:name=".Raven"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -21,7 +21,6 @@
         tools:ignore="GoogleAppIndexingWarning">
 
         <!-- __________________________ app activities __________________________ -->
-
         <activity android:name=".activity.main.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -46,6 +45,7 @@
             android:parentActivityName=".activity.main.HomeActivity" />
         <activity android:name=".activity.ChatBackgroundGallery" />
         <activity android:name=".activity.EditBackground" />
+        <activity android:name=".activity.NewGroupActivity" />
 
         <!-- _____________________________________________________________________ -->
 
@@ -116,11 +116,11 @@
             android:name="io.fabric.ApiKey"
             android:value="666a15faafd90ab0c28f04221e8d88210a047567" />
 
+
         <!-- TODO this is a workaround, remove this later -->
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
-
     </application>
 
 </manifest>

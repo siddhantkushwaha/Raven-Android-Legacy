@@ -139,13 +139,12 @@ class HomeActivity : AppCompatActivity() {
                             realm.insertOrUpdate(rt)
                         }
 
-                        val users = it.document["users"] as? ArrayList<String> ?: return@forEach
+                        val groupDetails = it.document["groupDetails"] as? HashMap<String, String>
+                        when (groupDetails) {
 
-                        Log.i(tag, users.toString())
-                        // for threadProfile
-                        when {
-                            users.size == 2 -> {
-                                //one-one thread
+                            null -> {
+
+                                val users = (it.document["users"] as? ArrayList<String>)!!
                                 var anotherUserId = users[0]
                                 if (users[0] == FirebaseAuth.getInstance().uid)
                                     anotherUserId = users[1]
@@ -153,8 +152,22 @@ class HomeActivity : AppCompatActivity() {
                                 userManager!!.startUserSyncByUserId(this@HomeActivity, anotherUserId, getThreadUserEventListener(threadId))
                             }
 
-                            users.size > 2 -> {
+                            else -> {
                                 //This means it is a group thread
+
+                                realm?.executeTransactionAsync { realm ->
+
+                                    val rt = realm.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
+                                            ?: return@executeTransactionAsync
+
+                                    rt.groupName = groupDetails["name"]
+                                    rt.picUrl = groupDetails["picUrl"]
+
+                                    // just making sure
+                                    rt.user = null
+
+                                    realm.insertOrUpdate(rt)
+                                }
                             }
                         }
 
@@ -350,6 +363,11 @@ class HomeActivity : AppCompatActivity() {
                     ravenUser = it.copyToRealmOrUpdate<RavenUser?>(ravenUser)
                 }
                 ravenThread.user = ravenUser
+
+                // just making sure
+                ravenThread.groupName = null
+                ravenThread.picUrl = null
+
                 it.insertOrUpdate(ravenThread)
             }
 

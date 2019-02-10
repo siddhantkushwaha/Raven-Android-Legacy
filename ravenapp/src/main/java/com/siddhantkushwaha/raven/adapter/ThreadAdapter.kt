@@ -31,10 +31,24 @@ class ThreadAdapter(private val context: Context, private val data: OrderedRealm
 
         val ravenThread = data[position]
 
-        view?.findViewById<TextView>(R.id.name)!!.text = ravenThread.user?.contactName
-                ?: ravenThread.user?.displayName ?: ravenThread.user?.phoneNumber
-                        ?: context.getString(R.string.default_name)
-        GlideUtilV2.loadProfilePhotoCircle(context, view.findViewById(R.id.displayPicImageView), ravenThread?.user?.picUrl)
+        var threadTitle: String? = null
+        var threadPic: String? = null
+        when (ravenThread.isGroup) {
+
+            true -> {
+                threadTitle = ravenThread.groupName
+                threadPic = ravenThread.picUrl
+            }
+
+            false -> {
+                threadTitle = ravenThread.user?.contactName ?: ravenThread.user?.displayName
+                        ?: ravenThread.user?.phoneNumber ?: context.getString(R.string.default_name)
+                threadPic = ravenThread?.user?.picUrl
+            }
+        }
+
+        view?.findViewById<TextView>(R.id.name)!!.text = threadTitle
+        GlideUtilV2.loadProfilePhotoCircle(context, view.findViewById(R.id.displayPicImageView), threadPic)
 
         if (ravenThread.lastMessage == null) {
 

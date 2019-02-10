@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 public class RavenUtils {
 
     public static final String INVALID = "INVALID";
+    public static final String GROUP = "THIS_IS_A_GROUP";
 
     public static String getThreadId(String userId1, String userId2) {
 
@@ -26,6 +27,9 @@ public class RavenUtils {
 
     public static String getUserId(@NonNull String threadId, @NonNull String userId) {
 
-        return threadId.replace(userId, "");
+        if (threadId.contains(userId))
+            return threadId.replace(userId, "");
+        else
+            return GROUP;
     }
 }

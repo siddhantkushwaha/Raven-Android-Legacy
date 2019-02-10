@@ -39,6 +39,9 @@ public class FirebaseStorageUtil {
                     });
 
                 }).addOnFailureListener(e -> {
+
+                    onComplete.onComplete(null);
+
                     Log.i(FirebaseStorageUtil.class.toString(), fileRef);
                     e.printStackTrace();
                 });

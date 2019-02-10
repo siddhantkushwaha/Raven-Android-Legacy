@@ -22,10 +22,8 @@ import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.QuerySnapshot
-import com.google.gson.JsonObject
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ImageUtil
-import com.siddhantkushwaha.nuttertools.GsonUtil
 import com.siddhantkushwaha.raven.NotificationSender
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.activity.ChatBackgroundGallery
@@ -157,26 +155,32 @@ class ChatActivity : AppCompatActivity() {
         threadDocEventListener = EventListener { doc, _ ->
 
             if (doc != null && doc.exists()) {
-                try {
-                    val docData = doc.data?.get("backgroundMetadata")
-                    var fileRef: String? = null
-                    var alpha: Float? = null
-                    if (docData != null) {
-                        val backgroundMetadata = GsonUtil.fromGson(GsonUtil.toGson(docData), JsonObject::class.java)
-                        fileRef = backgroundMetadata.getAsJsonPrimitive("fileRef").asString
-                        alpha = backgroundMetadata.getAsJsonPrimitive("opacity").asFloat
+
+                // TODO --------------------------- Feb 11, 19
+                // alternative
+                /*val groupDetails = doc["groupDetails"] as? HashMap<String, String>
+                when (groupDetails) {
+                    null -> {
+
                     }
 
-                    if (fileRef != null)
-                        FirebaseStorageUtil().getDownloadUrl(this@ChatActivity, fileRef) {
-                            // this transaction is not async because of loadBackground() after this
-                            updateBackground(it, alpha)
-                        }
-                    else
-                        updateBackground(null, null)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
+                    else -> {
+                        val users = (doc["users"] as? ArrayList<String>)!!
+                    }
+                }*/
+
+                val backgroundMetadata = doc["backgroundMetadata"] as? HashMap<String, *>
+                val alpha = backgroundMetadata?.get("opacity") as? Double
+                val fileRef = backgroundMetadata?.get("fileRef") as? String
+
+                if (alpha == null || fileRef == null)
+                    updateBackground(null, null)
+                else
+                    FirebaseStorageUtil().getDownloadUrl(this@ChatActivity, fileRef) {
+                        updateBackground(it, alpha.toFloat())
+                    }
+            } else {
+                throw RuntimeException("Unhandled behavior!!!!!! Alert !!!")
             }
         }
 
@@ -331,7 +335,7 @@ class ChatActivity : AppCompatActivity() {
 
         loadThreadLocalDetails()
 
-        userManager?.startUserSyncByUserId(this@ChatActivity, userId, userEventListener)
+        if (userId != RavenUtils.GROUP) userManager?.startUserSyncByUserId(this@ChatActivity, userId, userEventListener)
         threadManager?.startThreadSyncByThreadId(this@ChatActivity, threadId, threadEventListener)
         threadManager?.startThreadDocSyncByThreadId(this@ChatActivity, threadId, threadDocEventListener)
 
