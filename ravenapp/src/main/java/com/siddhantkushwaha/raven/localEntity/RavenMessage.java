@@ -135,7 +135,7 @@ public class RavenMessage extends RealmObject {
         this.selected = selected;
     }
 
-    public void cloneObject(Message message) {
+    public void cloneObject(@NonNull Message message) {
 
         setText(message.getText());
         setFileRef(message.getFileRef());

@@ -2,6 +2,7 @@ package com.siddhantkushwaha.raven.localEntity;
 
 import com.siddhantkushwaha.raven.entity.User;
 
+import androidx.annotation.NonNull;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -78,7 +79,7 @@ public class RavenUser extends RealmObject {
         return inContacts;
     }
 
-    public void cloneObject(User user) {
+    public void cloneObject(@NonNull User user) {
 
         setPhoneNumber(user.getPhoneNumber());
 

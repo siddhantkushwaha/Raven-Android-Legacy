@@ -147,8 +147,8 @@ class ProfileActivity : AppCompatActivity() {
         return EventListener { snapshot, _ ->
 
             if (snapshot != null && snapshot.exists()) {
-                val tempUser: User? = snapshot.toObject(User::class.java)
-                user?.cloneObject(tempUser)
+                val tempUser = snapshot.toObject(User::class.java)
+                user?.cloneObject(tempUser!!)
             }
             updateProfileLayout()
         }

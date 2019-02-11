@@ -1,5 +1,9 @@
 package com.siddhantkushwaha.raven.localEntity;
 
+import com.siddhantkushwaha.raven.entity.Thread;
+
+import androidx.annotation.NonNull;
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -13,6 +17,7 @@ public class RavenThread extends RealmObject {
     // either one of the below two set of properties will be used for thread profiling
     /* -------------------------------------- */
     private RavenUser user;
+    private RealmList<RavenUser> users;
 
     private String groupName;
     private String picUrl;
@@ -21,7 +26,7 @@ public class RavenThread extends RealmObject {
 
     private RavenMessage lastMessage;
 
-    private String backgroundFileUrl;
+    private String backgroundFileRef;
     private Float backgroundOpacity;
 
     private String timestamp;
@@ -78,12 +83,12 @@ public class RavenThread extends RealmObject {
         return lastMessage;
     }
 
-    public String getBackgroundFileUrl() {
-        return backgroundFileUrl;
+    public String getBackgroundFileRef() {
+        return backgroundFileRef;
     }
 
-    public void setBackgroundFileUrl(String backgroundFileUrl) {
-        this.backgroundFileUrl = backgroundFileUrl;
+    public void setBackgroundFileRef(String backgroundFileRef) {
+        this.backgroundFileRef = backgroundFileRef;
     }
 
     public Float getBackgroundOpacity() {
@@ -103,7 +108,28 @@ public class RavenThread extends RealmObject {
     }
 
     // utility function
+    public void cloneObject(@NonNull Thread thread) {
+
+        if (thread.getGroupDetails() != null) {
+            groupName = thread.getGroupDetails().getName();
+            picUrl = thread.getGroupDetails().getPicUrl();
+        } else {
+            groupName = null;
+            picUrl = null;
+        }
+
+        if (thread.getBackgroundMetadata() != null) {
+            backgroundFileRef = thread.getBackgroundMetadata().getFileRef();
+            backgroundOpacity = thread.getBackgroundMetadata().getOpacity();
+        } else {
+            backgroundFileRef = null;
+            backgroundOpacity = null;
+        }
+    }
+
     public boolean isGroup() {
         return user == null;
     }
+
+
 }

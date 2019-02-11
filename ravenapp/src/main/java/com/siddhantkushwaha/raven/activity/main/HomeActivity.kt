@@ -238,7 +238,7 @@ class HomeActivity : AppCompatActivity() {
         currentUserEventListener = EventListener { snapshot, _ ->
 
             if (snapshot != null && snapshot.exists()) {
-                user?.cloneObject(snapshot.toObject(User::class.java))
+                user?.cloneObject(snapshot.toObject(User::class.java)!!)
             }
             updateProfileUi()
         }
@@ -359,7 +359,7 @@ class HomeActivity : AppCompatActivity() {
                         ravenUser = RavenUser()
                         ravenUser.userId = userId
                     }
-                    ravenUser.cloneObject(snapshot.toObject(User::class.java))
+                    ravenUser.cloneObject(snapshot.toObject(User::class.java)!!)
                     ravenUser = it.copyToRealmOrUpdate<RavenUser?>(ravenUser)
                 }
                 ravenThread.user = ravenUser

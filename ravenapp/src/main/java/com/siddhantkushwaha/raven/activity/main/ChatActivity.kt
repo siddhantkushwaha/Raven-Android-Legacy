@@ -1,6 +1,5 @@
 package com.siddhantkushwaha.raven.activity.main
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -31,6 +30,7 @@ import com.siddhantkushwaha.raven.activity.ImageFullScreenActivity
 import com.siddhantkushwaha.raven.activity.ProfileActivity
 import com.siddhantkushwaha.raven.adapter.MessageAdapter
 import com.siddhantkushwaha.raven.entity.Message
+import com.siddhantkushwaha.raven.entity.Thread
 import com.siddhantkushwaha.raven.entity.User
 import com.siddhantkushwaha.raven.localEntity.RavenMessage
 import com.siddhantkushwaha.raven.localEntity.RavenThread
@@ -38,10 +38,7 @@ import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.manager.UserManager
 import com.siddhantkushwaha.raven.utility.*
 import com.yalantis.ucrop.UCrop
-import io.realm.OrderedRealmCollectionChangeListener
-import io.realm.Realm
-import io.realm.RealmResults
-import io.realm.Sort
+import io.realm.*
 import kotlinx.android.synthetic.main.activity_chat.*
 
 class ChatActivity : AppCompatActivity() {
@@ -96,6 +93,9 @@ class ChatActivity : AppCompatActivity() {
 
     private var selectedMessages: RealmResults<RavenMessage>? = null
     private var selectedMessagesListener: OrderedRealmCollectionChangeListener<RealmResults<RavenMessage>>? = null
+
+    private var ravenThread: RavenThread? = null
+    private var ravenThreadChangeListener: RealmChangeListener<RavenThread>? = null
 
     private var threadDocEventListener: EventListener<DocumentSnapshot>? = null
 
@@ -156,32 +156,32 @@ class ChatActivity : AppCompatActivity() {
 
             if (doc != null && doc.exists()) {
 
-                // TODO --------------------------- Feb 11, 19
-                // alternative
-                /*val groupDetails = doc["groupDetails"] as? HashMap<String, String>
-                when (groupDetails) {
-                    null -> {
+                val thread = doc.toObject(Thread::class.java)
+                realm?.executeTransaction { realm ->
 
+                    var rt = realm.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
+                    if (rt == null) {
+                        rt = RavenThread()
+                        rt.threadId = threadId
                     }
+                    rt.userId = FirebaseAuth.getInstance().uid
+                    rt.cloneObject(thread!!)
+                    realm.insertOrUpdate(rt)
+                }
 
-                    else -> {
-                        val users = (doc["users"] as? ArrayList<String>)!!
-                    }
-                }*/
-
-                val backgroundMetadata = doc["backgroundMetadata"] as? HashMap<String, *>
-                val alpha = backgroundMetadata?.get("opacity") as? Double
-                val fileRef = backgroundMetadata?.get("fileRef") as? String
-
-                if (alpha == null || fileRef == null)
-                    updateBackground(null, null)
-                else
-                    FirebaseStorageUtil().getDownloadUrl(this@ChatActivity, fileRef) {
-                        updateBackground(it, alpha.toFloat())
-                    }
             } else {
                 throw RuntimeException("Unhandled behavior!!!!!! Alert !!!")
             }
+        }
+
+        ravenThread = realm?.where(RavenThread::class.java)?.equalTo("threadId", threadId)?.findFirstAsync()
+        ravenThreadChangeListener = RealmChangeListener {
+
+            // change background
+            loadBackground(it.backgroundFileRef, it.backgroundOpacity)
+
+
+            // change thread profile based on user or group
         }
 
         val messageQuery = realm?.where(RavenMessage::class.java)?.equalTo("threadId", threadId)?.notEqualTo("deletedBy", FirebaseAuth.getInstance().uid)
@@ -333,16 +333,13 @@ class ChatActivity : AppCompatActivity() {
 
         NotificationSender.cancelNotification(this@ChatActivity, threadId, 0)
 
-        loadThreadLocalDetails()
-
         if (userId != RavenUtils.GROUP) userManager?.startUserSyncByUserId(this@ChatActivity, userId, userEventListener)
         threadManager?.startThreadSyncByThreadId(this@ChatActivity, threadId, threadEventListener)
         threadManager?.startThreadDocSyncByThreadId(this@ChatActivity, threadId, threadDocEventListener)
 
         allMessages!!.addChangeListener(allMessagesListener!!)
         selectedMessages!!.addChangeListener(selectedMessagesListener!!)
-
-        // showDeleteDialog(1)
+        ravenThread!!.addChangeListener(ravenThreadChangeListener!!)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -369,6 +366,7 @@ class ChatActivity : AppCompatActivity() {
 
         allMessages?.removeAllChangeListeners()
         selectedMessages?.removeAllChangeListeners()
+        ravenThread?.removeAllChangeListeners()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -476,45 +474,23 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateBackground(fileUrl: String?, alpha: Float?) {
-
-        realm?.executeTransactionAsync { realmIns ->
-            val ravenThread = realmIns.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
-            if (ravenThread != null) {
-                ravenThread.backgroundFileUrl = fileUrl
-                ravenThread.backgroundOpacity = alpha
-                realmIns.insertOrUpdate(ravenThread)
-            }
-
-            runOnUiThread {
-                loadThreadLocalDetails()
-            }
-        }
-    }
-
-    private fun loadThreadLocalDetails() {
-
-        realm?.executeTransactionAsync { realmIns ->
-            val ravenThread = realmIns.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
-
-            val uri = ravenThread?.backgroundFileUrl
-            val opacity = ravenThread?.backgroundOpacity ?: 1F
-            runOnUiThread {
-                loadChatBackground(uri, opacity)
-            }
-        }
-    }
-
-    @SuppressLint("CheckResult")
-    private fun loadChatBackground(uri: String?, alpha: Float?) {
-
-        background.alpha = alpha ?: 1F
+    private fun loadBackground(fileRef: String?, alpha: Float?) {
 
         val requestOptions = RequestOptions()
         requestOptions.error(R.drawable.artwork_raven)
         requestOptions.placeholder(R.drawable.artwork_raven)
 
-        GlideUtilV2.loadChatBackground(this@ChatActivity, uri, requestOptions, background)
+        if (fileRef != null) {
+            FirebaseStorageUtil().getDownloadUrl(this@ChatActivity, fileRef) {
+
+                if (it != null) {
+                    background.alpha = alpha ?: 1F
+                    GlideUtilV2.loadChatBackground(this@ChatActivity, it, requestOptions, background)
+                } else
+                    GlideUtilV2.loadChatBackground(this@ChatActivity, null, requestOptions, background)
+            }
+        } else
+            GlideUtilV2.loadChatBackground(this@ChatActivity, null, requestOptions, background)
     }
 
     private fun setMessageSelectedProperty(messageId: String, toggle: Boolean, value: Boolean = false) {
