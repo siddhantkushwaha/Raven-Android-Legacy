@@ -34,6 +34,7 @@ import com.siddhantkushwaha.raven.entity.Thread
 import com.siddhantkushwaha.raven.entity.User
 import com.siddhantkushwaha.raven.localEntity.RavenMessage
 import com.siddhantkushwaha.raven.localEntity.RavenThread
+import com.siddhantkushwaha.raven.localEntity.RavenUser
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.manager.UserManager
 import com.siddhantkushwaha.raven.utility.*
@@ -157,7 +158,7 @@ class ChatActivity : AppCompatActivity() {
             if (doc != null && doc.exists()) {
 
                 val thread = doc.toObject(Thread::class.java)
-                realm?.executeTransaction { realm ->
+                realm?.executeTransactionAsync { realm ->
 
                     var rt = realm.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
                     if (rt == null) {
@@ -165,7 +166,30 @@ class ChatActivity : AppCompatActivity() {
                         rt.threadId = threadId
                     }
                     rt.userId = FirebaseAuth.getInstance().uid
+
                     rt.cloneObject(thread!!)
+
+                    // users to remove
+                    rt.users.forEach { ru ->
+                        thread.users.findLast { userId ->
+                            ru.userId == userId
+                        } ?: ru.deleteFromRealm()
+                    }
+
+                    //users to add
+                    thread.users.forEach { userId ->
+                        var ru = rt.users.findLast { ru ->
+                            userId == ru.userId
+                        }
+                        if (ru == null) {
+                            ru = RavenUser()
+                            ru.userId = userId
+
+                            ru = realm.copyToRealmOrUpdate(ru)
+                        }
+                        rt.users.add(ru)
+                    }
+
                     realm.insertOrUpdate(rt)
                 }
 

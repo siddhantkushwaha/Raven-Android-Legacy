@@ -59,6 +59,14 @@ public class RavenThread extends RealmObject {
         return user;
     }
 
+    public void setUsers(RealmList<RavenUser> users) {
+        this.users = users;
+    }
+
+    public RealmList<RavenUser> getUsers() {
+        return users;
+    }
+
     public void setGroupName(String groupName) {
         this.groupName = groupName;
     }
