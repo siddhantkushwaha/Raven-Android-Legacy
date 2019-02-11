@@ -85,7 +85,7 @@ dependencies {
         transitive = true
     }
 
-    implementation 'com.github.siddhantkushwaha:thugtools:fa7d0044a2'
+    implementation 'com.github.siddhantkushwaha:thugtools:1.0.0'
 }
 
 apply plugin: 'com.google.gms.google-services'

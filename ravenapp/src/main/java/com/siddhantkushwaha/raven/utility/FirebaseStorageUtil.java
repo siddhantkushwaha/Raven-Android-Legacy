@@ -1,12 +1,9 @@
 package com.siddhantkushwaha.raven.utility;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.google.firebase.storage.FirebaseStorage;
-import com.siddhantkushwaha.raven.localEntity.Pair;
-
-import io.realm.Realm;
+import com.siddhantkushwaha.android.thugtools.thugtools.utility.LocalStorage;
 
 public class FirebaseStorageUtil {
 
@@ -18,36 +15,21 @@ public class FirebaseStorageUtil {
 
     public void getDownloadUrl(Context context, String fileRef, OnComplete onComplete) {
 
-        Realm realm = RealmUtil.getCustomRealmInstance(context);
+        String url = LocalStorage.get(context, "fileUrl", fileRef);
+        if (url != null) {
+            onComplete.onComplete(url);
+        } else {
+            FirebaseStorage.getInstance().getReference(fileRef.replace(prefix, "")).getDownloadUrl().addOnSuccessListener(uri -> {
 
-        realm.executeTransaction(realmIns1 -> {
+                onComplete.onComplete(uri.toString());
+                LocalStorage.set(context, "fileUrl", fileRef, uri.toString());
+            }).addOnFailureListener(e -> {
 
-            Pair pair = realmIns1.where(Pair.class).equalTo("ref", fileRef).findFirst();
-            if (pair != null) {
-                onComplete.onComplete(pair.getUri());
-            } else {
-                FirebaseStorage.getInstance().getReference(fileRef.replace(prefix, "")).getDownloadUrl().addOnSuccessListener(uri -> {
-
-                    onComplete.onComplete(uri.toString());
-
-                    realm.executeTransactionAsync(realmIns2 -> {
-
-                        Pair newPair = new Pair();
-                        newPair.setRef(fileRef);
-                        newPair.setUri(uri.toString());
-                        realmIns2.insertOrUpdate(newPair);
-                    });
-
-                }).addOnFailureListener(e -> {
-
-                    onComplete.onComplete(null);
-
-                    Log.i(FirebaseStorageUtil.class.toString(), fileRef);
-                    e.printStackTrace();
-                });
-            }
-        });
-        realm.close();
+                onComplete.onComplete(null);
+                LocalStorage.set(context, "fileUrl", fileRef, null);
+                e.printStackTrace();
+            });
+        }
     }
 
     public void deleteFile(String fileRef) {
