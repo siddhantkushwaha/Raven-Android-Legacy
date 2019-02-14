@@ -21,7 +21,7 @@
             app:contentScrim="@color/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-            <com.siddhantkushwaha.raven.custom.SquareImageView
+            <com.siddhantkushwaha.android.thugtools.thugtools.custom.SquareImageView
                 android:id="@+id/imageRelativeLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

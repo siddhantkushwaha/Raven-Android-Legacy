@@ -3,6 +3,7 @@ package com.siddhantkushwaha.raven.activity
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.os.Build
 import android.os.Bundle
 import android.view.MotionEvent
 import android.view.View
@@ -168,7 +169,9 @@ class ProfileActivity : AppCompatActivity() {
                     if (swatch != null) {
                         collapsingToolbar.setContentScrimColor(swatch.rgb)
                         collapsingToolbar.setBackgroundColor(swatch.rgb)
-                        UiUtil.setStatusBarColor(this@ProfileActivity, UiUtil.manipulateColor(swatch.rgb, 0.8f), UiUtil.DARK)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                            UiUtil.setStatusBarColor(this@ProfileActivity, UiUtil.manipulateColor(swatch.rgb, 0.8f), UiUtil.DARK)
+                        }
                     }
                 }
             }
