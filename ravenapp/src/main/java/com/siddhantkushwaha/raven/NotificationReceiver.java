@@ -57,8 +57,8 @@ public class NotificationReceiver extends BroadcastReceiver {
             if (encryptedMessage == null)
                 return;
 
-            Message messageObject = new Message(encryptedMessage, Timestamp.now(), senderUid, userId);
-            new ThreadManager().sendMessage(threadId, messageObject);
+            // Message messageObject = new Message(encryptedMessage, Timestamp.now(), senderUid, userId);
+            // new ThreadManager().sendMessage(threadId, messageObject);
 
             NotificationSender.cancelNotification(context, threadId, 0);
         }

@@ -177,7 +177,7 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
 
             setMessageTime(timeText, ravenMessage);
 
-            if (ravenMessage.getSeenByUserId(ravenMessage.getSentToUserId()) != null)
+            if (ravenMessage.isSeenByAll())
                 status.setBackground(context.getDrawable(R.drawable.badge_message_status_seen));
             else if (ravenMessage.getTimestamp() != null)
                 status.setBackground(context.getDrawable(R.drawable.badge_message_status_sent));
@@ -269,6 +269,9 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
     }
 
     private void setMessageText(TextView messageText, RavenMessage ravenMessage) {
+
+
+        System.out.println(ravenMessage.getSentTo());
         try {
             setDefaultView(messageText, ravenMessage, ThreadManager.decryptMessage(ravenMessage.getThreadId(), ravenMessage.getText()));
         } catch (GeneralSecurityException e) {

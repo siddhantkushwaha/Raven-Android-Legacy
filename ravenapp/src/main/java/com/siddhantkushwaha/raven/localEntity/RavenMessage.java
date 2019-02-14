@@ -25,7 +25,7 @@ public class RavenMessage extends RealmObject {
     private String text;
     private String fileRef;
     private String sentByUserId;
-    private String sentToUserId;
+    private RealmList<String> sentTo;
 
     // These are in JodaTime
     private String timestamp;
@@ -79,14 +79,6 @@ public class RavenMessage extends RealmObject {
         this.sentByUserId = sentByUserId;
     }
 
-    public String getSentToUserId() {
-        return sentToUserId;
-    }
-
-    public void setSentToUserId(String sentToUserId) {
-        this.sentToUserId = sentToUserId;
-    }
-
     public String getTimestamp() {
         return timestamp;
     }
@@ -109,6 +101,14 @@ public class RavenMessage extends RealmObject {
 
     public String getSeenBy() {
         return seenBy;
+    }
+
+    public void setSentTo(RealmList<String> sentTo) {
+        this.sentTo = sentTo;
+    }
+
+    public RealmList<String> getSentTo() {
+        return sentTo;
     }
 
     public void setDeletedBy(String deletedBy) {
@@ -140,7 +140,12 @@ public class RavenMessage extends RealmObject {
         setText(message.getText());
         setFileRef(message.getFileRef());
         setSentByUserId(message.getSentByUserId());
-        setSentToUserId(message.getSentToUserId());
+
+        if (message.getSentTo() != null) {
+            RealmList<String> arr = new RealmList<>();
+            arr.addAll(message.getSentTo());
+            setSentTo(arr);
+        }
 
         setLocalTimestamp(new DateTime(message.getSentTime().toDate()).toString());
 
@@ -183,5 +188,21 @@ public class RavenMessage extends RealmObject {
             //pass
         }
         return value;
+    }
+
+    public boolean isSeenByAll() {
+
+        boolean seenByAll = true;
+        if (sentTo != null) {
+            for (String userId : sentTo) {
+                System.out.println(getSeenByUserId(userId));
+                if (getSeenByUserId(userId) == null) {
+                    seenByAll = false;
+                    break;
+                }
+            }
+        } else seenByAll = false;
+
+        return seenByAll;
     }
 }

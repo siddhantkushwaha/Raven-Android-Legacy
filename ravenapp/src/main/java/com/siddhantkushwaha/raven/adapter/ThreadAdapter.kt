@@ -66,9 +66,8 @@ class ThreadAdapter(private val context: Context, private val data: OrderedRealm
                     // sent message
 
                     view.findViewById<ImageView>(R.id.sentMessageStatus).visibility = View.VISIBLE
-
                     when {
-                        ravenThread.lastMessage.getSeenByUserId(ravenThread.lastMessage.sentToUserId) != null -> view.findViewById<ImageView>(R.id.sentMessageStatus).setImageDrawable(context.getDrawable(R.drawable.badge_message_status_seen))
+                        ravenThread.lastMessage.isSeenByAll -> view.findViewById<ImageView>(R.id.sentMessageStatus).setImageDrawable(context.getDrawable(R.drawable.badge_message_status_seen))
                         ravenThread.lastMessage.timestamp != null -> view.findViewById<ImageView>(R.id.sentMessageStatus).setImageDrawable(context.getDrawable(R.drawable.badge_message_status_sent))
                         else -> view.findViewById<ImageView>(R.id.sentMessageStatus).setImageDrawable(context.getDrawable(R.drawable.badge_message_status_pending))
                     }
@@ -98,12 +97,10 @@ class ThreadAdapter(private val context: Context, private val data: OrderedRealm
                 }
             }
 
-            var messageText = "Message Deleted."
-
             val text = ravenThread.lastMessage.text
             val fileRef = ravenThread.lastMessage.fileRef
 
-            messageText = if (text == null && fileRef == null) {
+            val messageText = if (text == null && fileRef == null) {
                 "Message Deleted."
             } else if (text == null) {
                 "Photo."

@@ -15,7 +15,7 @@ public class Message {
     private String text;
     private String fileRef;
     private String sentByUserId;
-    private String sentToUserId;
+    private ArrayList<String> sentTo;
 
     private Timestamp sentTime;
 
@@ -28,14 +28,6 @@ public class Message {
 
     public Message() {
 
-    }
-
-    public Message(@Nullable String text, @NonNull Timestamp sentTime, @NonNull String sentByUserId, @NonNull String sentToUserId) {
-
-        setText(text);
-        setSentTime(sentTime);
-        setSentByUserId(sentByUserId);
-        setSentToUserId(sentToUserId);
     }
 
     public void setText(String text) {
@@ -62,12 +54,12 @@ public class Message {
         return sentByUserId;
     }
 
-    public void setSentToUserId(String sentToUserId) {
-        this.sentToUserId = sentToUserId;
+    public void setSentTo(ArrayList<String> sentTo) {
+        this.sentTo = sentTo;
     }
 
-    public String getSentToUserId() {
-        return sentToUserId;
+    public ArrayList<String> getSentTo() {
+        return sentTo;
     }
 
     public void setSentTime(Timestamp sentTime) {
