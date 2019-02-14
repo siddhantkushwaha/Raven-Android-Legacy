@@ -28,6 +28,7 @@ import com.siddhantkushwaha.raven.NotificationSender
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.activity.ChatBackgroundGallery
 import com.siddhantkushwaha.raven.activity.ImageFullScreenActivity
+import com.siddhantkushwaha.raven.activity.ProfileActivity
 import com.siddhantkushwaha.raven.adapter.MessageAdapter
 import com.siddhantkushwaha.raven.entity.Message
 import com.siddhantkushwaha.raven.entity.Thread
@@ -77,13 +78,9 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var userId: String
     private lateinit var threadId: String
 
-    //    private val userManager: UserManager = UserManager()
     private val threadManager: ThreadManager = ThreadManager()
 
-    //    private lateinit var userEventListener: EventListener<DocumentSnapshot>
     private lateinit var threadEventListener: EventListener<QuerySnapshot>
-
-//    private var user: User? = null
 
     private val realm: Realm = RealmUtil.getCustomRealmInstance(this@ChatActivity)
     private lateinit var allMessages: RealmResults<RavenMessage>
@@ -95,10 +92,10 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var selectedMessagesListener: OrderedRealmCollectionChangeListener<RealmResults<RavenMessage>>
 
     private var thread: Thread? = null
+    private lateinit var threadDocEventListener: EventListener<DocumentSnapshot>
+
     private lateinit var ravenThread: RavenThread
     private lateinit var ravenThreadChangeListener: RealmChangeListener<RavenThread>
-
-    private lateinit var threadDocEventListener: EventListener<DocumentSnapshot>
 
     private var actionMode: ActionMode? = null
 
@@ -119,9 +116,10 @@ class ChatActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-//        userProfileLayout.setOnClickListener {
-//            ProfileActivity.openActivity(this@ChatActivity, false, ProfileActivity.Companion.IntentData(userId))
-//        }
+        userProfileLayout.setOnClickListener {
+            if (!userId.equals(RavenUtils.GROUP))
+                ProfileActivity.openActivity(this@ChatActivity, false, ProfileActivity.Companion.IntentData(userId))
+        }
 
         sendButton.setOnClickListener {
             val message = messageEditText.text.toString().trim()
@@ -130,23 +128,12 @@ class ChatActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
             messageEditText.setText("")
-            sendMessage(message)
+            sendMessage(messageText = message)
         }
 
         sendImageButton.setOnClickListener {
             ImageUtil.openImageIntent(this@ChatActivity)
         }
-
-//        user = User()
-
-//        userEventListener = EventListener { snapshot, _ ->
-//
-//            if (snapshot != null && snapshot.exists()) {
-//                val tempUser = snapshot.toObject(User::class.java)
-//                user?.cloneObject(tempUser)
-//            }
-//            updateProfileLayout()
-//        }
 
         threadEventListener = getThreadEventListener(threadId, realm)
 
@@ -190,21 +177,26 @@ class ChatActivity : AppCompatActivity() {
 
                     realm.insertOrUpdate(rt)
                 }
-
             }
-//            else {
-//                throw RuntimeException("Unhandled behavior!!!!!! Alert !!!")
-//            }
         }
 
         ravenThread = realm.where(RavenThread::class.java).equalTo("threadId", threadId).findFirstAsync()
         ravenThreadChangeListener = RealmChangeListener {
 
-            // change background
-//            loadBackground(it.backgroundFileRef, it.backgroundOpacity)
+            loadBackground(it.backgroundFileRef, it.backgroundOpacity)
+            when (userId) {
 
+                RavenUtils.GROUP -> {
+                    nameTextView.text = it.groupName ?: "Raven Group"
+                    GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, it.picUrl)
+                }
 
-            // change thread profile based on user or group
+                else -> {
+                    nameTextView.text = it.user.contactName ?: it.user.displayName
+                            ?: it.user.phoneNumber!!
+                    GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, it.user.picUrl)
+                }
+            }
         }
 
         val messageQuery = realm.where(RavenMessage::class.java).equalTo("threadId", threadId).notEqualTo("deletedBy", FirebaseAuth.getInstance().uid)
@@ -332,15 +324,6 @@ class ChatActivity : AppCompatActivity() {
         }
         ravenMessageAdapter.setOnLongClickListener { _, position ->
 
-            // val ravenMessage = ravenMessageAdapter?.getItem(position)
-            //        ?: return@setOnLongClickListener
-            // if (ravenMessage.sentByUserId == FirebaseAuth.getInstance().uid) {
-            //    threadManager?.deleteMessageForEveryone(threadId!!, ravenMessage.messageId, ravenMessage.fileRef) {
-            //        if (it.isSuccessful)
-            //            Toast.makeText(this@ChatActivity, "Deleted.", Toast.LENGTH_LONG).show()
-            //    }
-            // }
-
             val messageId = ravenMessageAdapter.getItem(position)?.messageId
                     ?: return@setOnLongClickListener
             setMessageSelectedProperty(messageId, true)
@@ -354,7 +337,6 @@ class ChatActivity : AppCompatActivity() {
 
         NotificationSender.cancelNotification(this@ChatActivity, threadId, 0)
 
-//        if (userId != RavenUtils.GROUP) userManager.startUserSyncByUserId(this@ChatActivity, userId, userEventListener)
         threadManager.startThreadSyncByThreadId(this@ChatActivity, threadId, threadEventListener)
         threadManager.startThreadDocSyncByThreadId(this@ChatActivity, threadId, threadDocEventListener)
 
@@ -473,7 +455,7 @@ class ChatActivity : AppCompatActivity() {
 
     private fun sendMessage(messageText: String? = null, fileRef: String? = null) {
 
-        val encryptedMessage = ThreadManager.encryptMessage(threadId, messageText) ?: return
+        val encryptedMessage = ThreadManager.encryptMessage(threadId, messageText)
 
         val message = Message()
 
@@ -490,19 +472,17 @@ class ChatActivity : AppCompatActivity() {
         message.notDeletedBy = users
         message.sentTo = users.filterNot { it == FirebaseAuth.getInstance().uid } as ArrayList<String>
 
-        threadManager.sendMessageV2(threadId, message, userId)
+        threadManager.sendMessage(threadId, message, userId)
     }
-
-//    private fun updateProfileLayout() {
-//
-//        nameTextView.text = user?.userProfile?.name ?: user?.phoneNumber
-//                ?: getString(R.string.default_name)
-//        GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, user?.userProfile?.picUrl)
-//    }
 
     private fun handleCropResult(uri: Uri) {
 
         // sendMessage(fileRef = uri.toString())
+        threadManager.sendFile(threadId, uri, null, {
+            val result = it.result
+            if (it.isSuccessful && result != null)
+                sendMessage(fileRef = result.storage.path)
+        })
     }
 
     @SuppressLint("CheckResult")

@@ -117,7 +117,7 @@ public class NotificationSender {
             RemoteInput remoteInput = new RemoteInput.Builder(NotificationReceiver.NOTIFICATION_REPLY)
                     .setLabel(REPLY_LABEL).build();
 
-            Intent intent = NotificationReceiver.getIntent(context, userId, threadId);
+            Intent intent = NotificationReceiver.getIntent(context, threadId);
             PendingIntent replyPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), requestCode, intent, PendingIntent.FLAG_ONE_SHOT);
 
             NotificationCompat.Action action = new NotificationCompat.Action.Builder(R.drawable.button_send_message, REPLY_LABEL, replyPendingIntent)

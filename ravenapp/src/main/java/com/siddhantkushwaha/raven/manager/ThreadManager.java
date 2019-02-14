@@ -1,6 +1,7 @@
 package com.siddhantkushwaha.raven.manager;
 
 import android.app.Activity;
+import android.net.Uri;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.Timestamp;
@@ -14,13 +15,16 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.siddhantkushwaha.raven.custom.AESNygma;
 import com.siddhantkushwaha.raven.entity.Message;
 import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil;
 import com.siddhantkushwaha.raven.utility.FirebaseUtils;
 import com.siddhantkushwaha.raven.utility.RavenUtils;
 
-import java.security.GeneralSecurityException;
 import java.util.HashMap;
 
 import androidx.annotation.NonNull;
@@ -38,7 +42,7 @@ public class ThreadManager {
         db = FirebaseUtils.getFirestoreDb(true);
     }
 
-    public void sendMessageV2(@NonNull String threadId, @NonNull Message message, String userId) {
+    public void sendMessage(@NonNull String threadId, @NonNull Message message, String userId) {
 
         DocumentReference messageRef = db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document();
 
@@ -53,36 +57,28 @@ public class ThreadManager {
         batch.set(messageRef, message);
         batch.commit().addOnCompleteListener(task -> {
 
-//            HashMap<String, String> map = new HashMap<>();
-//            map.put("threadId", threadId);
-//            map.put("messageId", messageRef.getId());
-//            map.put("sentByUserId", FirebaseAuth.getInstance().getUid());
-//            FirebaseUtils.getRealtimeDb(true).getReference("messages").push().setValue(map);
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("threadId", threadId);
+            map.put("messageId", messageRef.getId());
+            map.put("sentTo", message.getSentTo());
+            FirebaseUtils.getRealtimeDb(true).getReference("messages").push().setValue(map);
         });
     }
 
-//    public void sendMessage(@NonNull String threadId, @NonNull Message message,
-//                            @NonNull Uri uri, @Nullable OnProgressListener<UploadTask.TaskSnapshot> onProgressListener) {
-//
-//        // shortcut to generate a random fileId for now
-//        String fileId = db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document().getId();
-//
-//        StorageReference fileRef = FirebaseStorage.getInstance().getReference("thread_media/" + threadId + "/" + fileId + "/media.png");
-//        UploadTask uploadTask = fileRef.putFile(uri);
-//
-//        if (onProgressListener != null)
-//            uploadTask.addOnProgressListener(onProgressListener);
-//
-//        uploadTask.addOnCompleteListener(uTask -> {
-//
-//            UploadTask.TaskSnapshot taskSnapshot = uTask.getResult();
-//            if (uTask.isSuccessful() && taskSnapshot != null) {
-//
-//                message.setFileRef(taskSnapshot.getStorage().toString());
-//                sendMessage(threadId, message);
-//            }
-//        });
-//    }
+    public void sendFile(@NonNull String threadId, @NonNull Uri uri, @Nullable OnProgressListener<UploadTask.TaskSnapshot> onProgressListener, @NonNull OnCompleteListener<UploadTask.TaskSnapshot> onCompleteListener) {
+
+        // shortcut to generate a random fileId for now
+        String fileId = db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document().getId();
+
+        StorageReference fileRef = FirebaseStorage.getInstance().getReference("thread_media/" + threadId + "/" + fileId + "/media.png");
+        UploadTask uploadTask = fileRef.putFile(uri);
+
+        if (onProgressListener != null) {
+            uploadTask.addOnProgressListener(onProgressListener);
+        }
+
+        uploadTask.addOnCompleteListener(onCompleteListener);
+    }
 
     public void markMessageAsRead(@NonNull String threadId, @NonNull String messageId, Timestamp timestamp, OnCompleteListener<Object> onCompleteListener) {
 
@@ -175,7 +171,7 @@ public class ThreadManager {
         String encryptedMessage = null;
         try {
             encryptedMessage = AESNygma.encrypt(threadId, message);
-        } catch (GeneralSecurityException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return encryptedMessage;

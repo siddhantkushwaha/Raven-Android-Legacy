@@ -171,8 +171,7 @@ class HomeActivity : AppCompatActivity() {
                             }
                         }
 
-//                        // to sync last message
-//                        // threadManager!!.startThreadSyncByThreadId(this@HomeActivity, threadId, getThreadEventListener(threadId, realm))
+                        // to sync last message
                         threadManager!!.startLastMessageSyncByTimestamp(this@HomeActivity, threadId) { t, firebaseFirestoreException ->
 
                             realm?.executeTransactionAsync { realm ->
@@ -247,7 +246,7 @@ class HomeActivity : AppCompatActivity() {
         userManager = UserManager()
         threadManager = ThreadManager()
 
-//        RavenContactSync.setupSync(this@HomeActivity)
+        // RavenContactSync.setupSync(this@HomeActivity)
 
         val map = HashMap<String, Any>()
         map[UserManager.KEY_USER_ID] = FieldValue.delete()

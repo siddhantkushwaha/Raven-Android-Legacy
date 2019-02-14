@@ -193,15 +193,15 @@ public class RavenMessage extends RealmObject {
     public boolean isSeenByAll() {
 
         boolean seenByAll = true;
-        if (sentTo != null) {
+        if (sentTo != null && sentTo.size() > 0) {
             for (String userId : sentTo) {
-                System.out.println(getSeenByUserId(userId));
                 if (getSeenByUserId(userId) == null) {
                     seenByAll = false;
                     break;
                 }
             }
-        } else seenByAll = false;
+        } else
+            seenByAll = false;
 
         return seenByAll;
     }

@@ -10,6 +10,9 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.siddhantkushwaha.raven.entity.Message;
 import com.siddhantkushwaha.raven.manager.ThreadManager;
+import com.siddhantkushwaha.raven.utility.RavenUtils;
+
+import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.RemoteInput;
@@ -17,13 +20,11 @@ import androidx.core.app.RemoteInput;
 public class NotificationReceiver extends BroadcastReceiver {
 
     public static final String NOTIFICATION_REPLY = "NOTIFICATION_REPLY";
-    public static final String USER_ID = "USER_ID";
     public static final String THREAD_ID = "THREAD_ID";
 
-    public static Intent getIntent(@NonNull Context context, @NonNull String userId, @NonNull String threadId) {
+    public static Intent getIntent(@NonNull Context context, @NonNull String threadId) {
 
         Intent intent = new Intent(context, NotificationReceiver.class);
-        intent.putExtra(USER_ID, userId);
         intent.putExtra(THREAD_ID, threadId);
 
         return intent;
@@ -38,7 +39,14 @@ public class NotificationReceiver extends BroadcastReceiver {
         if (remoteInput != null) {
 
             String threadId = intent.getStringExtra(THREAD_ID);
-            String userId = intent.getStringExtra(USER_ID);
+
+            String senderUid = FirebaseAuth.getInstance().getUid();
+            if (senderUid == null)
+                return;
+
+            String userId = RavenUtils.getUserId(threadId, senderUid);
+            if (userId.equals(RavenUtils.GROUP))
+                return;
 
             CharSequence c = remoteInput.getCharSequence(NOTIFICATION_REPLY);
             String message = null;
@@ -46,19 +54,30 @@ public class NotificationReceiver extends BroadcastReceiver {
                 message = c.toString();
             }
 
-            if (message == null || threadId == null || userId == null)
-                return;
-
-            String senderUid = FirebaseAuth.getInstance().getUid();
-            if (senderUid == null)
+            if (message == null)
                 return;
 
             String encryptedMessage = ThreadManager.encryptMessage(threadId, message);
             if (encryptedMessage == null)
                 return;
 
-            // Message messageObject = new Message(encryptedMessage, Timestamp.now(), senderUid, userId);
-            // new ThreadManager().sendMessage(threadId, messageObject);
+            // TODO this is not for groups, change in future
+
+            ArrayList<String> notDeletedBy = new ArrayList<>();
+            ArrayList<String> sentTo = new ArrayList<>();
+
+            notDeletedBy.add(userId);
+            sentTo.add(userId);
+
+            notDeletedBy.add(senderUid);
+
+            Message messageObject = new Message();
+            messageObject.setText(encryptedMessage);
+            messageObject.setSentByUserId(senderUid);
+            messageObject.setSentTime(Timestamp.now());
+            messageObject.setNotDeletedBy(notDeletedBy);
+            messageObject.setSentTo(sentTo);
+            new ThreadManager().sendMessage(threadId, messageObject, userId);
 
             NotificationSender.cancelNotification(context, threadId, 0);
         }
