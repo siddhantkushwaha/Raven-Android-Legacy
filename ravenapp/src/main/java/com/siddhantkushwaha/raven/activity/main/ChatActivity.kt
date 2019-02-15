@@ -117,7 +117,7 @@ class ChatActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         userProfileLayout.setOnClickListener {
-            if (!userId.equals(RavenUtils.GROUP))
+            if (userId != RavenUtils.GROUP)
                 ProfileActivity.openActivity(this@ChatActivity, false, ProfileActivity.Companion.IntentData(userId))
         }
 
@@ -154,25 +154,26 @@ class ChatActivity : AppCompatActivity() {
 
                     rt.cloneObject(thread!!)
 
-                    // users to remove
-                    rt.users.forEach { ru ->
-                        thread.users.findLast { userId ->
-                            ru.userId == userId
-                        } ?: ru.deleteFromRealm()
+                    //users to remove
+                    for (ru in rt.users) {
+                        if (thread.users.findLast { userId -> ru.userId == userId } == null) {
+                            rt.users.removeAll {
+                                it.userId == ru.userId
+                            }
+                        }
                     }
 
                     //users to add
                     thread.users.forEach { userId ->
-                        var ru = rt.users.findLast { ru ->
-                            userId == ru.userId
+                        if (rt.users.findLast { ru -> userId == ru.userId } == null) {
+                            var ru = realm.where(RavenUser::class.java).equalTo("userId", userId).findFirst()
+                            if (ru == null) {
+                                ru = RavenUser()
+                                ru.userId = userId
+                                ru = realm.copyToRealmOrUpdate(ru)
+                            }
+                            rt.users.add(ru)
                         }
-                        if (ru == null) {
-                            ru = RavenUser()
-                            ru.userId = userId
-
-                            ru = realm.copyToRealmOrUpdate(ru)
-                        }
-                        rt.users.add(ru)
                     }
 
                     realm.insertOrUpdate(rt)
