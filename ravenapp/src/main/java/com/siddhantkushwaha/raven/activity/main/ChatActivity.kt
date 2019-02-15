@@ -73,7 +73,7 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private val tag = this::class.java.toString()
+    private val tag = ChatActivity::class.java.toString()
 
     private lateinit var userId: String
     private lateinit var threadId: String
@@ -82,7 +82,7 @@ class ChatActivity : AppCompatActivity() {
 
     private lateinit var threadEventListener: EventListener<QuerySnapshot>
 
-    private val realm: Realm = RealmUtil.getCustomRealmInstance(this@ChatActivity)
+    private lateinit var realm: Realm
     private lateinit var allMessages: RealmResults<RavenMessage>
     private lateinit var ravenMessageAdapter: MessageAdapter
     private lateinit var allMessagesListener: OrderedRealmCollectionChangeListener<RealmResults<RavenMessage>>
@@ -103,6 +103,8 @@ class ChatActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_chat)
+
+        realm = RealmUtil.getCustomRealmInstance(this@ChatActivity)
 
         val intentData = getIntentData(this)
 
@@ -155,6 +157,10 @@ class ChatActivity : AppCompatActivity() {
                     rt.cloneObject(thread!!)
 
                     //users to remove
+
+                    if(rt.users == null)
+                        rt.users = RealmList()
+
                     for (ru in rt.users) {
                         if (thread.users.findLast { userId -> ru.userId == userId } == null) {
                             rt.users.removeAll {
