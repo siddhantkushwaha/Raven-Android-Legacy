@@ -183,18 +183,20 @@ class ChatActivity : AppCompatActivity() {
         ravenThread = realm.where(RavenThread::class.java).equalTo("threadId", threadId).findFirstAsync()
         ravenThreadChangeListener = RealmChangeListener {
 
-            loadBackground(it.backgroundFileRef, it.backgroundOpacity)
-            when (userId) {
+            if (it.isValid) {
+                loadBackground(it.backgroundFileRef, it.backgroundOpacity)
+                when (userId) {
 
-                RavenUtils.GROUP -> {
-                    nameTextView.text = it.groupName ?: "Raven Group"
-                    GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, it.picUrl)
-                }
+                    RavenUtils.GROUP -> {
+                        nameTextView.text = it.groupName ?: "Raven Group"
+                        GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, it.picUrl)
+                    }
 
-                else -> {
-                    nameTextView.text = it.user.contactName ?: it.user.displayName
-                            ?: it.user.phoneNumber!!
-                    GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, it.user.picUrl)
+                    else -> {
+                        nameTextView.text = it.user.contactName ?: it.user.displayName
+                                ?: it.user.phoneNumber!!
+                        GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, it.user.picUrl)
+                    }
                 }
             }
         }
