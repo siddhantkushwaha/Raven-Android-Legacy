@@ -60,7 +60,7 @@ class HomeActivity : AppCompatActivity() {
     private var threadManager: ThreadManager? = null
     private var allThreadsListener: EventListener<QuerySnapshot>? = null
 
-    private var realm: Realm? = null
+    private lateinit var realm: Realm
     private var results: RealmResults<RavenThread>? = null
     private var ravenThreadAdapter: ThreadAdapter? = null
     private var listener: OrderedRealmCollectionChangeListener<RealmResults<RavenThread>>? = null
@@ -73,7 +73,7 @@ class HomeActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_home)
 
-        realm = RealmUtil.getCustomRealmInstance(this)
+        realm = RealmUtil.getCustomRealmInstance(this@HomeActivity)
 
         setSupportActionBar(toolbar)
         toolbar.title = "Raven"
@@ -128,7 +128,7 @@ class HomeActivity : AppCompatActivity() {
 
                     DocumentChange.Type.ADDED, DocumentChange.Type.MODIFIED -> {
 
-                        realm?.executeTransactionAsync { realm ->
+                        realm.executeTransactionAsync { realm ->
 
                             var rt = realm.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
                             if (rt == null) {
@@ -155,7 +155,7 @@ class HomeActivity : AppCompatActivity() {
                             else -> {
                                 //This means it is a group thread
 
-                                realm?.executeTransactionAsync { realm ->
+                                realm.executeTransactionAsync { realm ->
 
                                     val rt = realm.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
                                             ?: return@executeTransactionAsync
@@ -174,7 +174,7 @@ class HomeActivity : AppCompatActivity() {
                         // to sync last message
                         threadManager!!.startLastMessageSyncByTimestamp(this@HomeActivity, threadId) { t, firebaseFirestoreException ->
 
-                            realm?.executeTransactionAsync { realm ->
+                            realm.executeTransactionAsync { realm ->
 
                                 val rt = realm.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
                                         ?: return@executeTransactionAsync
@@ -208,7 +208,7 @@ class HomeActivity : AppCompatActivity() {
 
                     DocumentChange.Type.REMOVED -> {
 
-                        realm?.executeTransactionAsync { realm ->
+                        realm.executeTransactionAsync { realm ->
                             realm.where(RavenThread::class.java).equalTo("threadId", threadId).findAll().deleteAllFromRealm()
                         }
                     }
@@ -218,7 +218,7 @@ class HomeActivity : AppCompatActivity() {
             firebaseFirestoreException?.printStackTrace()
         }
 
-        results = realm?.where(RavenThread::class.java)?.equalTo("userId", FirebaseAuth.getInstance().uid)?.sort("timestamp", Sort.DESCENDING, "lastMessage.timestamp", Sort.DESCENDING)?.findAllAsync()
+        results = realm.where(RavenThread::class.java)?.equalTo("userId", FirebaseAuth.getInstance().uid)?.sort("timestamp", Sort.DESCENDING, "lastMessage.timestamp", Sort.DESCENDING)?.findAllAsync()
 
         ravenThreadAdapter = ThreadAdapter(this@HomeActivity, results!!)
         threadListView.emptyView = emptyView
@@ -346,8 +346,7 @@ class HomeActivity : AppCompatActivity() {
     private fun getThreadUserEventListener(threadId: String): EventListener<DocumentSnapshot> {
 
         return EventListener { snapshot, firestoreException ->
-
-            realm?.executeTransactionAsync {
+            realm.executeTransactionAsync {
                 val ravenThread = it.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
                         ?: return@executeTransactionAsync
                 var ravenUser: RavenUser? = null
@@ -359,7 +358,7 @@ class HomeActivity : AppCompatActivity() {
                         ravenUser.userId = userId
                     }
                     ravenUser.cloneObject(snapshot.toObject(User::class.java)!!)
-                    ravenUser = it.copyToRealmOrUpdate<RavenUser?>(ravenUser)
+                    ravenUser = it.copyToRealmOrUpdate(ravenUser)
                 }
                 ravenThread.user = ravenUser
 

@@ -146,7 +146,7 @@ public class ThreadManager {
         if (activity == null)
             return;
 
-        db.collection(THREAD_COLLECTION_NAME).whereArrayContains("users", userId).addSnapshotListener(eventListener);
+        db.collection(THREAD_COLLECTION_NAME).whereArrayContains("users", userId).addSnapshotListener(activity, eventListener);
     }
 
     public void startLastMessageSyncByTimestamp(Activity activity, String threadId, EventListener<QuerySnapshot> eventListener) {
