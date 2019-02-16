@@ -158,7 +158,7 @@ class ChatActivity : AppCompatActivity() {
 
                     //users to remove
 
-                    if(rt.users == null)
+                    if (rt.users == null)
                         rt.users = RealmList()
 
                     for (ru in rt.users) {
@@ -200,9 +200,9 @@ class ChatActivity : AppCompatActivity() {
                     }
 
                     else -> {
-                        nameTextView.text = it.user.contactName ?: it.user.displayName
-                                ?: it.user.phoneNumber!!
-                        GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, it.user.picUrl)
+                        nameTextView.text = it.user?.contactName ?: it.user?.displayName
+                                ?: it.user?.phoneNumber ?: getString(R.string.default_name)
+                        GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, it.user?.picUrl)
                     }
                 }
             }
