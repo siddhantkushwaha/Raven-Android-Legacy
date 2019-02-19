@@ -32,10 +32,13 @@ import com.siddhantkushwaha.raven.activity.ProfileActivity
 import com.siddhantkushwaha.raven.adapter.MessageAdapter
 import com.siddhantkushwaha.raven.entity.Message
 import com.siddhantkushwaha.raven.entity.Thread
-import com.siddhantkushwaha.raven.localEntity.RavenMessage
-import com.siddhantkushwaha.raven.localEntity.RavenThread
-import com.siddhantkushwaha.raven.localEntity.RavenUser
 import com.siddhantkushwaha.raven.manager.ThreadManager
+import com.siddhantkushwaha.raven.manager.UserManager
+import com.siddhantkushwaha.raven.realm.entity.RavenMessage
+import com.siddhantkushwaha.raven.realm.entity.RavenThread
+import com.siddhantkushwaha.raven.realm.utility.RavenMessageUtil
+import com.siddhantkushwaha.raven.realm.utility.RavenThreadUtil
+import com.siddhantkushwaha.raven.realm.utility.RavenUserUtil
 import com.siddhantkushwaha.raven.utility.*
 import com.yalantis.ucrop.UCrop
 import io.realm.*
@@ -78,24 +81,26 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var userId: String
     private lateinit var threadId: String
 
+    private val userManager: UserManager = UserManager()
     private val threadManager: ThreadManager = ThreadManager()
 
+    private var thread: Thread? = null
+    private lateinit var threadDocEventListener: EventListener<DocumentSnapshot>
     private lateinit var threadEventListener: EventListener<QuerySnapshot>
 
     private lateinit var realm: Realm
+
     private lateinit var allMessages: RealmResults<RavenMessage>
-    private lateinit var ravenMessageAdapter: MessageAdapter
     private lateinit var allMessagesListener: OrderedRealmCollectionChangeListener<RealmResults<RavenMessage>>
-    private lateinit var linearLayoutManager: LinearLayoutManager
 
     private lateinit var selectedMessages: RealmResults<RavenMessage>
     private lateinit var selectedMessagesListener: OrderedRealmCollectionChangeListener<RealmResults<RavenMessage>>
 
-    private var thread: Thread? = null
-    private lateinit var threadDocEventListener: EventListener<DocumentSnapshot>
-
     private lateinit var ravenThread: RavenThread
     private lateinit var ravenThreadChangeListener: RealmChangeListener<RavenThread>
+
+    private lateinit var ravenMessageAdapter: MessageAdapter
+    private lateinit var linearLayoutManager: LinearLayoutManager
 
     private var actionMode: ActionMode? = null
 
@@ -137,52 +142,23 @@ class ChatActivity : AppCompatActivity() {
             ImageUtil.openImageIntent(this@ChatActivity)
         }
 
-        threadEventListener = getThreadEventListener(threadId, realm)
+        threadDocEventListener = EventListener { threadSnap, firebaseFirestoreException1 ->
 
-        threadDocEventListener = EventListener { doc, _ ->
+            RavenThreadUtil.setThread(realm, threadId, FirebaseAuth.getInstance().uid!!, threadSnap, firebaseFirestoreException1)
 
-            if (doc != null && doc.exists()) {
+            thread = threadSnap?.toObject(Thread::class.java)
+            thread?.users?.forEach { userId ->
+                userManager.startUserSyncByUserId(this@ChatActivity, userId) { userSnap, firebaseFirestoreException2 ->
+                    RavenUserUtil.setUser(realm, userId, userSnap, firebaseFirestoreException2)
+                }
+            }
+        }
 
-                val thread = doc.toObject(Thread::class.java)
-                this.thread = thread
-                realm.executeTransactionAsync { realm ->
-
-                    var rt = realm.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
-                    if (rt == null) {
-                        rt = RavenThread()
-                        rt.threadId = threadId
-                    }
-                    rt.userId = FirebaseAuth.getInstance().uid
-
-                    rt.cloneObject(thread!!)
-
-                    //users to remove
-
-                    if (rt.users == null)
-                        rt.users = RealmList()
-
-                    for (ru in rt.users) {
-                        if (thread.users.findLast { userId -> ru.userId == userId } == null) {
-                            rt.users.removeAll {
-                                it.userId == ru.userId
-                            }
-                        }
-                    }
-
-                    //users to add
-                    thread.users.forEach { userId ->
-                        if (rt.users.findLast { ru -> userId == ru.userId } == null) {
-                            var ru = realm.where(RavenUser::class.java).equalTo("userId", userId).findFirst()
-                            if (ru == null) {
-                                ru = RavenUser()
-                                ru.userId = userId
-                                ru = realm.copyToRealmOrUpdate(ru)
-                            }
-                            rt.users.add(ru)
-                        }
-                    }
-
-                    realm.insertOrUpdate(rt)
+        threadEventListener = EventListener { querySnapshot, firebaseFirestoreException ->
+            querySnapshot?.documentChanges?.forEach { documentChange ->
+                when (documentChange.type) {
+                    DocumentChange.Type.ADDED, DocumentChange.Type.MODIFIED -> RavenMessageUtil.setMessage(realm, threadId, documentChange.document.id, documentChange.document, firebaseFirestoreException)
+                    DocumentChange.Type.REMOVED -> RavenMessageUtil.setMessage(realm, threadId, documentChange.document.id)
                 }
             }
         }
@@ -407,59 +383,6 @@ class ChatActivity : AppCompatActivity() {
 
         super.onBackPressed()
         onSupportNavigateUp()
-    }
-
-    private fun getThreadEventListener(threadId: String, realm: Realm?): EventListener<QuerySnapshot> {
-
-        return EventListener { querySnapshot, _ ->
-
-            val documentChangeList = querySnapshot!!.documentChanges
-            documentChangeList.forEach {
-
-                val document = it.document
-                val messageId = document.id
-                when (it.type) {
-                    DocumentChange.Type.ADDED, DocumentChange.Type.MODIFIED -> {
-                        try {
-                            val message = document.toObject(Message::class.java)
-                            realm?.executeTransaction { realm ->
-
-                                var ravenMessage = realm.where(RavenMessage::class.java).equalTo("messageId", messageId).findFirst()
-                                if (ravenMessage == null) {
-                                    ravenMessage = RavenMessage()
-                                    ravenMessage.messageId = messageId
-                                    ravenMessage.threadId = threadId
-                                }
-                                ravenMessage.cloneObject(message)
-                                realm.insertOrUpdate(ravenMessage)
-                            }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    }
-                    DocumentChange.Type.REMOVED -> {
-                        realm?.executeTransaction { realm ->
-                            realm.where(RavenMessage::class.java).equalTo("messageId", messageId).findAll().deleteAllFromRealm()
-                        }
-                    }
-                }
-            }
-
-            realm?.executeTransactionAsync {
-
-                val lastMessage = it.where(RavenMessage::class.java)
-                        ?.equalTo("threadId", threadId)
-                        ?.notEqualTo("deletedBy", FirebaseAuth.getInstance().uid)
-                        ?.sort("localTimestamp", Sort.DESCENDING, "timestamp", Sort.DESCENDING)
-                        ?.findFirst()
-
-                val ravenThread = it.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
-                        ?: return@executeTransactionAsync
-                ravenThread.lastMessage = lastMessage
-
-                it.insertOrUpdate(ravenThread)
-            }
-        }
     }
 
     private fun sendMessage(messageText: String? = null, fileRef: String? = null) {

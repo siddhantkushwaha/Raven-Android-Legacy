@@ -8,16 +8,6 @@ import io.realm.RealmConfiguration;
 
 public class RealmUtil {
 
-    public static Realm getDefaultRealmInstance(Context context) {
-
-        Realm.init(context);
-        RealmConfiguration config = new RealmConfiguration.Builder()
-                .deleteRealmIfMigrationNeeded()
-                .build();
-
-        return Realm.getInstance(config);
-    }
-
     public static Realm getCustomRealmInstance(Context context) {
 
         Realm.init(context);
@@ -31,6 +21,6 @@ public class RealmUtil {
 
     public static void clearData(Realm realm) {
 
-        realm.executeTransaction(realmIns -> realmIns.deleteAll());
+        realm.executeTransaction(realmL -> realmL.deleteAll());
     }
 }

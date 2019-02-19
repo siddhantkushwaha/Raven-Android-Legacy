@@ -10,7 +10,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.siddhantkushwaha.raven.R
-import com.siddhantkushwaha.raven.localEntity.RavenThread
+import com.siddhantkushwaha.raven.realm.entity.RavenThread
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.utility.GlideUtilV2
 import com.siddhantkushwaha.raven.utility.JodaTimeUtilV2

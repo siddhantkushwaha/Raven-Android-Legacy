@@ -13,14 +13,11 @@ import com.siddhantkushwaha.android.thugtools.thugtools.utility.ContactsUtil
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.activity.main.ChatActivity
 import com.siddhantkushwaha.raven.adapter.ContactAdapter
-import com.siddhantkushwaha.raven.utility.RealmUtil
-import com.siddhantkushwaha.raven.localEntity.RavenUser
+import com.siddhantkushwaha.raven.realm.entity.RavenUser
 import com.siddhantkushwaha.raven.syncAdapter.SyncAdapter
 import com.siddhantkushwaha.raven.utility.RavenUtils
-import io.realm.OrderedRealmCollectionChangeListener
-import io.realm.Realm
-import io.realm.RealmResults
-import io.realm.Sort
+import com.siddhantkushwaha.raven.utility.RealmUtil
+import io.realm.*
 import kotlinx.android.synthetic.main.activity_contacts.*
 
 class ContactsActivity : AppCompatActivity() {
@@ -105,7 +102,7 @@ class ContactsActivity : AppCompatActivity() {
     private fun filter(query: String) {
 
         Log.i(tag, "Searching for $query")
-        val searchResults = realm?.where(RavenUser::class.java)?.equalTo("inContacts", true)?.like("contactName", "*$query*")?.sort("contactName", Sort.ASCENDING)?.findAll()
+        val searchResults = realm?.where(RavenUser::class.java)?.isNotNull("contactName")?.like("contactName", "*$query*", Case.INSENSITIVE)?.sort("contactName", Sort.ASCENDING)?.findAll()
         Log.i(tag, "Searching for ${searchResults?.size}")
         val searchAdapter = ContactAdapter(this@ContactsActivity, searchResults)
 
@@ -121,7 +118,7 @@ class ContactsActivity : AppCompatActivity() {
 
     private fun retrieveRavenContacts() {
 
-        results = realm?.where(RavenUser::class.java)?.equalTo("inContacts", true)?.sort("contactName", Sort.ASCENDING)?.findAllAsync()
+        results = realm?.where(RavenUser::class.java)?.isNotNull("contactName")?.sort("contactName", Sort.ASCENDING)?.findAllAsync()
         ravenContactAdapter = ContactAdapter(this@ContactsActivity, results)
         listener = OrderedRealmCollectionChangeListener { _, _ -> ravenContactAdapter?.notifyDataSetChanged() }
 

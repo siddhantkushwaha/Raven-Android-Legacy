@@ -10,8 +10,8 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.siddhantkushwaha.raven.R;
-import com.siddhantkushwaha.raven.localEntity.RavenMessage;
 import com.siddhantkushwaha.raven.manager.ThreadManager;
+import com.siddhantkushwaha.raven.realm.entity.RavenMessage;
 import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil;
 import com.siddhantkushwaha.raven.utility.GlideUtilV2;
 import com.siddhantkushwaha.raven.utility.JodaTimeUtilV2;
@@ -91,12 +91,12 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
 
             RavenMessage previousRavenMessage = data.get(position - 1);
 
-            String currentMessageTime = ravenMessage.getTimestamp();
-            if (currentMessageTime == null) currentMessageTime = ravenMessage.getLocalTimestamp();
+            String currentMessageTime = ravenMessage.timestamp;
+            if (currentMessageTime == null) currentMessageTime = ravenMessage.localTimestamp;
 
-            String previousMessageTime = previousRavenMessage.getTimestamp();
+            String previousMessageTime = previousRavenMessage.timestamp;
             if (previousMessageTime == null)
-                previousMessageTime = previousRavenMessage.getLocalTimestamp();
+                previousMessageTime = previousRavenMessage.localTimestamp;
 
             if (JodaTimeUtilV2.dateCmp(DateTime.parse(currentMessageTime), DateTime.parse(previousMessageTime)) == 0)
                 showDate = false;
@@ -179,7 +179,7 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
 
             if (ravenMessage.isSeenByAll())
                 status.setBackground(context.getDrawable(R.drawable.badge_message_status_seen));
-            else if (ravenMessage.getTimestamp() != null)
+            else if (ravenMessage.timestamp != null)
                 status.setBackground(context.getDrawable(R.drawable.badge_message_status_sent));
             else
                 status.setBackground(context.getDrawable(R.drawable.badge_message_status_pending));
@@ -216,9 +216,9 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
             bannerLayout.setVisibility(View.VISIBLE);
             bannerText.setVisibility(View.VISIBLE);
 
-            String messageTime = ravenMessage.getTimestamp();
+            String messageTime = ravenMessage.timestamp;
             if (messageTime == null)
-                messageTime = ravenMessage.getLocalTimestamp();
+                messageTime = ravenMessage.localTimestamp;
 
             bannerText.setText(DateTimeFormat.forPattern("MMMM dd, yyyy").print(DateTime.parse(messageTime)));
 
@@ -230,8 +230,8 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
 
     private void setMessageContent(ImageView imageView, TextView messageText, RavenMessage ravenMessage) {
 
-        String text = ravenMessage.getText();
-        String fileRef = ravenMessage.getFileRef();
+        String text = ravenMessage.text;
+        String fileRef = ravenMessage.fileRef;
 
         if (text == null && fileRef == null) {
 
@@ -271,7 +271,7 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
     private void setMessageText(TextView messageText, RavenMessage ravenMessage) {
 
         try {
-            setDefaultView(messageText, ravenMessage, ThreadManager.decryptMessage(ravenMessage.getThreadId(), ravenMessage.getText()));
+            setDefaultView(messageText, ravenMessage, ThreadManager.decryptMessage(ravenMessage.threadId, ravenMessage.text));
         } catch (GeneralSecurityException e) {
             setErrorView(messageText, "Couldn't Decrypt");
         } catch (Exception e) {
@@ -280,11 +280,11 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
     }
 
     private void setMessageTime(TextView timeText, RavenMessage ravenMessage) {
-        if (ravenMessage.getTimestamp() != null) {
+        if (ravenMessage.timestamp != null) {
 
             timeText.setVisibility(View.VISIBLE);
 
-            DateTime time = DateTime.parse(ravenMessage.getTimestamp());
+            DateTime time = DateTime.parse(ravenMessage.timestamp);
             DateTimeFormatter build = DateTimeFormat.forPattern("hh:mm a");
             timeText.setText(build.print(time));
         } else {
@@ -294,7 +294,7 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
 
     private void setMessageProperties(RavenMessage ravenMessage, LinearLayout messageBody) {
 
-        if (ravenMessage.getSelected())
+        if (ravenMessage.selected)
             messageBody.setBackgroundResource(R.color.colorMessageSelected);
         else
             messageBody.setBackgroundResource(android.R.color.transparent);

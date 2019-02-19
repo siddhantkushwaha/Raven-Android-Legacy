@@ -16,6 +16,7 @@ public class Raven extends Application {
         super.onCreate();
 
         Log.i(TAG, "Application Started.");
+        Log.i(TAG, "Build Config -> " + BuildConfig.BUILD_TYPE);
 
         Fabric.with(this, new Crashlytics());
     }

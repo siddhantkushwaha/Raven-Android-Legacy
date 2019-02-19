@@ -6,7 +6,6 @@ import android.content.ContentProviderClient;
 import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
 import com.google.firebase.FirebaseApp;
@@ -15,10 +14,10 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ContactsUtil;
-import com.siddhantkushwaha.raven.utility.RealmUtil;
-import com.siddhantkushwaha.raven.entity.User;
-import com.siddhantkushwaha.raven.localEntity.RavenUser;
 import com.siddhantkushwaha.raven.manager.UserManager;
+import com.siddhantkushwaha.raven.realm.entity.RavenUser;
+import com.siddhantkushwaha.raven.realm.utility.RavenUserUtil;
+import com.siddhantkushwaha.raven.utility.RealmUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,15 +28,15 @@ import io.realm.RealmResults;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
-    private static final String TAG = "SYNC_ADAPTER";
-    private Context mContext;
+    private static final String TAG = SyncAdapter.class.toString();
+    private Context context;
 
-    SyncAdapter(Context context, boolean autoInitialize) {
+    public SyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
-        mContext = context;
+        this.context = context;
 
-        if (FirebaseApp.getApps(mContext).isEmpty()) {
-            FirebaseApp.initializeApp(mContext, FirebaseOptions.fromResource(mContext));
+        if (FirebaseApp.getApps(this.context).isEmpty()) {
+            FirebaseApp.initializeApp(this.context, FirebaseOptions.fromResource(this.context));
         }
 
         Fabric.with(context, new Crashlytics());
@@ -48,31 +47,30 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
 
-        syncContacts(mContext);
+        syncContacts(context);
     }
 
     public static void syncContacts(Context context) {
 
-        Log.i(TAG, "PERFORMING_SYNC");
+        Realm realm = RealmUtil.getCustomRealmInstance(context);
 
         HashMap<String, String> contactsList = ContactsUtil.getAllContacts(context);
 
-        Realm realm = RealmUtil.getCustomRealmInstance(context);
-
-        realm.executeTransactionAsync(realmIns -> {
-            RealmResults<RavenUser> realmResults = realmIns.where(RavenUser.class).findAll();
+        realm.executeTransactionAsync(realmL -> {
+            RealmResults<RavenUser> realmResults = realmL.where(RavenUser.class).findAll();
             for (RavenUser contact : realmResults) {
-                if (!contactsList.containsKey(contact.getPhoneNumber())) {
-                    realmIns.where(RavenUser.class).equalTo("phoneNumber", contact.getPhoneNumber()).findAll().deleteAllFromRealm();
+                if (!contactsList.containsKey(contact.phoneNumber)) {
+                    RavenUser ravenUser = realmL.where(RavenUser.class).equalTo("phoneNumber", contact.phoneNumber).findFirst();
+                    if (ravenUser != null) {
+                        ravenUser.contactName = null;
+                        realmL.insertOrUpdate(ravenUser);
+                    }
                 }
             }
         });
-        realm.close();
 
         UserManager userManager = new UserManager();
         for (Map.Entry<String, String> contact : contactsList.entrySet()) {
-            System.out.println(contact.getKey() + " " + contact.getValue());
-
             userManager.startGetUserByAttribute(UserManager.KEY_PHONE, contact.getKey(), task -> {
 
                 QuerySnapshot querySnapshot = task.getResult();
@@ -81,37 +79,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     DocumentSnapshot documentSnapshot = querySnapshot.getDocuments().get(0);
                     String userId = documentSnapshot.getId();
 
-                    Log.i(TAG, contact.getKey() + " ==> " + userId + " ==> " + contact.getValue());
-
-                    Realm _realm = RealmUtil.getCustomRealmInstance(context);
-                    _realm.executeTransaction(realmIns -> {
-
-                        RavenUser ravenUser = realmIns.where(RavenUser.class).equalTo("userId", userId).findFirst();
-                        if (ravenUser == null) {
-                            ravenUser = new RavenUser();
-                            ravenUser.setUserId(userId);
-                        }
-
-                        try {
-                            ravenUser.cloneObject(documentSnapshot.toObject(User.class));
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-
-                        ravenUser.setContactName(contact.getValue());
-                        ravenUser.setInContacts(true);
-
-                        realmIns.insertOrUpdate(ravenUser);
-                    });
-                    _realm.close();
-
-                } else {
-                    Log.i(TAG, contact.getKey() + " ==> " + "doesn't exist.");
-
-                    Realm _realm = RealmUtil.getCustomRealmInstance(context);
-                    _realm.executeTransaction(realmIns -> realmIns.where(RavenUser.class).equalTo("phoneNumber", contact.getKey()).findAll().deleteAllFromRealm());
-                    _realm.close();
-                }
+                    RavenUserUtil.setUser(realm, userId, documentSnapshot, null, true, contact.getValue());
+                } else
+                    RavenUserUtil.deleteByPhoneNumber(realm, contact.getKey());
             });
         }
     }

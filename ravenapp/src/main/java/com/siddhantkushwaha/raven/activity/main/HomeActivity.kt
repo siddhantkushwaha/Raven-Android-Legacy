@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -16,17 +15,19 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
 import com.google.firebase.messaging.FirebaseMessaging
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
+import com.siddhantkushwaha.raven.BuildConfig
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.activity.AboutActivity
 import com.siddhantkushwaha.raven.activity.ContactsActivity
 import com.siddhantkushwaha.raven.adapter.ThreadAdapter
-import com.siddhantkushwaha.raven.entity.Message
+import com.siddhantkushwaha.raven.entity.Thread
 import com.siddhantkushwaha.raven.entity.User
-import com.siddhantkushwaha.raven.localEntity.RavenMessage
-import com.siddhantkushwaha.raven.localEntity.RavenThread
-import com.siddhantkushwaha.raven.localEntity.RavenUser
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.manager.UserManager
+import com.siddhantkushwaha.raven.realm.entity.RavenThread
+import com.siddhantkushwaha.raven.realm.utility.RavenMessageUtil
+import com.siddhantkushwaha.raven.realm.utility.RavenThreadUtil
+import com.siddhantkushwaha.raven.realm.utility.RavenUserUtil
 import com.siddhantkushwaha.raven.utility.GlideUtilV2
 import com.siddhantkushwaha.raven.utility.RealmUtil
 import io.realm.OrderedRealmCollectionChangeListener
@@ -53,17 +54,17 @@ class HomeActivity : AppCompatActivity() {
 
     private var drawerToggle: ActionBarDrawerToggle? = null
 
-    private var user: User? = null
-    private var userManager: UserManager? = null
-    private var currentUserEventListener: EventListener<DocumentSnapshot>? = null
+    private val user: User = User()
+    private val userManager: UserManager = UserManager()
+    private val threadManager: ThreadManager = ThreadManager()
 
-    private var threadManager: ThreadManager? = null
-    private var allThreadsListener: EventListener<QuerySnapshot>? = null
+    private lateinit var currentUserEventListener: EventListener<DocumentSnapshot>
+    private lateinit var allThreadsFirestoreListener: EventListener<QuerySnapshot>
 
     private lateinit var realm: Realm
-    private var results: RealmResults<RavenThread>? = null
-    private var ravenThreadAdapter: ThreadAdapter? = null
-    private var listener: OrderedRealmCollectionChangeListener<RealmResults<RavenThread>>? = null
+    private lateinit var allThreads: RealmResults<RavenThread>
+    private lateinit var allThreadsAdapter: ThreadAdapter
+    private lateinit var allThreadsRealmListener: OrderedRealmCollectionChangeListener<RealmResults<RavenThread>>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,9 +96,15 @@ class HomeActivity : AppCompatActivity() {
                 R.id.action_about -> {
                     actionAbout()
                 }
+
+                R.id.action_clear_data -> {
+                    RealmUtil.clearData(realm)
+                }
             }
             false
         }
+
+        navigation.menu.findItem(R.id.action_clear_data).isVisible = BuildConfig.DEBUG
 
         contacts.setOnClickListener {
             ContactsActivity.openActivity(this@HomeActivity, false)
@@ -119,139 +126,80 @@ class HomeActivity : AppCompatActivity() {
             */
         }
 
-        allThreadsListener = EventListener { t, firebaseFirestoreException ->
+        allThreadsFirestoreListener = EventListener { t, firebaseFirestoreException ->
 
             t?.documentChanges?.forEach {
 
-                val threadId = it.document.id
+                val threadSnap = it.document
+                val threadId = threadSnap.id
+
                 when (it.type) {
 
                     DocumentChange.Type.ADDED, DocumentChange.Type.MODIFIED -> {
 
-                        realm.executeTransactionAsync { realm ->
+                        RavenThreadUtil.setThread(realm, threadId, FirebaseAuth.getInstance().uid!!, threadSnap, firebaseFirestoreException)
 
-                            var rt = realm.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
-                            if (rt == null) {
-                                rt = RavenThread()
-                                rt.threadId = threadId
-                            }
-                            rt.userId = FirebaseAuth.getInstance().uid
-                            realm.insertOrUpdate(rt)
-                        }
+                        val thread = threadSnap.toObject(Thread::class.java)
+                        val users: ArrayList<String>? = thread.users
 
-                        val groupDetails = it.document["groupDetails"] as? HashMap<String, String>
-                        when (groupDetails) {
-
-                            null -> {
-
-                                val users = (it.document["users"] as? ArrayList<String>)!!
-                                var anotherUserId = users[0]
-                                if (users[0] == FirebaseAuth.getInstance().uid)
-                                    anotherUserId = users[1]
-
-                                userManager!!.startUserSyncByUserId(this@HomeActivity, anotherUserId, getThreadUserEventListener(threadId))
-                            }
-
-                            else -> {
-                                //This means it is a group thread
-
-                                realm.executeTransactionAsync { realm ->
-
-                                    val rt = realm.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
-                                            ?: return@executeTransactionAsync
-
-                                    rt.groupName = groupDetails["name"]
-                                    rt.picUrl = groupDetails["picUrl"]
-
-                                    // just making sure
-                                    rt.user = null
-
-                                    realm.insertOrUpdate(rt)
-                                }
+                        if (thread.groupDetails == null && users != null && users.size == 2) {
+                            var anotherUserId = users[0]
+                            if (users[0] == FirebaseAuth.getInstance().uid)
+                                anotherUserId = users[1]
+                            userManager.startUserSyncByUserId(this@HomeActivity, anotherUserId) { documentSnapshot, firebaseFirestoreException ->
+                                RavenUserUtil.setUser(realm, anotherUserId, documentSnapshot, firebaseFirestoreException)
                             }
                         }
 
                         // to sync last message
-                        threadManager!!.startLastMessageSyncByTimestamp(this@HomeActivity, threadId) { t, firebaseFirestoreException ->
-
-                            realm.executeTransactionAsync { realm ->
-
-                                val rt = realm.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
-                                        ?: return@executeTransactionAsync
-                                try {
-                                    val messageId = t!!.first().id
-                                    val message = t.first().toObject(Message::class.java)
-
-                                    var ravenMessage = realm.where(RavenMessage::class.java).equalTo("messageId", messageId).findFirst()
-                                    if (ravenMessage == null) {
-                                        ravenMessage = RavenMessage()
-                                        ravenMessage.messageId = messageId
-                                        ravenMessage.threadId = threadId
-                                    }
-                                    ravenMessage.cloneObject(message)
-                                    ravenMessage = realm.copyToRealmOrUpdate<RavenMessage?>(ravenMessage)
-
-                                    rt.lastMessage = ravenMessage
-                                    rt.timestamp = ravenMessage?.timestamp
-                                            ?: ravenMessage?.localTimestamp
-
-                                } catch (e: Exception) {
-                                    Log.e(tag, "No last message for $threadId")
-                                    rt.lastMessage = null
-                                }
-                                realm.insertOrUpdate(rt)
-                            }
-
-                            firebaseFirestoreException?.printStackTrace()
+                        threadManager.startLastMessageSyncByTimestamp(this@HomeActivity, threadId) { lastMessageQuerySnapshot, firebaseFirestoreException ->
+                            if (lastMessageQuerySnapshot != null && !lastMessageQuerySnapshot.isEmpty) {
+                                val lastMessageSnap: DocumentSnapshot = lastMessageQuerySnapshot.documents.first()
+                                RavenMessageUtil.setMessage(realm, threadId, lastMessageSnap.id, lastMessageSnap, firebaseFirestoreException)
+                                RavenThreadUtil.setLastMessage(realm, threadId, lastMessageSnap.id)
+                            } else
+                                RavenThreadUtil.setLastMessage(realm, threadId)
                         }
                     }
 
-                    DocumentChange.Type.REMOVED -> {
-
-                        realm.executeTransactionAsync { realm ->
-                            realm.where(RavenThread::class.java).equalTo("threadId", threadId).findAll().deleteAllFromRealm()
-                        }
-                    }
+                    DocumentChange.Type.REMOVED ->
+                        RavenThreadUtil.setThread(realm, threadId, FirebaseAuth.getInstance().uid!!)
                 }
             }
 
             firebaseFirestoreException?.printStackTrace()
         }
 
-        results = realm.where(RavenThread::class.java)?.equalTo("userId", FirebaseAuth.getInstance().uid)?.sort("timestamp", Sort.DESCENDING, "lastMessage.timestamp", Sort.DESCENDING)?.findAllAsync()
+        allThreads = realm.where(RavenThread::class.java).equalTo("userId", FirebaseAuth.getInstance().uid).sort("timestamp", Sort.DESCENDING, "lastMessage.timestamp", Sort.DESCENDING).findAllAsync()
 
-        ravenThreadAdapter = ThreadAdapter(this@HomeActivity, results!!)
+        allThreadsAdapter = ThreadAdapter(this@HomeActivity, allThreads)
         threadListView.emptyView = emptyView
-        threadListView.adapter = ravenThreadAdapter
+        threadListView.adapter = allThreadsAdapter
 
-        listener = OrderedRealmCollectionChangeListener { _, _ ->
-            ravenThreadAdapter!!.notifyDataSetChanged()
+        allThreadsRealmListener = OrderedRealmCollectionChangeListener { resultsL, _ ->
+            allThreadsAdapter.notifyDataSetChanged()
         }
 
         threadListView.setOnItemClickListener { _, _, position, _ ->
 
             ChatActivity.openActivity(this@HomeActivity, false,
-                    ChatActivity.Companion.IntentData(ravenThreadAdapter?.getItem(position)?.threadId!!))
+                    ChatActivity.Companion.IntentData(allThreadsAdapter.getItem(position)?.threadId!!))
         }
 
         currentUserEventListener = EventListener { snapshot, _ ->
 
             if (snapshot != null && snapshot.exists()) {
-                user?.cloneObject(snapshot.toObject(User::class.java)!!)
+                user.cloneObject(snapshot.toObject(User::class.java)!!)
             }
             updateProfileUi()
         }
-
-        user = User()
-        userManager = UserManager()
-        threadManager = ThreadManager()
 
         // RavenContactSync.setupSync(this@HomeActivity)
 
         val map = HashMap<String, Any>()
         map[UserManager.KEY_USER_ID] = FieldValue.delete()
         map[UserManager.KEY_PHONE] = FirebaseAuth.getInstance().currentUser!!.phoneNumber!!
-        userManager?.setUserFields(FirebaseAuth.getInstance().uid!!, map) {
+        userManager.setUserFields(FirebaseAuth.getInstance().uid!!, map) {
             it.exception?.printStackTrace()
         }
 
@@ -266,7 +214,7 @@ class HomeActivity : AppCompatActivity() {
                 e.printStackTrace()
             }
         }
-        userManager?.setUserMetaData(FirebaseAuth.getInstance().uid!!, map) {
+        userManager.setUserMetaData(FirebaseAuth.getInstance().uid!!, map) {
             it.exception?.printStackTrace()
         }
 
@@ -278,11 +226,10 @@ class HomeActivity : AppCompatActivity() {
 
         ActivityInfo.setActivityInfo(this::class.java.toString(), intent.extras)
 
-        userManager!!.startUserSyncByUserId(this@HomeActivity, FirebaseAuth.getInstance().uid!!, currentUserEventListener)
-        // threadManager!!.startSyncThreadIndexByUserId(this@HomeActivity, FirebaseAuth.getInstance().uid!!, threadIndexEventListener)
-        threadManager!!.syncAllThreadsByUserId(this@HomeActivity, FirebaseAuth.getInstance().uid, allThreadsListener)
+        userManager.startUserSyncByUserId(this@HomeActivity, FirebaseAuth.getInstance().uid!!, currentUserEventListener)
+        threadManager.syncAllThreadsByUserId(this@HomeActivity, FirebaseAuth.getInstance().uid, allThreadsFirestoreListener)
 
-        results!!.addChangeListener(listener!!)
+        allThreads.addChangeListener(allThreadsRealmListener)
     }
 
     override fun onPause() {
@@ -290,7 +237,7 @@ class HomeActivity : AppCompatActivity() {
 
         ActivityInfo.setActivityInfo(null, null)
 
-        results!!.removeAllChangeListeners()
+        allThreads.removeAllChangeListeners()
     }
 
     override fun onBackPressed() {
@@ -323,9 +270,6 @@ class HomeActivity : AppCompatActivity() {
 
         FirebaseMessaging.getInstance().unsubscribeFromTopic(FirebaseAuth.getInstance().uid!!)
 
-        // TODO figure this out later
-        // RealmUtil.clearData(this@HomeActivity)
-
         FirebaseAuth.getInstance().signOut()
         LoginActivity.openActivity(this@HomeActivity, true)
     }
@@ -336,40 +280,10 @@ class HomeActivity : AppCompatActivity() {
 
     private fun updateProfileUi() {
 
-        navigation.getHeaderView(0).findViewById<TextView>(R.id.nameTextView).text = user?.userProfile?.name
+        navigation.getHeaderView(0).findViewById<TextView>(R.id.nameTextView).text = user.userProfile?.name
                 ?: getString(R.string.default_name)
-        navigation.getHeaderView(0).findViewById<TextView>(R.id.phoneTextView).text = user?.phoneNumber
+        navigation.getHeaderView(0).findViewById<TextView>(R.id.phoneTextView).text = user.phoneNumber
                 ?: "Phone"
-        GlideUtilV2.loadProfilePhotoCircle(this@HomeActivity, navigation.getHeaderView(0).findViewById(R.id.displayPicImageView), user?.userProfile?.picUrl)
-    }
-
-    private fun getThreadUserEventListener(threadId: String): EventListener<DocumentSnapshot> {
-
-        return EventListener { snapshot, firestoreException ->
-            realm.executeTransactionAsync {
-                val ravenThread = it.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
-                        ?: return@executeTransactionAsync
-                var ravenUser: RavenUser? = null
-                if (snapshot != null && snapshot.exists()) {
-                    val userId = snapshot.id
-                    ravenUser = it.where(RavenUser::class.java).equalTo("userId", userId).findFirst()
-                    if (ravenUser == null) {
-                        ravenUser = RavenUser()
-                        ravenUser.userId = userId
-                    }
-                    ravenUser.cloneObject(snapshot.toObject(User::class.java)!!)
-                    ravenUser = it.copyToRealmOrUpdate(ravenUser)
-                }
-                ravenThread.user = ravenUser
-
-                // just making sure
-                ravenThread.groupName = null
-                ravenThread.picUrl = null
-
-                it.insertOrUpdate(ravenThread)
-            }
-
-            firestoreException?.printStackTrace()
-        }
+        GlideUtilV2.loadProfilePhotoCircle(this@HomeActivity, navigation.getHeaderView(0).findViewById(R.id.displayPicImageView), user.userProfile?.picUrl)
     }
 }

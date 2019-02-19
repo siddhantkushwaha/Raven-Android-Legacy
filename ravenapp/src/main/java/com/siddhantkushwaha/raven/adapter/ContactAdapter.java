@@ -8,8 +8,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.siddhantkushwaha.raven.R;
+import com.siddhantkushwaha.raven.realm.entity.RavenUser;
 import com.siddhantkushwaha.raven.utility.GlideUtilV2;
-import com.siddhantkushwaha.raven.localEntity.RavenUser;
 
 import androidx.annotation.Nullable;
 import io.realm.OrderedRealmCollection;
@@ -42,24 +42,24 @@ public class ContactAdapter extends RealmBaseAdapter<RavenUser> {
         RavenUser contact = data.get(position);
 
         ImageView imageView = listItem.findViewById(R.id.displayPicImageView);
-        if (contact.getPicUrl() != null)
-            GlideUtilV2.loadProfilePhotoCircle(context, imageView, contact.getPicUrl());
+        if (contact.picUrl != null)
+            GlideUtilV2.loadProfilePhotoCircle(context, imageView, contact.picUrl);
         else
             GlideUtilV2.loadProfilePhotoCircle(context, imageView, null);
 
         TextView name = listItem.findViewById(R.id.nameTextView);
-        if(contact.getContactName() != null)
-            name.setText(contact.getContactName());
-        else if (contact.getDisplayName() != null)
-            name.setText(contact.getDisplayName());
-        else if(contact.getPhoneNumber() != null)
-            name.setText(contact.getPhoneNumber());
+        if (contact.contactName != null)
+            name.setText(contact.contactName);
+        else if (contact.displayName != null)
+            name.setText(contact.displayName);
+        else if (contact.phoneNumber != null)
+            name.setText(contact.phoneNumber);
         else
             name.setText(R.string.default_name);
 
         TextView about = listItem.findViewById(R.id.aboutTextView);
-        if (contact.getAbout() != null)
-            about.setText(contact.getAbout());
+        if (contact.about != null)
+            about.setText(contact.about);
         else
             about.setText(R.string.default_about);
 
