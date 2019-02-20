@@ -38,7 +38,7 @@ class RavenMessageUtil {
                 ravenMessage.notDeletedBy = arr
 
                 val currUserId = FirebaseAuth.getInstance().uid
-                ravenMessage.deletedBy = if (ravenMessage.notDeletedBy.contains(currUserId)) null else currUserId
+                ravenMessage.deletedBy = if (arr.contains(currUserId)) null else currUserId
             }
 
             if (message.seenBy != null) {

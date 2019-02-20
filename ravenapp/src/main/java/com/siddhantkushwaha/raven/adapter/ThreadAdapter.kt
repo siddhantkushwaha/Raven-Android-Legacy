@@ -61,7 +61,7 @@ class ThreadAdapter(private val context: Context, private val data: OrderedRealm
             view.findViewById<TextView>(R.id.messageText).text = "No Messages."
         } else {
 
-            when (ravenThread.lastMessage.getMessageType(FirebaseAuth.getInstance().uid)) {
+            when (ravenThread.lastMessage.getMessageType(FirebaseAuth.getInstance().uid!!)) {
                 1 -> {
                     // sent message
 

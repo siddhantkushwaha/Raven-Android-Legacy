@@ -5,6 +5,7 @@ import com.siddhantkushwaha.nuttertools.GsonUtil;
 import java.util.HashMap;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -16,24 +17,33 @@ public class RavenMessage extends RealmObject {
 
     public String threadId;
 
+    @Nullable
     public String text;
+    @Nullable
     public String fileRef;
+    @Nullable
     public String sentByUserId;
+    @Nullable
     public RealmList<String> sentTo;
 
     // These are in JodaTime
+    @Nullable
     public String timestamp;
+    @Nullable
     public String localTimestamp;
 
+    @Nullable
     public String seenBy;
 
+    @Nullable
     public String deletedBy;
 
+    @Nullable
     public RealmList<String> notDeletedBy;
 
     public boolean selected = false;
 
-    public Integer getMessageType(String userId) {
+    public Integer getMessageType(@NonNull String userId) {
 
         if (sentByUserId == null)
             return -1;

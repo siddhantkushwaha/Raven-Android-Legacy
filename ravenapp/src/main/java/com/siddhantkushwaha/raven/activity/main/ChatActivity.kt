@@ -304,7 +304,7 @@ class ChatActivity : AppCompatActivity() {
                 setMessageSelectedProperty(messageId, true)
             } else if (ravenMessage?.fileRef != null) {
 
-                ImageFullScreenActivity.openActivity(this@ChatActivity, false, ImageFullScreenActivity.Companion.IntentData(ravenMessage.fileRef))
+                ImageFullScreenActivity.openActivity(this@ChatActivity, false, ImageFullScreenActivity.Companion.IntentData(ravenMessage.fileRef!!))
             }
         }
         ravenMessageAdapter.setOnLongClickListener { _, position ->

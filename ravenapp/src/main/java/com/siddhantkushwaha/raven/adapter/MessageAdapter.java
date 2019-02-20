@@ -92,13 +92,16 @@ public class MessageAdapter extends RealmRecyclerViewAdapter {
             RavenMessage previousRavenMessage = data.get(position - 1);
 
             String currentMessageTime = ravenMessage.timestamp;
-            if (currentMessageTime == null) currentMessageTime = ravenMessage.localTimestamp;
+            if (currentMessageTime == null)
+                currentMessageTime = ravenMessage.localTimestamp;
 
             String previousMessageTime = previousRavenMessage.timestamp;
             if (previousMessageTime == null)
                 previousMessageTime = previousRavenMessage.localTimestamp;
 
-            if (JodaTimeUtilV2.dateCmp(DateTime.parse(currentMessageTime), DateTime.parse(previousMessageTime)) == 0)
+            if (previousMessageTime == null || currentMessageTime == null)
+                showDate = false;
+            else if (JodaTimeUtilV2.dateCmp(DateTime.parse(currentMessageTime), DateTime.parse(previousMessageTime)) == 0)
                 showDate = false;
 
             previousMessageType = this.getItemViewType(position - 1);
