@@ -10,18 +10,22 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
+
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+
 import com.bumptech.glide.request.RequestOptions
+
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.QuerySnapshot
+
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ImageUtil
 import com.siddhantkushwaha.raven.NotificationSender
@@ -41,6 +45,7 @@ import com.siddhantkushwaha.raven.realm.utility.RavenMessageUtil
 import com.siddhantkushwaha.raven.realm.utility.RavenThreadUtil
 import com.siddhantkushwaha.raven.realm.utility.RavenUserUtil
 import com.siddhantkushwaha.raven.utility.*
+
 import com.yalantis.ucrop.UCrop
 import io.realm.*
 import kotlinx.android.synthetic.main.activity_chat.*
@@ -88,6 +93,8 @@ class ChatActivity : AppCompatActivity() {
     private var thread: Thread? = null
     private lateinit var threadDocEventListener: EventListener<DocumentSnapshot>
     private lateinit var threadEventListener: EventListener<QuerySnapshot>
+
+    private lateinit var allMessageDocIds: ObservableHashMap<String, DocumentSnapshot>
 
     private lateinit var realm: Realm
 
@@ -160,13 +167,35 @@ class ChatActivity : AppCompatActivity() {
                 }
         }
 
+        allMessageDocIds = ObservableHashMap(object : ObservableHashMap.OnDataChanged<String, DocumentSnapshot> {
+            override fun onDataAdded(key: String, value: DocumentSnapshot) {
+                RavenMessageUtil.setMessage(realm, threadId, key, value)
+            }
+
+            override fun onDataRemoved(key: String) {
+                RavenMessageUtil.setMessage(realm, threadId, key)
+            }
+
+            override fun onDataChanged(data: HashMap<String, DocumentSnapshot>) {
+                // pass
+            }
+        })
+
         threadEventListener = EventListener { querySnapshot, firebaseFirestoreException ->
             querySnapshot?.documentChanges?.forEach { documentChange ->
                 when (documentChange.type) {
-                    DocumentChange.Type.ADDED, DocumentChange.Type.MODIFIED -> RavenMessageUtil.setMessage(realm, threadId, documentChange.document.id, documentChange.document, firebaseFirestoreException)
-                    DocumentChange.Type.REMOVED -> RavenMessageUtil.setMessage(realm, threadId, documentChange.document.id)
+                    DocumentChange.Type.ADDED, DocumentChange.Type.MODIFIED -> allMessageDocIds.add(documentChange.document.id, documentChange.document)
+                    DocumentChange.Type.REMOVED -> allMessageDocIds.remove(documentChange.document.id)
                 }
             }
+
+            if (::allMessages.isInitialized)
+                for (rm: RavenMessage in allMessages) {
+                    if (!allMessageDocIds.getData().contains(rm.messageId))
+                        RavenMessageUtil.setMessage(realm, threadId, rm.messageId)
+                }
+
+            firebaseFirestoreException?.printStackTrace()
         }
 
         ravenThread = realm.where(RavenThread::class.java).equalTo("threadId", threadId).findFirstAsync()
