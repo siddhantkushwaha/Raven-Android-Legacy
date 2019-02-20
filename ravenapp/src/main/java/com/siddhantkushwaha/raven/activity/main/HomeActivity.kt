@@ -3,23 +3,22 @@ package com.siddhantkushwaha.raven.activity.main
 import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
-import android.os.Build
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.TextView
-
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
-
 import com.crashlytics.android.Crashlytics
-
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.*
+import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.DocumentSnapshot
+import com.google.firebase.firestore.EventListener
+import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.messaging.FirebaseMessaging
-
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.raven.BuildConfig
+import com.siddhantkushwaha.raven.HomeActivityUtil
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.activity.AboutActivity
 import com.siddhantkushwaha.raven.activity.ContactsActivity
@@ -35,12 +34,10 @@ import com.siddhantkushwaha.raven.realm.utility.RavenUserUtil
 import com.siddhantkushwaha.raven.utility.GlideUtilV2
 import com.siddhantkushwaha.raven.utility.ObservableHashMap
 import com.siddhantkushwaha.raven.utility.RealmUtil
-
 import io.realm.OrderedRealmCollectionChangeListener
 import io.realm.Realm
 import io.realm.RealmResults
 import io.realm.Sort
-
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.android.synthetic.main.layout_toolbar.*
 
@@ -222,26 +219,12 @@ class HomeActivity : AppCompatActivity() {
         // RavenContactSync.setupSync(this@HomeActivity)
 
         val map = HashMap<String, Any>()
-        map[UserManager.KEY_USER_ID] = FieldValue.delete()
         map[UserManager.KEY_PHONE] = FirebaseAuth.getInstance().currentUser!!.phoneNumber!!
         userManager.setUserFields(FirebaseAuth.getInstance().uid!!, map) {
             it.exception?.printStackTrace()
         }
 
-        map.clear()
-        map["versionName"] = packageManager.getPackageInfo(packageName, 0).versionName
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P)
-            map["versionCode"] = packageManager.getPackageInfo(packageName, 0).longVersionCode
-        else {
-            try {
-                map["versionCode"] = packageManager.getPackageInfo(packageName, 0).versionCode
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-        userManager.setUserMetaData(FirebaseAuth.getInstance().uid!!, map) {
-            it.exception?.printStackTrace()
-        }
+        HomeActivityUtil.setUserMetaData(userManager, FirebaseAuth.getInstance().uid!!)
 
         FirebaseMessaging.getInstance().subscribeToTopic(FirebaseAuth.getInstance().uid!!)
     }

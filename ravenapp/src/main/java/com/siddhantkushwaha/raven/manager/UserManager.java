@@ -106,10 +106,8 @@ public class UserManager {
         documentReference.update(map).addOnCompleteListener(onCompleteListener);
     }
 
-    public void setUserMetaData(String uid, HashMap<String, Object> map, OnCompleteListener<Void> onCompleteListener) {
-
-        DocumentReference documentReference = db.collection("user_metadata").document(uid);
-        documentReference.set(map).addOnCompleteListener(onCompleteListener);
+    public void setUserMetaData(String userId, HashMap<String, Object> map, OnCompleteListener<Void> onCompleteListener) {
+        FirebaseUtils.getRealtimeDb(true).getReference("user_metadata/" + userId).setValue(map).addOnCompleteListener(onCompleteListener);
     }
 
     public void startUserSyncByUserId(Activity activity, String userId, EventListener<DocumentSnapshot> eventListener) {

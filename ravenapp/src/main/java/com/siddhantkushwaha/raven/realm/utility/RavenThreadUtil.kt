@@ -74,10 +74,12 @@ class RavenThreadUtil {
         @JvmStatic
         fun addUsers(realmL: Realm, ravenThread: RavenThread, userIds: ArrayList<String>) {
 
-            if (ravenThread.users == null)
-                ravenThread.users = RealmList<RavenUser>()
+            if(ravenThread.users == null)
+                ravenThread.users = RealmList()
 
-            for (ru1 in ravenThread.users) {
+            val arr = ArrayList<RavenUser>()
+            arr.addAll(ravenThread.users)
+            for (ru1 in arr) {
                 if (userIds.findLast { userId -> ru1.userId == userId } == null) {
                     ravenThread.users.removeAll { ru2 ->
                         ru2.userId == ru1.userId
