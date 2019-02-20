@@ -1,14 +1,8 @@
 package com.siddhantkushwaha.raven.realm.entity;
 
-import com.google.firebase.Timestamp;
-import com.google.firebase.auth.FirebaseAuth;
 import com.siddhantkushwaha.nuttertools.GsonUtil;
-import com.siddhantkushwaha.raven.entity.Message;
-
-import org.joda.time.DateTime;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import androidx.annotation.NonNull;
 import io.realm.RealmList;
@@ -40,6 +34,10 @@ public class RavenMessage extends RealmObject {
     public boolean selected = false;
 
     public Integer getMessageType(String userId) {
+
+        if (sentByUserId == null)
+            return -1;
+
         if (sentByUserId.equals(userId))
             return 1;
         else
