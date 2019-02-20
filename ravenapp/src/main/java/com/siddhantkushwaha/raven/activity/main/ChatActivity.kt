@@ -36,6 +36,7 @@ import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.manager.UserManager
 import com.siddhantkushwaha.raven.realm.entity.RavenMessage
 import com.siddhantkushwaha.raven.realm.entity.RavenThread
+import com.siddhantkushwaha.raven.realm.entity.RavenUser
 import com.siddhantkushwaha.raven.realm.utility.RavenMessageUtil
 import com.siddhantkushwaha.raven.realm.utility.RavenThreadUtil
 import com.siddhantkushwaha.raven.realm.utility.RavenUserUtil
@@ -99,6 +100,9 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var ravenThread: RavenThread
     private lateinit var ravenThreadChangeListener: RealmChangeListener<RavenThread>
 
+    private lateinit var ravenUser: RavenUser
+    private lateinit var ravenUserChangeListener: RealmChangeListener<RavenUser>
+
     private lateinit var ravenMessageAdapter: MessageAdapter
     private lateinit var linearLayoutManager: LinearLayoutManager
 
@@ -147,11 +151,13 @@ class ChatActivity : AppCompatActivity() {
             RavenThreadUtil.setThread(realm, threadId, FirebaseAuth.getInstance().uid!!, threadSnap, firebaseFirestoreException1)
 
             thread = threadSnap?.toObject(Thread::class.java)
-            thread?.users?.forEach { userId ->
-                userManager.startUserSyncByUserId(this@ChatActivity, userId) { userSnap, firebaseFirestoreException2 ->
-                    RavenUserUtil.setUser(realm, userId, userSnap, firebaseFirestoreException2)
+
+            if (userId == RavenUtils.GROUP)
+                thread?.users?.forEach { userId ->
+                    userManager.startUserSyncByUserId(this@ChatActivity, userId) { userSnap, firebaseFirestoreException2 ->
+                        RavenUserUtil.setUser(realm, userId, userSnap, firebaseFirestoreException2)
+                    }
                 }
-            }
         }
 
         threadEventListener = EventListener { querySnapshot, firebaseFirestoreException ->
@@ -166,21 +172,20 @@ class ChatActivity : AppCompatActivity() {
         ravenThread = realm.where(RavenThread::class.java).equalTo("threadId", threadId).findFirstAsync()
         ravenThreadChangeListener = RealmChangeListener {
 
-            if (it.isValid) {
+            if (userId == RavenUtils.GROUP && it.isValid) {
                 loadBackground(it.backgroundFileRef, it.backgroundOpacity)
-                when (userId) {
+                nameTextView.text = it.groupName ?: "Raven Group"
+                GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, it.picUrl)
+            }
+        }
 
-                    RavenUtils.GROUP -> {
-                        nameTextView.text = it.groupName ?: "Raven Group"
-                        GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, it.picUrl)
-                    }
+        ravenUser = realm.where(RavenUser::class.java).equalTo("userId", userId).findFirstAsync()
+        ravenUserChangeListener = RealmChangeListener {
 
-                    else -> {
-                        nameTextView.text = it.user?.contactName ?: it.user?.displayName
-                                ?: it.user?.phoneNumber ?: getString(R.string.default_name)
-                        GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, it.user?.picUrl)
-                    }
-                }
+            if (userId != RavenUtils.GROUP && it.isValid) {
+                nameTextView.text = it.contactName ?: it.displayName
+                        ?: it.phoneNumber ?: getString(R.string.default_name)
+                GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, it.picUrl)
             }
         }
 
@@ -325,9 +330,27 @@ class ChatActivity : AppCompatActivity() {
         threadManager.startThreadSyncByThreadId(this@ChatActivity, threadId, threadEventListener)
         threadManager.startThreadDocSyncByThreadId(this@ChatActivity, threadId, threadDocEventListener)
 
+        if (userId != RavenUtils.GROUP) {
+            userManager.startUserSyncByUserId(this@ChatActivity, userId) { userSnap, firebaseFirestoreException ->
+                RavenUserUtil.setUser(realm, userId, userSnap, firebaseFirestoreException)
+            }
+        }
+
         allMessages.addChangeListener(allMessagesListener)
         selectedMessages.addChangeListener(selectedMessagesListener)
         ravenThread.addChangeListener(ravenThreadChangeListener)
+        ravenUser.addChangeListener(ravenUserChangeListener)
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        ActivityInfo.setActivityInfo(null, null)
+
+        allMessages.removeAllChangeListeners()
+        selectedMessages.removeAllChangeListeners()
+        ravenThread.removeAllChangeListeners()
+        ravenUser.removeAllChangeListeners()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -345,16 +368,6 @@ class ChatActivity : AppCompatActivity() {
                 handleCropResult(UCrop.getOutput(data ?: return) ?: return)
             }
         }
-    }
-
-    override fun onPause() {
-        super.onPause()
-
-        ActivityInfo.setActivityInfo(null, null)
-
-        allMessages.removeAllChangeListeners()
-        selectedMessages.removeAllChangeListeners()
-        ravenThread.removeAllChangeListeners()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

@@ -40,8 +40,12 @@ class RavenThreadUtil {
                     addUsers(realmL, ravenThread, thread.users)
 
                     realmL.insertOrUpdate(ravenThread)
-                } else
+                } else {
                     ravenThread?.deleteFromRealm()
+
+                    // also delete messages belonging to this thread
+                    realmL.where(RavenMessage::class.java).equalTo("threadId", threadId).findAll().deleteAllFromRealm()
+                }
             }
             e?.printStackTrace()
         }
