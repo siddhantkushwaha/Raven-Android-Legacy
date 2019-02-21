@@ -31,6 +31,7 @@ import com.siddhantkushwaha.raven.realm.entity.RavenThread
 import com.siddhantkushwaha.raven.realm.utility.RavenMessageUtil
 import com.siddhantkushwaha.raven.realm.utility.RavenThreadUtil
 import com.siddhantkushwaha.raven.realm.utility.RavenUserUtil
+import com.siddhantkushwaha.raven.utility.Common
 import com.siddhantkushwaha.raven.utility.GlideUtilV2
 import com.siddhantkushwaha.raven.utility.ObservableHashMap
 import com.siddhantkushwaha.raven.utility.RealmUtil
@@ -99,12 +100,12 @@ class HomeActivity : AppCompatActivity() {
                     actionLogout()
                 }
 
-                R.id.action_about -> {
-                    actionAbout()
+                R.id.action_clear_data -> {
+                    Common.clearData(this@HomeActivity)
                 }
 
-                R.id.action_clear_data -> {
-                    RealmUtil.clearData(realm)
+                R.id.action_about -> {
+                    actionAbout()
                 }
             }
             false
