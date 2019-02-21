@@ -3,11 +3,8 @@ package com.siddhantkushwaha.raven.activity.main
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.View
-import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import com.crashlytics.android.Crashlytics
 import com.google.android.material.snackbar.Snackbar
@@ -17,6 +14,7 @@ import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthProvider
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.raven.R
+import com.siddhantkushwaha.raven.utility.ObservableObject
 import kotlinx.android.synthetic.main.activity_login.*
 import java.util.concurrent.TimeUnit
 
@@ -44,8 +42,8 @@ class LoginActivity : AppCompatActivity() {
     private val activityStateSignInFailed = "SIGN_IN_FAILED"
     private val activityStateSignInSuccess = "SIGN_IN_SUCCESS"
 
-    private var activityState: EditText? = null
     private var activityStateFlag: Int = 0
+    private lateinit var activityStateObservable: ObservableObject<String>
 
     private var phoneVerificationId: String? = null
     private var phoneOTPResendingToken: PhoneAuthProvider.ForceResendingToken? = null
@@ -61,15 +59,9 @@ class LoginActivity : AppCompatActivity() {
 
         ccp.registerCarrierNumberEditText(phone)
 
-        activityState = EditText(this@LoginActivity)
-        activityState?.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
-
-            }
-
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-
-                when (s.toString()) {
+        activityStateObservable = ObservableObject(activityStateEnterPhone, object : ObservableObject.OnDataChanged<String> {
+            override fun onChange(data: String) {
+                when (data) {
                     activityStateEnterPhone -> {
                         setVisibility(intArrayOf(View.VISIBLE, View.GONE, View.GONE, View.GONE, View.VISIBLE, View.GONE))
                     }
@@ -121,38 +113,34 @@ class LoginActivity : AppCompatActivity() {
                     }
                 }
             }
-
-            override fun afterTextChanged(s: Editable) {
-
-            }
         })
 
         submit.setOnClickListener {
             if (ccp.isValidFullNumber) {
                 sendOTP()
-                updateActivityState(activityStateSendingCode, 0)
+                updateActivityState(activityStateSendingCode)
             } else {
-                showAlert("Not a valid number in ${ccp.selectedCountryName}.", 0)
+                showAlert("Not a valid number in ${ccp.selectedCountryName}.", activityStateFlag)
             }
         }
         resend.setOnClickListener {
             if (ccp.isValidFullNumber) {
                 resendOTP()
-                updateActivityState(activityStateSendingCode, 0)
+                updateActivityState(activityStateSendingCode)
             }
         }
         verify.setOnClickListener {
             verifyOtp()
-            updateActivityState(activityStateVerifyingCode, 0)
+            updateActivityState(activityStateVerifyingCode)
         }
         wrongPhone.setOnClickListener {
-            updateActivityState(activityStateEnterPhone, 0)
+            updateActivityState(activityStateEnterPhone)
         }
 
         phoneVerificationCallback = object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
             override fun onVerificationCompleted(phoneAuthCredential: PhoneAuthCredential) {
 
-                updateActivityState(activityStateCodeVerificationSuccess, 0)
+                updateActivityState(activityStateCodeVerificationSuccess)
                 if (FirebaseAuth.getInstance().currentUser == null)
                     signIn(phoneAuthCredential)
             }
@@ -160,13 +148,13 @@ class LoginActivity : AppCompatActivity() {
             override fun onVerificationFailed(e: FirebaseException) {
 
                 Log.e(tag, e.toString())
-                updateActivityState(activityStateCodeVerificationFailed, 0)
+                updateActivityState(activityStateCodeVerificationFailed)
             }
 
             override fun onCodeSent(s: String?, forceResendingToken: PhoneAuthProvider.ForceResendingToken?) {
                 super.onCodeSent(s, forceResendingToken)
 
-                updateActivityState(activityStateCodeSent, 0)
+                updateActivityState(activityStateCodeSent)
 
                 phoneVerificationId = s
                 phoneOTPResendingToken = forceResendingToken
@@ -192,19 +180,23 @@ class LoginActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
-        outState.putString("LAYOUT_STATE", activityState?.text.toString())
+        outState.putInt("LAYOUT_STATE_FLAG", 1)
+        outState.putString("LAYOUT_STATE", activityStateObservable.getData())
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
         super.onRestoreInstanceState(savedInstanceState)
 
-        updateActivityState(savedInstanceState?.getString("LAYOUT_STATE"), 1)
+        updateActivityState(
+                savedInstanceState?.getString("LAYOUT_STATE") ?: activityStateEnterPhone,
+                savedInstanceState?.getInt("LAYOUT_STATE_FLAG") ?: 0
+        )
     }
 
-    private fun updateActivityState(state: String?, flag: Int) {
+    private fun updateActivityState(state: String, flag: Int = 0) {
 
         activityStateFlag = flag
-        activityState?.setText(state ?: activityStateEnterPhone)
+        activityStateObservable.setData(state)
     }
 
     private fun showAlert(message: String, flag: Int) {
@@ -233,7 +225,7 @@ class LoginActivity : AppCompatActivity() {
             signIn(PhoneAuthProvider.getCredential(phoneVerificationId.toString(), otp.text?.toString()
                     ?: ""))
         } else {
-            updateActivityState(activityStateCodeVerificationFailed, 0)
+            updateActivityState(activityStateCodeVerificationFailed)
         }
     }
 
@@ -242,11 +234,11 @@ class LoginActivity : AppCompatActivity() {
 
             if (t.isSuccessful) {
 
-                updateActivityState(activityStateSignInSuccess, 0)
+                updateActivityState(activityStateSignInSuccess)
                 HomeActivity.openActivity(this@LoginActivity, true)
             } else {
                 Log.e(tag, t.exception.toString())
-                updateActivityState(activityStateSignInFailed, 0)
+                updateActivityState(activityStateSignInFailed)
             }
         }
     }
