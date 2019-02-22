@@ -196,6 +196,8 @@ class ChatActivity : AppCompatActivity() {
         ravenThread = realm.where(RavenThread::class.java).equalTo("threadId", threadId).findFirstAsync()
         ravenThreadChangeListener = RealmChangeListener {
 
+            ravenMessageAdapter.notifyDataSetChanged()
+
             if (userId == RavenUtils.GROUP && it.isValid) {
                 loadBackground(it.backgroundFileRef, it.backgroundOpacity)
                 nameTextView.text = it.groupName ?: "Raven Group"
@@ -294,7 +296,24 @@ class ChatActivity : AppCompatActivity() {
                 actionMode?.finish()
         }
 
-        ravenMessageAdapter = MessageAdapter(this@ChatActivity, allMessages, false)
+        ravenMessageAdapter = MessageAdapter(this@ChatActivity, ravenThread, allMessages, false, object : MessageAdapter.OnClickListener {
+
+            override fun onClick(ravenMessage: RavenMessage) {
+
+                if (selectedMessages.size > 0) {
+                    val messageId = ravenMessage.messageId ?: return
+                    setMessageSelectedProperty(messageId, true)
+                } else if (ravenMessage.fileRef != null)
+                    ImageFullScreenActivity.openActivity(this@ChatActivity, false, ImageFullScreenActivity.Companion.IntentData(ravenMessage.fileRef!!))
+            }
+
+            override fun onLongClick(ravenMessage: RavenMessage) {
+
+                val messageId = ravenMessage.messageId ?: return
+                setMessageSelectedProperty(messageId, true)
+            }
+
+        })
 
         linearLayoutManager = LinearLayoutManager(this@ChatActivity)
         linearLayoutManager.stackFromEnd = true
@@ -313,7 +332,6 @@ class ChatActivity : AppCompatActivity() {
                     return
 
                 for (i in firstVisibleItemPosition..lastVisibleItemPosition) {
-
                     val ravenMessage = ravenMessageAdapter.getItem(i)!!
                     if (ravenMessage.sentByUserId != FirebaseAuth.getInstance().uid && ravenMessage.getSeenByUserId(FirebaseAuth.getInstance().uid!!) == null) {
                         threadManager.markMessageAsRead(threadId, ravenMessage.messageId, Timestamp.now(), null)
@@ -321,27 +339,6 @@ class ChatActivity : AppCompatActivity() {
                 }
             }
         })
-
-        ravenMessageAdapter.setOnClickListener { _, position ->
-
-            val ravenMessage = ravenMessageAdapter.getItem(position)
-
-            if (selectedMessages.size > 0) {
-
-                val messageId = ravenMessageAdapter.getItem(position)?.messageId
-                        ?: return@setOnClickListener
-                setMessageSelectedProperty(messageId, true)
-            } else if (ravenMessage?.fileRef != null) {
-
-                ImageFullScreenActivity.openActivity(this@ChatActivity, false, ImageFullScreenActivity.Companion.IntentData(ravenMessage.fileRef!!))
-            }
-        }
-        ravenMessageAdapter.setOnLongClickListener { _, position ->
-
-            val messageId = ravenMessageAdapter.getItem(position)?.messageId
-                    ?: return@setOnLongClickListener
-            setMessageSelectedProperty(messageId, true)
-        }
     }
 
     override fun onStart() {
@@ -462,7 +459,7 @@ class ChatActivity : AppCompatActivity() {
         requestOptions.placeholder(R.drawable.artwork_raven)
 
         if (fileRef != null) {
-            FirebaseStorageUtil().getDownloadUrl(this@ChatActivity, fileRef) {
+            FirebaseStorageUtil.getDownloadUrl(this@ChatActivity, fileRef) {
 
                 if (it != null) {
                     background.alpha = alpha ?: 1F

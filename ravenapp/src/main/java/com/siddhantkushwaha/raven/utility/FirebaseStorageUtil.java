@@ -13,7 +13,7 @@ public class FirebaseStorageUtil {
         void onComplete(String uri);
     }
 
-    public void getDownloadUrl(Context context, String fileRef, OnComplete onComplete) {
+    public static void getDownloadUrl(Context context, String fileRef, OnComplete onComplete) {
 
         String url = LocalStorage.get(context, "fileUrl", fileRef);
         if (url != null) {
@@ -32,7 +32,7 @@ public class FirebaseStorageUtil {
         }
     }
 
-    public void deleteFile(String fileRef) {
+    public static void deleteFile(String fileRef) {
         FirebaseStorage.getInstance().getReference(fileRef.replace(prefix, "")).delete();
     }
 }

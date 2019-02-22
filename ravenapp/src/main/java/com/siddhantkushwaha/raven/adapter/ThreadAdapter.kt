@@ -62,7 +62,7 @@ class ThreadAdapter(private val context: Context, private val data: OrderedRealm
         } else {
 
             when (ravenThread.lastMessage.getMessageType(FirebaseAuth.getInstance().uid!!)) {
-                1 -> {
+                1, 2 -> {
                     // sent message
 
                     view.findViewById<ImageView>(R.id.sentMessageStatus).visibility = View.VISIBLE
@@ -82,7 +82,7 @@ class ThreadAdapter(private val context: Context, private val data: OrderedRealm
                     view.findViewById<TextView>(R.id.messageText).setTypeface(null, Typeface.NORMAL)
                 }
 
-                2 -> {
+                3, 4 -> {
                     //received messaged
 
                     view.findViewById<ImageView>(R.id.sentMessageStatus).visibility = View.GONE

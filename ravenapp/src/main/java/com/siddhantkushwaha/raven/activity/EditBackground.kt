@@ -67,7 +67,7 @@ class EditBackground : AppCompatActivity() {
         userId = intentData.userId
         threadId = intentData.threadId
 
-        FirebaseStorageUtil().getDownloadUrl(this@EditBackground, wallpaperMetadata!!.highResRef) {
+        FirebaseStorageUtil.getDownloadUrl(this@EditBackground, wallpaperMetadata!!.highResRef) {
             GlideUtilV2.loadImage(this@EditBackground, it, background, R.color.colorGreyDark, R.color.colorBlack)
         }
 

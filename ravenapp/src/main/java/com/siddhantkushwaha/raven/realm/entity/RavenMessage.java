@@ -49,9 +49,14 @@ public class RavenMessage extends RealmObject {
             return -1;
 
         if (sentByUserId.equals(userId))
-            return 1;
+            if (fileRef == null)
+                return 1;
+            else
+                return 2;
+        else if (fileRef == null)
+            return 3;
         else
-            return 2;
+            return 4;
     }
 
     public String getSeenByUserId(@NonNull String userId) {

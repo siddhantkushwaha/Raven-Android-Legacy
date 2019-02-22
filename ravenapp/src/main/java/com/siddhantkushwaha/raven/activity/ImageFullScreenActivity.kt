@@ -118,7 +118,7 @@ class ImageFullScreenActivity : AppCompatActivity() {
             return@setOnTouchListener true
         }
 
-        FirebaseStorageUtil().getDownloadUrl(this@ImageFullScreenActivity, intentData.fileRef) {
+        FirebaseStorageUtil.getDownloadUrl(this@ImageFullScreenActivity, intentData.fileRef) {
 
             GlideUtilV2.loadImageAsBitmap(this@ImageFullScreenActivity, it, RequestOptions(), object : SimpleTarget<Bitmap>() {
                 override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
