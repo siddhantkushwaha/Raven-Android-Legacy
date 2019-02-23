@@ -5,9 +5,7 @@ import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.manager.ThreadManager
@@ -16,6 +14,7 @@ import com.siddhantkushwaha.raven.utility.GlideUtilV2
 import com.siddhantkushwaha.raven.utility.JodaTimeUtilV2
 import io.realm.OrderedRealmCollection
 import io.realm.RealmBaseAdapter
+import kotlinx.android.synthetic.main.layout_thread.view.*
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import java.security.GeneralSecurityException
@@ -23,11 +22,8 @@ import java.security.GeneralSecurityException
 class ThreadAdapter(private val context: Context, private val data: OrderedRealmCollection<RavenThread>) : RealmBaseAdapter<RavenThread>(data) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
-        var view = convertView
-
-        if (view == null) {
-            view = LayoutInflater.from(context).inflate(R.layout.layout_thread, parent, false)
-        }
+        val listItem: View = convertView
+                ?: LayoutInflater.from(context).inflate(R.layout.layout_thread, parent, false)
 
         val ravenThread = data[position]
 
@@ -47,84 +43,85 @@ class ThreadAdapter(private val context: Context, private val data: OrderedRealm
             }
         }
 
-        view?.findViewById<TextView>(R.id.name)!!.text = threadTitle
-        GlideUtilV2.loadProfilePhotoCircle(context, view.findViewById(R.id.displayPicImageView), threadPic)
+        listItem.name.text = threadTitle
+        GlideUtilV2.loadProfilePhotoCircle(context, listItem.displayPic, threadPic)
 
-        if (ravenThread.lastMessage == null) {
-
-            view.findViewById<ImageView>(R.id.sentMessageStatus).visibility = View.GONE
-            view.findViewById<ImageView>(R.id.messageIcon).visibility = View.GONE
-
-            view.findViewById<TextView>(R.id.messageText).setTextColor(ContextCompat.getColor(context, R.color.colorGreyDark))
-            view.findViewById<TextView>(R.id.messageText).setTypeface(null, Typeface.NORMAL)
-
-            view.findViewById<TextView>(R.id.messageText).text = "No Messages."
-        } else {
-
-            when (ravenThread.lastMessage.getMessageType(FirebaseAuth.getInstance().uid!!)) {
-                1, 2 -> {
-                    // sent message
-
-                    view.findViewById<ImageView>(R.id.sentMessageStatus).visibility = View.VISIBLE
-                    when {
-                        ravenThread.lastMessage.isSeenByAll -> view.findViewById<ImageView>(R.id.sentMessageStatus).setImageDrawable(context.getDrawable(R.drawable.badge_message_status_seen))
-                        ravenThread.lastMessage.timestamp != null -> view.findViewById<ImageView>(R.id.sentMessageStatus).setImageDrawable(context.getDrawable(R.drawable.badge_message_status_sent))
-                        else -> view.findViewById<ImageView>(R.id.sentMessageStatus).setImageDrawable(context.getDrawable(R.drawable.badge_message_status_pending))
-                    }
-
-                    if (ravenThread.lastMessage.fileRef != null)
-                        view.findViewById<ImageView>(R.id.messageIcon).visibility = View.VISIBLE
-                    else
-                        view.findViewById<ImageView>(R.id.messageIcon).visibility = View.GONE
-
-
-                    view.findViewById<TextView>(R.id.messageText).setTextColor(ContextCompat.getColor(context, R.color.colorGreyDark))
-                    view.findViewById<TextView>(R.id.messageText).setTypeface(null, Typeface.NORMAL)
-                }
-
-                3, 4 -> {
-                    //received messaged
-
-                    view.findViewById<ImageView>(R.id.sentMessageStatus).visibility = View.GONE
-
-                    if (ravenThread.lastMessage.getSeenByUserId(FirebaseAuth.getInstance().uid!!) == null) {
-                        view.findViewById<TextView>(R.id.messageText).setTextColor(ContextCompat.getColor(context, R.color.colorBlack))
-                        view.findViewById<TextView>(R.id.messageText).setTypeface(null, Typeface.BOLD)
-                    } else {
-                        view.findViewById<TextView>(R.id.messageText).setTextColor(ContextCompat.getColor(context, R.color.colorGreyDark))
-                        view.findViewById<TextView>(R.id.messageText).setTypeface(null, Typeface.NORMAL)
-                    }
-                }
+        when (ravenThread.lastMessage) {
+            null -> {
+                listItem.status.visibility = View.GONE
+                listItem.icon.visibility = View.GONE
+                setTextViewStyle(listItem.text, R.color.colorGreyDark, Typeface.NORMAL)
+                listItem.text.text = "No Messages."
             }
 
-            val text = ravenThread.lastMessage.text
-            val fileRef = ravenThread.lastMessage.fileRef
+            else -> {
 
-            val messageText = if (text == null && fileRef == null) {
-                "Message Deleted."
-            } else if (text == null) {
-                "Photo."
-            } else if (fileRef == null) {
-                decryptMessage(ravenThread.lastMessage.threadId, text)
-            } else {
-                decryptMessage(ravenThread.lastMessage.threadId, text)
+                val type = ravenThread.lastMessage.getMessageType(FirebaseAuth.getInstance().uid!!)
+                when (type) {
+                    1, 2 -> {
+                        listItem.status.visibility = View.VISIBLE
+
+                        when {
+                            ravenThread.lastMessage.isSeenByAll -> listItem.status.text = "seen"
+                            ravenThread.lastMessage.timestamp != null -> listItem.status.text = "sent"
+                            else -> listItem.status.text = ""
+                        }
+                        setTextViewStyle(listItem.text, R.color.colorGreyDark, Typeface.NORMAL)
+                    }
+
+                    3, 4 -> {
+                        listItem.status.visibility = View.GONE
+                        if (ravenThread.lastMessage.getSeenByUserId(FirebaseAuth.getInstance().uid!!) == null)
+                            setTextViewStyle(listItem.text, R.color.colorBlack, Typeface.BOLD)
+                        else
+                            setTextViewStyle(listItem.text, R.color.colorGreyDark, Typeface.NORMAL)
+                    }
+                }
+                when (type) {
+
+                    1, 3 -> {
+                        listItem.icon.visibility = View.GONE
+                    }
+
+                    2, 4 -> {
+                        listItem.icon.visibility = View.VISIBLE
+                    }
+                }
+
+                val text = ravenThread.lastMessage.text
+                val fileRef = ravenThread.lastMessage.fileRef
+
+                val messageText = if (text == null && fileRef == null) {
+                    "Message Deleted."
+                } else if (text == null) {
+                    "Photo."
+                } else if (fileRef == null) {
+                    decryptMessage(ravenThread.lastMessage.threadId, text)
+                } else {
+                    decryptMessage(ravenThread.lastMessage.threadId, text)
+                }
+
+                listItem.text.text = messageText
             }
-
-            view.findViewById<TextView>(R.id.messageText).text = messageText
         }
 
         if (ravenThread.timestamp != null) {
             val time = DateTime.parse(ravenThread.timestamp)
             when {
-                JodaTimeUtilV2.isToday(time) -> view.findViewById<TextView>(R.id.messageSentTime).text = DateTimeFormat.forPattern("hh:mm:aa").print(time)
-                JodaTimeUtilV2.isYesterday(time) -> view.findViewById<TextView>(R.id.messageSentTime).text = "Yesterday"
-                else -> view.findViewById<TextView>(R.id.messageSentTime).text = DateTimeFormat.forPattern("dd/MM/yy").print(time)
+                JodaTimeUtilV2.isToday(time) -> listItem.timestamp.text = DateTimeFormat.forPattern("hh:mm:aa").print(time)
+                JodaTimeUtilV2.isYesterday(time) -> listItem.timestamp.text = "Yesterday"
+                else -> listItem.timestamp.text = DateTimeFormat.forPattern("dd/MM/yy").print(time)
             }
-        } else {
-            view.findViewById<TextView>(R.id.messageSentTime).text = ""
-        }
+        } else
+            listItem.timestamp.text = ""
 
-        return view
+        return listItem
+    }
+
+    private fun setTextViewStyle(textView: TextView, color: Int, typeface: Int) {
+
+        textView.setTextColor(color)
+        textView.setTypeface(null, typeface)
     }
 
     private fun decryptMessage(key: String, message: String): String {
