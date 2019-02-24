@@ -32,7 +32,7 @@ import kotlin.collections.HashMap
 
 class MessageAdapter(private val context: Context, private val ravenThread: RavenThread, data: OrderedRealmCollection<RavenMessage>, autoUpdate: Boolean, private val onClickListener: OnClickListener) : RealmRecyclerViewAdapter<RavenMessage, RecyclerView.ViewHolder>(data, autoUpdate) {
 
-    val colorsForUsers = HashMap<String, Int>()
+    private val colorsForUsers = HashMap<String, Int>()
 
     override fun getItemViewType(position: Int): Int {
         return data!![position].getMessageType(FirebaseAuth.getInstance().uid!!)
@@ -188,7 +188,7 @@ class MessageAdapter(private val context: Context, private val ravenThread: Rave
 
     fun setName(nameTextView: TextView, userId: String?) {
 
-        if (ravenThread.isGroup && userId != null) {
+        if (ravenThread.isValid && ravenThread.isGroup && userId != null) {
 
             val ravenUser = ravenThread.users?.findLast { ru ->
                 ru.userId == userId
@@ -223,15 +223,18 @@ class MessageAdapter(private val context: Context, private val ravenThread: Rave
     fun setMessageText(text: TextView, encryptedText: String?, body: LinearLayout? = null, name: TextView? = null) {
 
         val colorStateList = Common.getColorStateList(Color.rgb(220, 0, 0))
-        try {
-            setMessageTextUtil(text, body, ThreadManager.decryptMessage(ravenThread.threadId, encryptedText), Color.WHITE, Color.BLACK, if (body == null) null else Common.getColorStateList(Color.WHITE))
-        } catch (e: GeneralSecurityException) {
-            setMessageTextUtil(text, body, "Couldn't decrypt.", Color.WHITE, Color.WHITE, colorStateList)
-        } catch (e: NullPointerException) {
+        if (ravenThread.isValid) {
+            try {
+                setMessageTextUtil(text, body, ThreadManager.decryptMessage(ravenThread.threadId, encryptedText), Color.WHITE, Color.BLACK, if (body == null) null else Common.getColorStateList(Color.WHITE))
+            } catch (e: GeneralSecurityException) {
+                setMessageTextUtil(text, body, "Couldn't decrypt.", Color.WHITE, Color.WHITE, colorStateList)
+            } catch (e: NullPointerException) {
+                setMessageTextUtil(text, body, "Message Deleted.", Color.WHITE, Color.WHITE, colorStateList)
+            } catch (e: Exception) {
+                setMessageTextUtil(text, body, "There was a problem.", Color.WHITE, Color.WHITE, colorStateList)
+            }
+        } else
             setMessageTextUtil(text, body, "Message Deleted.", Color.WHITE, Color.WHITE, colorStateList)
-        } catch (e: Exception) {
-            setMessageTextUtil(text, body, "There was a problem.", Color.WHITE, Color.WHITE, colorStateList)
-        }
     }
 
     private fun setMessageTextUtil(text: TextView, body: LinearLayout?, message: String, color1: Int, color2: Int, colorStateList: ColorStateList?) {

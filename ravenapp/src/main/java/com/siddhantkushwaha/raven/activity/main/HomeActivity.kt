@@ -31,10 +31,7 @@ import com.siddhantkushwaha.raven.realm.entity.RavenThread
 import com.siddhantkushwaha.raven.realm.utility.RavenMessageUtil
 import com.siddhantkushwaha.raven.realm.utility.RavenThreadUtil
 import com.siddhantkushwaha.raven.realm.utility.RavenUserUtil
-import com.siddhantkushwaha.raven.utility.Common
-import com.siddhantkushwaha.raven.utility.GlideUtilV2
-import com.siddhantkushwaha.raven.utility.ObservableHashMap
-import com.siddhantkushwaha.raven.utility.RealmUtil
+import com.siddhantkushwaha.raven.utility.*
 import io.realm.OrderedRealmCollectionChangeListener
 import io.realm.Realm
 import io.realm.RealmResults
@@ -207,6 +204,30 @@ class HomeActivity : AppCompatActivity() {
 
             ChatActivity.openActivity(this@HomeActivity, false,
                     ChatActivity.Companion.IntentData(allThreadsAdapter.getItem(position)?.threadId!!))
+        }
+
+        threadListView.setOnItemLongClickListener { parent, view, position, id ->
+
+            // TODO only for those with the debug version
+            if (BuildConfig.DEBUG) {
+
+                val threadId = allThreadsAdapter.getItem(position)?.threadId
+                        ?: return@setOnItemLongClickListener true
+
+                val doc = FirebaseUtils.getFirestoreDb(true).collection("threads").document(threadId)
+
+                doc.collection("messages").get().addOnCompleteListener {
+                    if (it.isSuccessful) {
+                        it.result?.documents?.forEach { sn ->
+                            sn.reference.delete()
+                        }
+                    }
+                }
+
+                doc.delete()
+            }
+
+            true
         }
 
         currentUserEventListener = EventListener { snapshot, _ ->

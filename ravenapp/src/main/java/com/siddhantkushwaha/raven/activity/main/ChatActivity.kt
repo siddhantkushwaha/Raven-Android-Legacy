@@ -177,6 +177,9 @@ class ChatActivity : AppCompatActivity() {
         })
 
         threadEventListener = EventListener { querySnapshot, firebaseFirestoreException ->
+
+            Log.i(tag, querySnapshot.toString())
+
             querySnapshot?.documentChanges?.forEach { documentChange ->
                 when (documentChange.type) {
                     DocumentChange.Type.ADDED, DocumentChange.Type.MODIFIED -> allMessageDocIds.add(documentChange.document.id, documentChange.document)
@@ -186,8 +189,9 @@ class ChatActivity : AppCompatActivity() {
 
             if (::allMessages.isInitialized)
                 for (rm: RavenMessage in allMessages) {
-                    if (!allMessageDocIds.getData().contains(rm.messageId))
+                    if (!allMessageDocIds.getData().contains(rm.messageId)) {
                         RavenMessageUtil.setMessage(realm, threadId, rm.messageId)
+                    }
                 }
 
             firebaseFirestoreException?.printStackTrace()
@@ -198,10 +202,14 @@ class ChatActivity : AppCompatActivity() {
 
             ravenMessageAdapter.notifyDataSetChanged()
 
-            if (userId == RavenUtils.GROUP && it.isValid) {
-                loadBackground(it.backgroundFileRef, it.backgroundOpacity)
-                nameTextView.text = it.groupName ?: "Raven Group"
-                GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, it.picUrl)
+            Log.i(tag, "$threadId ${ravenThread.isValid}")
+
+            if (ravenThread.isValid) {
+                loadBackground(ravenThread.backgroundFileRef, ravenThread.backgroundOpacity)
+                if (ravenThread.isGroup) {
+                    nameTextView.text = ravenThread.groupName ?: "Raven Group"
+                    GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, ravenThread.picUrl)
+                }
             }
         }
 
