@@ -74,7 +74,7 @@ class RavenThreadUtil {
         @JvmStatic
         fun addUsers(realmL: Realm, ravenThread: RavenThread, userIds: ArrayList<String>) {
 
-            if(ravenThread.users == null)
+            if (ravenThread.users == null)
                 ravenThread.users = RealmList()
 
             val arr = ArrayList<RavenUser>()

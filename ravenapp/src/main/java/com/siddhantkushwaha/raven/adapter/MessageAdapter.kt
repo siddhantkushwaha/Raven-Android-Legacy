@@ -24,13 +24,14 @@ import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil
 import com.siddhantkushwaha.raven.utility.GlideUtilV2
 import io.realm.OrderedRealmCollection
 import io.realm.RealmRecyclerViewAdapter
+import io.realm.RealmResults
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import java.security.GeneralSecurityException
 import java.util.*
 import kotlin.collections.HashMap
 
-class MessageAdapter(private val context: Context, private val ravenThread: RavenThread, data: OrderedRealmCollection<RavenMessage>, autoUpdate: Boolean, private val onClickListener: OnClickListener) : RealmRecyclerViewAdapter<RavenMessage, RecyclerView.ViewHolder>(data, autoUpdate) {
+class MessageAdapter(private val context: Context, private val ravenThreadResult: RealmResults<RavenThread>, data: OrderedRealmCollection<RavenMessage>, autoUpdate: Boolean, private val onClickListener: OnClickListener) : RealmRecyclerViewAdapter<RavenMessage, RecyclerView.ViewHolder>(data, autoUpdate) {
 
     private val colorsForUsers = HashMap<String, Int>()
 
@@ -125,7 +126,7 @@ class MessageAdapter(private val context: Context, private val ravenThread: Rave
 
             messageAdapter.setName(name, ravenMessage.sentByUserId)
 
-            messageAdapter.setMessageText(text, ravenMessage.text, body, name)
+            messageAdapter.setMessageText(text, ravenMessage.text, body)
 
             messageAdapter.setMessageTimeAndStatus(time, ravenMessage.timestamp)
             messageAdapter.setProperties(itemView, ravenMessage)
@@ -148,7 +149,7 @@ class MessageAdapter(private val context: Context, private val ravenThread: Rave
 
             if (ravenMessage.text != null) {
                 text.visibility = View.VISIBLE
-                messageAdapter.setMessageText(text, ravenMessage.text, body, name)
+                messageAdapter.setMessageText(text, ravenMessage.text, body)
             } else
                 text.visibility = View.GONE
 
@@ -188,7 +189,8 @@ class MessageAdapter(private val context: Context, private val ravenThread: Rave
 
     fun setName(nameTextView: TextView, userId: String?) {
 
-        if (ravenThread.isValid && ravenThread.isGroup && userId != null) {
+        val ravenThread = ravenThreadResult.first(null)
+        if (ravenThread != null && ravenThread.isGroup && userId != null) {
 
             val ravenUser = ravenThread.users?.findLast { ru ->
                 ru.userId == userId
@@ -220,10 +222,11 @@ class MessageAdapter(private val context: Context, private val ravenThread: Rave
         return Color.rgb(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255))
     }
 
-    fun setMessageText(text: TextView, encryptedText: String?, body: LinearLayout? = null, name: TextView? = null) {
+    fun setMessageText(text: TextView, encryptedText: String?, body: LinearLayout? = null) {
 
         val colorStateList = Common.getColorStateList(Color.rgb(220, 0, 0))
-        if (ravenThread.isValid) {
+        val ravenThread = ravenThreadResult.first(null)
+        if (ravenThread != null) {
             try {
                 setMessageTextUtil(text, body, ThreadManager.decryptMessage(ravenThread.threadId, encryptedText), Color.WHITE, Color.BLACK, if (body == null) null else Common.getColorStateList(Color.WHITE))
             } catch (e: GeneralSecurityException) {

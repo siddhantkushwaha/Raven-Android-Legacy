@@ -42,7 +42,10 @@ import com.siddhantkushwaha.raven.realm.utility.RavenThreadUtil
 import com.siddhantkushwaha.raven.realm.utility.RavenUserUtil
 import com.siddhantkushwaha.raven.utility.*
 import com.yalantis.ucrop.UCrop
-import io.realm.*
+import io.realm.OrderedRealmCollectionChangeListener
+import io.realm.Realm
+import io.realm.RealmResults
+import io.realm.Sort
 import kotlinx.android.synthetic.main.activity_chat.*
 import java.util.*
 
@@ -99,11 +102,11 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var selectedMessages: RealmResults<RavenMessage>
     private lateinit var selectedMessagesListener: OrderedRealmCollectionChangeListener<RealmResults<RavenMessage>>
 
-    private lateinit var ravenThread: RavenThread
-    private lateinit var ravenThreadChangeListener: RealmChangeListener<RavenThread>
+    private lateinit var ravenThreadResult: RealmResults<RavenThread>
+    private lateinit var ravenThreadChangeListener: OrderedRealmCollectionChangeListener<RealmResults<RavenThread>>
 
-    private lateinit var ravenUser: RavenUser
-    private lateinit var ravenUserChangeListener: RealmChangeListener<RavenUser>
+    private lateinit var ravenUserResult: RealmResults<RavenUser>
+    private lateinit var ravenUserChangeListener: OrderedRealmCollectionChangeListener<RealmResults<RavenUser>>
 
     private lateinit var ravenMessageAdapter: MessageAdapter
     private lateinit var linearLayoutManager: LinearLayoutManager
@@ -154,6 +157,8 @@ class ChatActivity : AppCompatActivity() {
 
             thread = threadSnap?.toObject(Thread::class.java)
 
+            Log.i(tag, threadSnap?.exists().toString())
+
             if (userId == RavenUtils.GROUP)
                 thread?.users?.forEach { userId ->
                     userManager.startUserSyncByUserId(this@ChatActivity, userId) { userSnap, firebaseFirestoreException2 ->
@@ -178,8 +183,6 @@ class ChatActivity : AppCompatActivity() {
 
         threadEventListener = EventListener { querySnapshot, firebaseFirestoreException ->
 
-            Log.i(tag, querySnapshot.toString())
-
             querySnapshot?.documentChanges?.forEach { documentChange ->
                 when (documentChange.type) {
                     DocumentChange.Type.ADDED, DocumentChange.Type.MODIFIED -> allMessageDocIds.add(documentChange.document.id, documentChange.document)
@@ -197,29 +200,29 @@ class ChatActivity : AppCompatActivity() {
             firebaseFirestoreException?.printStackTrace()
         }
 
-        ravenThread = realm.where(RavenThread::class.java).equalTo("threadId", threadId).findFirstAsync()
-        ravenThreadChangeListener = RealmChangeListener {
+        ravenThreadResult = realm.where(RavenThread::class.java).equalTo("threadId", threadId).findAllAsync()
+        ravenThreadChangeListener = OrderedRealmCollectionChangeListener { _, _ ->
 
             ravenMessageAdapter.notifyDataSetChanged()
 
-            Log.i(tag, "$threadId ${ravenThread.isValid}")
-
-            if (ravenThread.isValid) {
-                loadBackground(ravenThread.backgroundFileRef, ravenThread.backgroundOpacity)
-                if (ravenThread.isGroup) {
-                    nameTextView.text = ravenThread.groupName ?: "Raven Group"
-                    GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, ravenThread.picUrl)
+            val rt = ravenThreadResult.first(null)
+            if (rt != null) {
+                loadBackground(rt.backgroundFileRef, rt.backgroundOpacity)
+                if (rt.isGroup) {
+                    nameTextView.text = rt.groupName ?: "Raven Group"
+                    GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, rt.picUrl)
                 }
             }
         }
 
-        ravenUser = realm.where(RavenUser::class.java).equalTo("userId", userId).findFirstAsync()
-        ravenUserChangeListener = RealmChangeListener {
+        ravenUserResult = realm.where(RavenUser::class.java).equalTo("userId", userId).findAllAsync()
+        ravenUserChangeListener = OrderedRealmCollectionChangeListener { _, _ ->
 
-            if (userId != RavenUtils.GROUP && it.isValid) {
-                nameTextView.text = it.contactName ?: it.displayName
-                        ?: it.phoneNumber ?: getString(R.string.default_name)
-                GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, it.picUrl)
+            val ru = ravenUserResult.first(null)
+            if (userId != RavenUtils.GROUP && ru != null) {
+                nameTextView.text = ru.contactName ?: ru.displayName
+                        ?: ru.phoneNumber ?: getString(R.string.default_name)
+                GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, ru.picUrl)
             }
         }
 
@@ -304,7 +307,7 @@ class ChatActivity : AppCompatActivity() {
                 actionMode?.finish()
         }
 
-        ravenMessageAdapter = MessageAdapter(this@ChatActivity, ravenThread, allMessages, false, object : MessageAdapter.OnClickListener {
+        ravenMessageAdapter = MessageAdapter(this@ChatActivity, ravenThreadResult, allMessages, false, object : MessageAdapter.OnClickListener {
 
             override fun onClick(ravenMessage: RavenMessage) {
 
@@ -367,8 +370,8 @@ class ChatActivity : AppCompatActivity() {
 
         allMessages.addChangeListener(allMessagesListener)
         selectedMessages.addChangeListener(selectedMessagesListener)
-        ravenThread.addChangeListener(ravenThreadChangeListener)
-        ravenUser.addChangeListener(ravenUserChangeListener)
+        ravenThreadResult.addChangeListener(ravenThreadChangeListener)
+        ravenUserResult.addChangeListener(ravenUserChangeListener)
     }
 
     override fun onPause() {
@@ -378,8 +381,8 @@ class ChatActivity : AppCompatActivity() {
 
         allMessages.removeAllChangeListeners()
         selectedMessages.removeAllChangeListeners()
-        ravenThread.removeAllChangeListeners()
-        ravenUser.removeAllChangeListeners()
+        ravenThreadResult.removeAllChangeListeners()
+        ravenUserResult.removeAllChangeListeners()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
