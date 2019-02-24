@@ -237,7 +237,7 @@ class MessageAdapter(private val context: Context, private val ravenThreadResult
                 setMessageTextUtil(text, body, "There was a problem.", Color.WHITE, Color.WHITE, colorStateList)
             }
         } else
-            setMessageTextUtil(text, body, "Message Deleted.", Color.WHITE, Color.WHITE, colorStateList)
+            setMessageTextUtil(text, body, " ", Color.WHITE, Color.BLACK, if (body == null) null else Common.getColorStateList(Color.WHITE))
     }
 
     private fun setMessageTextUtil(text: TextView, body: LinearLayout?, message: String, color1: Int, color2: Int, colorStateList: ColorStateList?) {

@@ -1,7 +1,6 @@
 package com.siddhantkushwaha.raven.realm.utility
 
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.siddhantkushwaha.nuttertools.GsonUtil
 import com.siddhantkushwaha.raven.entity.Message
@@ -20,12 +19,6 @@ class RavenMessageUtil {
             ravenMessage.text = message.text
             ravenMessage.fileRef = message.fileRef
             ravenMessage.sentByUserId = message.sentByUserId
-
-            if (message.sentTo != null) {
-                val arr = RealmList<String>()
-                arr.addAll(message.sentTo)
-                ravenMessage.sentTo = arr
-            }
 
             ravenMessage.localTimestamp = DateTime(message.sentTime.toDate()).toString()
 
@@ -51,12 +44,13 @@ class RavenMessageUtil {
         }
 
         @JvmStatic
-        fun setMessage(realm: Realm, threadId: String, messageId: String, messageSnap: DocumentSnapshot? = null, e: FirebaseFirestoreException? = null) {
+        fun setMessage(realm: Realm, performAsync: Boolean, threadId: String, messageId: String, message: Message? = null, e: FirebaseFirestoreException? = null) {
 
-            val message = messageSnap?.toObject(Message::class.java)
-            realm.executeTransactionAsync { realmL ->
+            e?.printStackTrace()
+
+            val transaction = Realm.Transaction { realmL ->
                 var ravenMessage = realmL.where(RavenMessage::class.java).equalTo("messageId", messageId).findFirst()
-                if (messageSnap != null && messageSnap.exists() && message != null) {
+                if (message != null) {
                     if (ravenMessage == null) {
                         ravenMessage = RavenMessage()
                         ravenMessage.threadId = threadId
@@ -69,7 +63,11 @@ class RavenMessageUtil {
                 } else
                     ravenMessage?.deleteFromRealm()
             }
-            e?.printStackTrace()
+
+            if (performAsync)
+                realm.executeTransactionAsync(transaction)
+            else
+                realm.executeTransaction(transaction)
         }
     }
 }

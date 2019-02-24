@@ -16,8 +16,8 @@ android {
         applicationId "com.siddhantkushwaha.raven"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 43
-        versionName "1.1.6"
+        versionCode 44
+        versionName "1.1.6.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -65,7 +65,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:16.1.0'
     implementation 'com.google.firebase:firebase-storage:16.0.5'
     implementation 'com.google.firebase:firebase-database:16.0.6'
-    implementation 'com.google.firebase:firebase-messaging:17.3.4'
+    implementation 'com.google.firebase:firebase-messaging:17.4.0'
     implementation 'com.google.firebase:firebase-firestore:18.0.1'
 
     // for google maps

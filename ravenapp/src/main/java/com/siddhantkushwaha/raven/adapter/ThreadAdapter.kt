@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.manager.ThreadManager
@@ -120,7 +121,7 @@ class ThreadAdapter(private val context: Context, private val data: OrderedRealm
 
     private fun setTextViewStyle(textView: TextView, color: Int, typeface: Int) {
 
-        textView.setTextColor(color)
+        textView.setTextColor(ContextCompat.getColor(context, color))
         textView.setTypeface(null, typeface)
     }
 

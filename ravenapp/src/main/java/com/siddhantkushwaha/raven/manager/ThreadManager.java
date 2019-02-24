@@ -11,7 +11,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
@@ -21,9 +20,9 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.siddhantkushwaha.raven.custom.AESNygma;
 import com.siddhantkushwaha.raven.entity.Message;
+import com.siddhantkushwaha.raven.entity.Thread;
 import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil;
 import com.siddhantkushwaha.raven.utility.FirebaseUtils;
-import com.siddhantkushwaha.raven.utility.RavenUtils;
 
 import java.util.HashMap;
 
@@ -33,7 +32,7 @@ import androidx.annotation.Nullable;
 public class ThreadManager {
 
     private static final String THREAD_COLLECTION_NAME = "threads";
-    private static final String MESSAGE_COLLECTION_NAME = "messages";
+    private static final String KEY_MESSAGES = "messages";
 
     private FirebaseFirestore db;
 
@@ -42,33 +41,38 @@ public class ThreadManager {
         db = FirebaseUtils.getFirestoreDb(true);
     }
 
-    public void sendMessage(@NonNull String threadId, @NonNull Message message, String userId) {
+    public void sendMessage(@NonNull String threadId, @NonNull Message message, boolean isGroup) {
 
-        DocumentReference messageRef = db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document();
+        DocumentReference messageRef = db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(KEY_MESSAGES).document();
 
         WriteBatch batch = db.batch();
 
-        if (!userId.equals(RavenUtils.GROUP)) {
-            HashMap<String, Object> threadMap = new HashMap<>();
-            threadMap.put("users", message.getNotDeletedBy());
-            batch.set(db.collection(THREAD_COLLECTION_NAME).document(threadId), threadMap, SetOptions.merge());
-        }
+        HashMap<String, Object> threadMap = new HashMap<>();
 
-        batch.set(messageRef, message);
+        if (!isGroup)
+            threadMap.put("users", FieldValue.arrayUnion(message.getNotDeletedBy().toArray()));
+
+        HashMap<String, Object> messageMap = new HashMap<>();
+        messageMap.put(messageRef.getId(), message);
+        threadMap.put(KEY_MESSAGES, messageMap);
+
+        batch.set(db.collection(THREAD_COLLECTION_NAME).document(threadId), threadMap, SetOptions.merge());
+
         batch.commit().addOnCompleteListener(task -> {
 
             HashMap<String, Object> map = new HashMap<>();
             map.put("threadId", threadId);
             map.put("messageId", messageRef.getId());
-            map.put("sentTo", message.getSentTo());
-            FirebaseUtils.getRealtimeDb(true).getReference("messages").push().setValue(map);
+            message.getNotDeletedBy().remove(FirebaseAuth.getInstance().getUid());
+            map.put("sentTo", message.getNotDeletedBy());
+            FirebaseUtils.getRealtimeDb(true).getReference(KEY_MESSAGES).push().setValue(map);
         });
     }
 
     public void sendFile(@NonNull String threadId, @NonNull Uri uri, @Nullable OnProgressListener<UploadTask.TaskSnapshot> onProgressListener, @NonNull OnCompleteListener<UploadTask.TaskSnapshot> onCompleteListener) {
 
         // shortcut to generate a random fileId for now
-        String fileId = db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document().getId();
+        String fileId = db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(KEY_MESSAGES).document().getId();
 
         StorageReference fileRef = FirebaseStorage.getInstance().getReference("thread_media/" + threadId + "/" + fileId + "/media.png");
         UploadTask uploadTask = fileRef.putFile(uri);
@@ -83,19 +87,20 @@ public class ThreadManager {
     public void markMessageAsRead(@NonNull String threadId, @NonNull String messageId, Timestamp timestamp, OnCompleteListener<Object> onCompleteListener) {
 
         HashMap<String, Object> map = new HashMap<>();
-        map.put("seenBy." + FirebaseAuth.getInstance().getUid(), timestamp);
+        map.put("messages." + messageId + ".seenBy." + FirebaseAuth.getInstance().getUid(), timestamp);
 
-        DocumentReference messageRef = db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document(messageId);
+        DocumentReference threadRef = db.collection(THREAD_COLLECTION_NAME).document(threadId);
         db.runTransaction(transaction -> {
 
-            DocumentSnapshot messageSnap = transaction.get(messageRef);
+            DocumentSnapshot threadSnap = transaction.get(threadRef);
             try {
-                Message message = messageSnap.toObject(Message.class);
+                Thread thread = threadSnap.toObject(Thread.class);
+                Message message = thread.getMessages().get(messageId);
                 if (!message.getSentByUserId().equals(FirebaseAuth.getInstance().getUid())) {
                     if (message.getSeenBy() == null)
-                        transaction.update(messageRef, map);
+                        transaction.update(threadRef, map);
                     else if (!message.getSeenBy().containsKey(FirebaseAuth.getInstance().getUid()))
-                        transaction.update(messageRef, map);
+                        transaction.update(threadRef, map);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -107,33 +112,25 @@ public class ThreadManager {
 
     public void deleteMessageForEveryone(@NonNull String threadId, @NonNull String messageId, @Nullable String fileRef, OnCompleteListener<Void> onCompleteListener) {
 
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("text", FieldValue.delete());
-        map.put("fileRef", FieldValue.delete());
-
         if (fileRef != null)
-            new FirebaseStorageUtil().deleteFile(fileRef);
+            FirebaseStorageUtil.deleteFile(fileRef);
 
-        db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document(messageId).update(map).addOnCompleteListener(onCompleteListener);
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("messages." + messageId + ".text", FieldValue.delete());
+        map.put("messages." + messageId + ".fileRef", FieldValue.delete());
+
+        db.collection(THREAD_COLLECTION_NAME).document(threadId).update(map).addOnCompleteListener(onCompleteListener);
     }
 
     public void deleteForCurrentUser(@NonNull String threadId, @NonNull String messageId) {
 
         HashMap<String, Object> map = new HashMap<>();
-        map.put("notDeletedBy", FieldValue.arrayRemove(FirebaseAuth.getInstance().getUid()));
+        map.put("messages." + messageId + ".notDeletedBy", FieldValue.arrayRemove(FirebaseAuth.getInstance().getUid()));
 
-        db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document(messageId).update(map);
+        db.collection(THREAD_COLLECTION_NAME).document(threadId).update(map);
     }
 
-    public void startThreadSyncByThreadId(Activity activity, String threadId, EventListener<QuerySnapshot> eventListener) {
-
-        if (activity == null)
-            return;
-
-        db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).whereArrayContains("notDeletedBy", FirebaseAuth.getInstance().getUid()).addSnapshotListener(activity, eventListener);
-    }
-
-    public void startThreadDocSyncByThreadId(Activity activity, String threadId, EventListener<DocumentSnapshot> eventListener) {
+    public void startThreadSyncByThreadId(Activity activity, String threadId, EventListener<DocumentSnapshot> eventListener) {
 
         if (activity == null)
             return;
@@ -141,29 +138,12 @@ public class ThreadManager {
         db.collection(THREAD_COLLECTION_NAME).document(threadId).addSnapshotListener(activity, eventListener);
     }
 
-    public void syncAllThreadsByUserId(Activity activity, String userId, EventListener<QuerySnapshot> eventListener) {
+    public void startAllThreadsSyncByUserId(Activity activity, String userId, EventListener<QuerySnapshot> eventListener) {
 
         if (activity == null)
             return;
 
         db.collection(THREAD_COLLECTION_NAME).whereArrayContains("users", userId).addSnapshotListener(activity, eventListener);
-    }
-
-    public void startLastMessageSyncByTimestamp(Activity activity, String threadId, EventListener<QuerySnapshot> eventListener) {
-
-        if (activity == null)
-            return;
-
-        db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME)
-                .whereArrayContains("notDeletedBy", FirebaseAuth.getInstance().getUid())
-                .orderBy("timestamp", Query.Direction.DESCENDING)
-                .limit(1)
-                .addSnapshotListener(eventListener);
-    }
-
-    public void getMessageByMessageId(@NonNull String threadId, @NonNull String messageId, OnCompleteListener<DocumentSnapshot> onCompleteListener) {
-
-        db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(MESSAGE_COLLECTION_NAME).document(messageId).get().addOnCompleteListener(onCompleteListener);
     }
 
     public static String encryptMessage(String threadId, String message) {

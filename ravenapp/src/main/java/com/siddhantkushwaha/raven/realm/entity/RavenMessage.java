@@ -23,8 +23,6 @@ public class RavenMessage extends RealmObject {
     public String fileRef;
     @Nullable
     public String sentByUserId;
-    @Nullable
-    public RealmList<String> sentTo;
 
     // These are in JodaTime
     @Nullable
@@ -73,9 +71,9 @@ public class RavenMessage extends RealmObject {
     public boolean isSeenByAll() {
 
         boolean seenByAll = true;
-        if (sentTo != null && sentTo.size() > 0) {
-            for (String userId : sentTo) {
-                if (getSeenByUserId(userId) == null) {
+        if (notDeletedBy != null && notDeletedBy.size() > 0) {
+            for (String userId : notDeletedBy) {
+                if (getSeenByUserId(userId) == null && !userId.equals(sentByUserId)) {
                     seenByAll = false;
                     break;
                 }

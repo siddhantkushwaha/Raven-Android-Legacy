@@ -20,10 +20,12 @@ class RavenUserUtil {
         }
 
         @JvmStatic
-        fun setUser(realm: Realm, userId: String, userSnap: DocumentSnapshot?, e: FirebaseFirestoreException?, updateContactName: Boolean = false, contactName: String? = null) {
+        fun setUser(realm: Realm, performAsync: Boolean, userId: String, userSnap: DocumentSnapshot?, e: FirebaseFirestoreException?, updateContactName: Boolean = false, contactName: String? = null) {
+
+            e?.printStackTrace()
 
             val user = userSnap?.toObject(User::class.java)
-            realm.executeTransactionAsync { realmL ->
+            val transaction = Realm.Transaction { realmL ->
                 var ravenUser = realmL.where(RavenUser::class.java).equalTo("userId", userId).findFirst()
                 if (userSnap != null && userSnap.exists() && user != null) {
                     if (ravenUser == null) {
@@ -41,7 +43,11 @@ class RavenUserUtil {
                     ravenUser?.deleteFromRealm()
                 }
             }
-            e?.printStackTrace()
+
+            if (performAsync)
+                realm.executeTransactionAsync(transaction)
+            else
+                realm.executeTransaction(transaction)
         }
 
         @JvmStatic

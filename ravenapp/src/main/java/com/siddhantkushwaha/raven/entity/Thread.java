@@ -1,24 +1,18 @@
 package com.siddhantkushwaha.raven.entity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Thread {
 
-    private ThreadGroupDetails groupDetails;
     private ArrayList<String> users;
-    private ThreadBackground backgroundMetadata;
+    private HashMap<String, Message> messages;
 
+    private ThreadGroupDetails groupDetails;
+    private ThreadBackground backgroundMetadata;
 
     public Thread() {
 
-    }
-
-    public ThreadGroupDetails getGroupDetails() {
-        return groupDetails;
-    }
-
-    public void setGroupDetails(ThreadGroupDetails groupDetails) {
-        this.groupDetails = groupDetails;
     }
 
     public ArrayList<String> getUsers() {
@@ -27,6 +21,22 @@ public class Thread {
 
     public void setUsers(ArrayList<String> users) {
         this.users = users;
+    }
+
+    public HashMap<String, Message> getMessages() {
+        return messages;
+    }
+
+    public void setMessages(HashMap<String, Message> messages) {
+        this.messages = messages;
+    }
+
+    public ThreadGroupDetails getGroupDetails() {
+        return groupDetails;
+    }
+
+    public void setGroupDetails(ThreadGroupDetails groupDetails) {
+        this.groupDetails = groupDetails;
     }
 
     public ThreadBackground getBackgroundMetadata() {

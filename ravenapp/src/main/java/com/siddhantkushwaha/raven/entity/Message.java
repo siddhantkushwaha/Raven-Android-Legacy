@@ -15,7 +15,6 @@ public class Message {
     private String text;
     private String fileRef;
     private String sentByUserId;
-    private ArrayList<String> sentTo;
 
     private Timestamp sentTime;
 
@@ -52,14 +51,6 @@ public class Message {
 
     public String getSentByUserId() {
         return sentByUserId;
-    }
-
-    public void setSentTo(ArrayList<String> sentTo) {
-        this.sentTo = sentTo;
-    }
-
-    public ArrayList<String> getSentTo() {
-        return sentTo;
     }
 
     public void setSentTime(Timestamp sentTime) {

@@ -32,4 +32,9 @@ public class RavenUtils {
         else
             return GROUP;
     }
+
+    public static Boolean isGroup(@NonNull String threadId, @NonNull String userId) {
+
+        return !threadId.contains(userId);
+    }
 }

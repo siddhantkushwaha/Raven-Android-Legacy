@@ -9,13 +9,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
+import android.view.View;
 import android.widget.RemoteViews;
 
 import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.GlideApp;
+
+import java.util.ArrayList;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,49 +33,39 @@ public class NotificationSender {
 
     private Context context;
 
-    private Integer requestCode;
-
     private String channelId;
     private String channelName;
 
-    private Intent intent;
-    private String notificationId;
-    private String contentTitle;
-    private String contentText;
-
-    public NotificationSender(Context context, String notificationId, Integer requestCode, String contentTitle, String contentText, Intent intent) {
+    public NotificationSender(Context context) {
 
         this.context = context;
-        this.intent = intent;
 
         this.channelId = this.context.getString(R.string.default_channel_id);
         this.channelName = this.context.getString(R.string.default_channel_name);
-
-        this.requestCode = requestCode;
-        this.notificationId = notificationId;
-        this.contentTitle = contentTitle;
-        this.contentText = contentText;
     }
 
-    public static void cancelNotification(Context context, String notificationId, Integer id) {
-
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
-        if (notificationManager != null) {
-            notificationManager.cancel(notificationId, id);
-        }
-    }
-
-    public void sendNotificationWithReplyAction(String userId, String threadId, String picUrl) {
+    public void sendNotificationWithReplyAction(int requestCode, String threadId, String groupName, String userName, String picUrl, String messageText, boolean isGroup, ArrayList<String> users, Intent intent) {
 
         RemoteViews notificationLayout = new RemoteViews(context.getPackageName(), R.layout.layout_new_message_notification);
-        notificationLayout.setTextViewText(R.id.title, contentTitle);
-        notificationLayout.setTextViewText(R.id.message, contentText);
+
+        if (isGroup) {
+
+            notificationLayout.setTextViewText(R.id.title, groupName);
+
+            notificationLayout.setTextViewText(R.id.userName, userName);
+            notificationLayout.setViewVisibility(R.id.userName, View.VISIBLE);
+        } else {
+            notificationLayout.setTextViewText(R.id.title, userName);
+
+            notificationLayout.setViewVisibility(R.id.userName, View.GONE);
+        }
+
+        notificationLayout.setTextViewText(R.id.message, messageText);
 
         RequestOptions requestOptions = new RequestOptions();
         requestOptions.error(R.drawable.image_unknown_user_circle);
         requestOptions.placeholder(R.drawable.image_unknown_user_circle);
 
-        Log.i(NotificationSender.class.toString(), "HERE6");
         GlideApp.with(context)
                 .asBitmap()
                 .load(picUrl)
@@ -84,19 +76,19 @@ public class NotificationSender {
                     public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
 
                         notificationLayout.setImageViewBitmap(R.id.displayPic, resource);
-                        buildAndSend(notificationLayout, userId, threadId);
+                        buildAndSend(requestCode, threadId, users, notificationLayout, intent);
                     }
 
                     @Override
                     public void onLoadFailed(@Nullable Drawable errorDrawable) {
                         super.onLoadFailed(errorDrawable);
 
-                        buildAndSend(notificationLayout, userId, threadId);
+                        buildAndSend(requestCode, threadId, users, notificationLayout, intent);
                     }
                 });
     }
 
-    private void buildAndSend(RemoteViews notificationLayout, String userId, String threadId) {
+    private void buildAndSend(int requestCode, String threadId, ArrayList<String> users, RemoteViews notificationLayout, Intent intent) {
 
         PendingIntent pendingIntent = TaskStackBuilder.create(context)
                 .addNextIntentWithParentStack(intent)
@@ -117,8 +109,8 @@ public class NotificationSender {
             RemoteInput remoteInput = new RemoteInput.Builder(NotificationReceiver.NOTIFICATION_REPLY)
                     .setLabel(REPLY_LABEL).build();
 
-            Intent intent = NotificationReceiver.getIntent(context, threadId);
-            PendingIntent replyPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), requestCode, intent, PendingIntent.FLAG_ONE_SHOT);
+            Intent receiverIntent = NotificationReceiver.getIntent(context, threadId, users);
+            PendingIntent replyPendingIntent = PendingIntent.getBroadcast(context.getApplicationContext(), requestCode, receiverIntent, PendingIntent.FLAG_ONE_SHOT);
 
             NotificationCompat.Action action = new NotificationCompat.Action.Builder(R.drawable.button_send_message, REPLY_LABEL, replyPendingIntent)
                     .addRemoteInput(remoteInput).build();
@@ -134,6 +126,14 @@ public class NotificationSender {
             notificationManager.createNotificationChannel(notificationChannel);
         }
 
-        notificationManager.notify(notificationId, 0, newMessageNotification);
+        notificationManager.notify(threadId, 0, newMessageNotification);
+    }
+
+    public static void cancelNotification(Context context, String notificationId, Integer id) {
+
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+        if (notificationManager != null) {
+            notificationManager.cancel(notificationId, id);
+        }
     }
 }

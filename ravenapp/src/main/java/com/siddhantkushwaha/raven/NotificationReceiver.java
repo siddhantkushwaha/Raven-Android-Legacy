@@ -22,11 +22,11 @@ public class NotificationReceiver extends BroadcastReceiver {
     public static final String NOTIFICATION_REPLY = "NOTIFICATION_REPLY";
     public static final String THREAD_ID = "THREAD_ID";
 
-    public static Intent getIntent(@NonNull Context context, @NonNull String threadId) {
+    public static Intent getIntent(@NonNull Context context, @NonNull String threadId, @NonNull ArrayList<String> users) {
 
         Intent intent = new Intent(context, NotificationReceiver.class);
         intent.putExtra(THREAD_ID, threadId);
-
+        intent.putStringArrayListExtra("users", users);
         return intent;
     }
 
@@ -39,13 +39,10 @@ public class NotificationReceiver extends BroadcastReceiver {
         if (remoteInput != null) {
 
             String threadId = intent.getStringExtra(THREAD_ID);
+            ArrayList<String> users = intent.getStringArrayListExtra("users");
 
             String senderUid = FirebaseAuth.getInstance().getUid();
             if (senderUid == null)
-                return;
-
-            String userId = RavenUtils.getUserId(threadId, senderUid);
-            if (userId.equals(RavenUtils.GROUP))
                 return;
 
             CharSequence c = remoteInput.getCharSequence(NOTIFICATION_REPLY);
@@ -61,23 +58,13 @@ public class NotificationReceiver extends BroadcastReceiver {
             if (encryptedMessage == null)
                 return;
 
-            // TODO this is not for groups, change in future
-
-            ArrayList<String> notDeletedBy = new ArrayList<>();
-            ArrayList<String> sentTo = new ArrayList<>();
-
-            notDeletedBy.add(userId);
-            sentTo.add(userId);
-
-            notDeletedBy.add(senderUid);
-
             Message messageObject = new Message();
             messageObject.setText(encryptedMessage);
             messageObject.setSentByUserId(senderUid);
             messageObject.setSentTime(Timestamp.now());
-            messageObject.setNotDeletedBy(notDeletedBy);
-            messageObject.setSentTo(sentTo);
-            new ThreadManager().sendMessage(threadId, messageObject, userId);
+            messageObject.setNotDeletedBy(users);
+
+            new ThreadManager().sendMessage(threadId, messageObject, RavenUtils.isGroup(threadId, senderUid));
 
             NotificationSender.cancelNotification(context, threadId, 0);
         }

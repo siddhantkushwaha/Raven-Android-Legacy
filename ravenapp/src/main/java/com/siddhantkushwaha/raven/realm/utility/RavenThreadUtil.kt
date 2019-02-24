@@ -2,6 +2,7 @@ package com.siddhantkushwaha.raven.realm.utility
 
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestoreException
+import com.siddhantkushwaha.raven.entity.Message
 import com.siddhantkushwaha.raven.entity.Thread
 import com.siddhantkushwaha.raven.realm.entity.RavenMessage
 import com.siddhantkushwaha.raven.realm.entity.RavenThread
@@ -24,17 +25,20 @@ class RavenThreadUtil {
         }
 
         @JvmStatic
-        fun setThread(realm: Realm, threadId: String, userId: String, threadSnap: DocumentSnapshot? = null, e: FirebaseFirestoreException? = null) {
+        fun setThread(realm: Realm, performAsync: Boolean, threadId: String, userId: String, threadSnap: DocumentSnapshot? = null, e: FirebaseFirestoreException? = null) {
+
+            e?.printStackTrace()
 
             val thread = threadSnap?.toObject(Thread::class.java)
-            realm.executeTransactionAsync { realmL ->
+            val transaction = Realm.Transaction { realmL ->
                 var ravenThread = realmL.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
                 if (threadSnap != null && threadSnap.exists() && thread != null) {
                     if (ravenThread == null) {
                         ravenThread = RavenThread()
                         ravenThread.threadId = threadId
-                        ravenThread.userId = userId
                     }
+
+                    ravenThread.userId = userId
 
                     clone(ravenThread, thread)
                     addUsers(realmL, ravenThread, thread.users)
@@ -44,15 +48,19 @@ class RavenThreadUtil {
                     ravenThread?.deleteFromRealm()
                 }
             }
-            e?.printStackTrace()
+
+            if (performAsync)
+                realm.executeTransactionAsync(transaction)
+            else
+                realm.executeTransaction(transaction)
         }
 
         @JvmStatic
-        fun setLastMessage(realm: Realm, threadId: String, messageId: String = "NoMessage") {
+        fun setLastMessage(realm: Realm, performAsync: Boolean, threadId: String, messageId: String = "NoMessage") {
 
-            realm.executeTransactionAsync { realmL ->
+            val transaction = Realm.Transaction { realmL ->
                 val ravenThread = realmL.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
-                        ?: return@executeTransactionAsync
+                        ?: return@Transaction
                 var ravenMessage = realmL.where(RavenMessage::class.java).equalTo("messageId", messageId).findFirst()
 
                 if (messageId != "NoMessage" && ravenMessage == null) {
@@ -69,6 +77,11 @@ class RavenThreadUtil {
 
                 realmL.insertOrUpdate(ravenThread)
             }
+
+            if (performAsync)
+                realm.executeTransactionAsync(transaction)
+            else
+                realm.executeTransaction(transaction)
         }
 
         @JvmStatic
@@ -100,6 +113,21 @@ class RavenThreadUtil {
                 }
             }
 
+        }
+
+        @JvmStatic
+        fun getMessagesByUserId(userId: String, messages: HashMap<String, Message>?): Map<String, Message>? {
+            return messages?.filter { me ->
+                me.value.notDeletedBy.contains(userId)
+            }
+        }
+
+        @JvmStatic
+        fun findMostRecentMessage(userId: String, messages: HashMap<String, Message>?): MutableMap.MutableEntry<String, Message>? {
+
+            return messages?.entries?.sortedBy { me ->
+                me.value.timestamp
+            }?.findLast { me -> me.value.notDeletedBy.contains(userId) }
         }
     }
 }

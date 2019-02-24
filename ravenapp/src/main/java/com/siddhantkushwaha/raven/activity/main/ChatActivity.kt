@@ -18,10 +18,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
-import com.google.firebase.firestore.QuerySnapshot
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ImageUtil
 import com.siddhantkushwaha.raven.NotificationSender
@@ -90,9 +88,6 @@ class ChatActivity : AppCompatActivity() {
 
     private var thread: Thread? = null
     private lateinit var threadDocEventListener: EventListener<DocumentSnapshot>
-    private lateinit var threadEventListener: EventListener<QuerySnapshot>
-
-    private lateinit var allMessageDocIds: ObservableHashMap<String, DocumentSnapshot>
 
     private lateinit var realm: Realm
 
@@ -153,51 +148,31 @@ class ChatActivity : AppCompatActivity() {
 
         threadDocEventListener = EventListener { threadSnap, firebaseFirestoreException1 ->
 
-            RavenThreadUtil.setThread(realm, threadId, FirebaseAuth.getInstance().uid!!, threadSnap, firebaseFirestoreException1)
+            RavenThreadUtil.setThread(realm, true, threadId, FirebaseAuth.getInstance().uid!!, threadSnap, firebaseFirestoreException1)
 
             thread = threadSnap?.toObject(Thread::class.java)
-
-            Log.i(tag, threadSnap?.exists().toString())
 
             if (userId == RavenUtils.GROUP)
                 thread?.users?.forEach { userId ->
                     userManager.startUserSyncByUserId(this@ChatActivity, userId) { userSnap, firebaseFirestoreException2 ->
-                        RavenUserUtil.setUser(realm, userId, userSnap, firebaseFirestoreException2)
+                        RavenUserUtil.setUser(realm, true, userId, userSnap, firebaseFirestoreException2)
                     }
                 }
-        }
 
-        allMessageDocIds = ObservableHashMap(object : ObservableHashMap.OnDataChanged<String, DocumentSnapshot> {
-            override fun onDataAdded(key: String, value: DocumentSnapshot) {
-                RavenMessageUtil.setMessage(realm, threadId, key, value)
-            }
+            // TODO execute as async task
+            val messageList = RavenThreadUtil.getMessagesByUserId(FirebaseAuth.getInstance().uid!!, thread?.messages)
+            messageList?.forEach { me ->
 
-            override fun onDataRemoved(key: String) {
-                RavenMessageUtil.setMessage(realm, threadId, key)
-            }
-
-            override fun onDataChanged(data: HashMap<String, DocumentSnapshot>) {
-                // pass
-            }
-        })
-
-        threadEventListener = EventListener { querySnapshot, firebaseFirestoreException ->
-
-            querySnapshot?.documentChanges?.forEach { documentChange ->
-                when (documentChange.type) {
-                    DocumentChange.Type.ADDED, DocumentChange.Type.MODIFIED -> allMessageDocIds.add(documentChange.document.id, documentChange.document)
-                    DocumentChange.Type.REMOVED -> allMessageDocIds.remove(documentChange.document.id)
-                }
+                RavenMessageUtil.setMessage(realm, false, threadId, me.key, me.value, null)
             }
 
             if (::allMessages.isInitialized)
                 for (rm: RavenMessage in allMessages) {
-                    if (!allMessageDocIds.getData().contains(rm.messageId)) {
-                        RavenMessageUtil.setMessage(realm, threadId, rm.messageId)
+                    if (messageList?.containsKey(rm.messageId) != true) {
+                        RavenMessageUtil.setMessage(realm, false, threadId, rm.messageId, null, null)
                     }
                 }
-
-            firebaseFirestoreException?.printStackTrace()
+            // --------------------------------------
         }
 
         ravenThreadResult = realm.where(RavenThread::class.java).equalTo("threadId", threadId).findAllAsync()
@@ -359,12 +334,11 @@ class ChatActivity : AppCompatActivity() {
 
         NotificationSender.cancelNotification(this@ChatActivity, threadId, 0)
 
-        threadManager.startThreadSyncByThreadId(this@ChatActivity, threadId, threadEventListener)
-        threadManager.startThreadDocSyncByThreadId(this@ChatActivity, threadId, threadDocEventListener)
+        threadManager.startThreadSyncByThreadId(this@ChatActivity, threadId, threadDocEventListener)
 
         if (userId != RavenUtils.GROUP) {
             userManager.startUserSyncByUserId(this@ChatActivity, userId) { userSnap, firebaseFirestoreException ->
-                RavenUserUtil.setUser(realm, userId, userSnap, firebaseFirestoreException)
+                RavenUserUtil.setUser(realm, true, userId, userSnap, firebaseFirestoreException)
             }
         }
 
@@ -447,9 +421,8 @@ class ChatActivity : AppCompatActivity() {
             users = thread?.users ?: return
 
         message.notDeletedBy = users
-        message.sentTo = users.filterNot { it == FirebaseAuth.getInstance().uid } as ArrayList<String>
 
-        threadManager.sendMessage(threadId, message, userId)
+        threadManager.sendMessage(threadId, message, userId == RavenUtils.GROUP)
     }
 
     private fun handleCropResult(uri: Uri) {
