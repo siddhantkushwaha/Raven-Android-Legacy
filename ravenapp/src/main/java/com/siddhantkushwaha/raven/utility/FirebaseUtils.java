@@ -26,7 +26,7 @@ public class FirebaseUtils {
 
     public static FirebaseDatabase getRealtimeDb(Boolean persistenceEnabled) {
 
-        if(firebaseDatabase == null) {
+        if (firebaseDatabase == null) {
             firebaseDatabase = FirebaseDatabase.getInstance();
             firebaseDatabase.setPersistenceEnabled(persistenceEnabled);
         }

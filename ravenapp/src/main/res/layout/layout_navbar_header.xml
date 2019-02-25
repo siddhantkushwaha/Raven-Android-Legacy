@@ -6,13 +6,13 @@
 
     <ImageView
         android:layout_width="match_parent"
-        android:src="@drawable/logo_raven"
-        android:layout_height="100dp" />
+        android:layout_height="100dp"
+        android:src="@drawable/logo_raven" />
 
     <LinearLayout
-        android:background="#ededed"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="#ededed"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingTop="12dp"

@@ -17,35 +17,35 @@ public class UserProfile {
 
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getName() {
         return name;
     }
 
-    public void setAbout(String about) {
-        this.about = about;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getAbout() {
         return about;
     }
 
-    public void setPicUrl(String picUrl) {
-        this.picUrl = picUrl;
+    public void setAbout(String about) {
+        this.about = about;
     }
 
     public String getPicUrl() {
         return this.picUrl;
     }
 
-    public void setTimestamp(Timestamp timestamp) {
-        this.timestamp = timestamp;
+    public void setPicUrl(String picUrl) {
+        this.picUrl = picUrl;
     }
 
     public Timestamp getTimestamp() {
         return timestamp;
+    }
+
+    public void setTimestamp(Timestamp timestamp) {
+        this.timestamp = timestamp;
     }
 }

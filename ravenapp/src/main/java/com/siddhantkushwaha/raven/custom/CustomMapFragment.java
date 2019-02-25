@@ -2,12 +2,11 @@ package com.siddhantkushwaha.raven.custom;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.widget.FrameLayout;
-
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
 import com.google.android.gms.maps.SupportMapFragment;
 

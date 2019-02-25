@@ -6,9 +6,6 @@ import com.google.firebase.firestore.ServerTimestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 
 public class Message {
 
@@ -29,59 +26,59 @@ public class Message {
 
     }
 
-    public void setText(String text) {
-        this.text = text;
-    }
-
     public String getText() {
         return text;
     }
 
-    public void setFileRef(String fileRef) {
-        this.fileRef = fileRef;
+    public void setText(String text) {
+        this.text = text;
     }
 
     public String getFileRef() {
         return fileRef;
     }
 
-    public void setSentByUserId(String sentByUserId) {
-        this.sentByUserId = sentByUserId;
+    public void setFileRef(String fileRef) {
+        this.fileRef = fileRef;
     }
 
     public String getSentByUserId() {
         return sentByUserId;
     }
 
-    public void setSentTime(Timestamp sentTime) {
-        this.sentTime = sentTime;
+    public void setSentByUserId(String sentByUserId) {
+        this.sentByUserId = sentByUserId;
     }
 
     public Timestamp getSentTime() {
         return sentTime;
     }
 
-    public void setTimestamp(Timestamp timestamp) {
-        this.timestamp = timestamp;
+    public void setSentTime(Timestamp sentTime) {
+        this.sentTime = sentTime;
     }
 
     public Timestamp getTimestamp() {
         return timestamp;
     }
 
-    public void setSeenBy(HashMap<String, Timestamp> seenBy) {
-        this.seenBy = seenBy;
+    public void setTimestamp(Timestamp timestamp) {
+        this.timestamp = timestamp;
     }
 
     public HashMap<String, Timestamp> getSeenBy() {
         return seenBy;
     }
 
-    public void setNotDeletedBy(ArrayList<String> notDeletedBy) {
-        this.notDeletedBy = notDeletedBy;
+    public void setSeenBy(HashMap<String, Timestamp> seenBy) {
+        this.seenBy = seenBy;
     }
 
     public ArrayList<String> getNotDeletedBy() {
         return notDeletedBy;
+    }
+
+    public void setNotDeletedBy(ArrayList<String> notDeletedBy) {
+        this.notDeletedBy = notDeletedBy;
     }
 }

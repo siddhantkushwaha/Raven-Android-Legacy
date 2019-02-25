@@ -44,6 +44,14 @@ public class NotificationSender {
         this.channelName = this.context.getString(R.string.default_channel_name);
     }
 
+    public static void cancelNotification(Context context, String notificationId, Integer id) {
+
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
+        if (notificationManager != null) {
+            notificationManager.cancel(notificationId, id);
+        }
+    }
+
     public void sendNotificationWithReplyAction(int requestCode, String threadId, String groupName, String userName, String picUrl, String messageText, boolean isGroup, ArrayList<String> users, Intent intent) {
 
         RemoteViews notificationLayout = new RemoteViews(context.getPackageName(), R.layout.layout_new_message_notification);
@@ -127,13 +135,5 @@ public class NotificationSender {
         }
 
         notificationManager.notify(threadId, 0, newMessageNotification);
-    }
-
-    public static void cancelNotification(Context context, String notificationId, Integer id) {
-
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(NOTIFICATION_SERVICE);
-        if (notificationManager != null) {
-            notificationManager.cancel(notificationId, id);
-        }
     }
 }

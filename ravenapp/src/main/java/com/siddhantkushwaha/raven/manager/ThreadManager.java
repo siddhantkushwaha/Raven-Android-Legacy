@@ -41,6 +41,22 @@ public class ThreadManager {
         db = FirebaseUtils.getFirestoreDb(true);
     }
 
+    public static String encryptMessage(String threadId, String message) {
+
+        String encryptedMessage = null;
+        try {
+            encryptedMessage = AESNygma.encrypt(threadId, message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return encryptedMessage;
+    }
+
+    public static String decryptMessage(String threadId, String encryptedMessage) throws Exception {
+
+        return AESNygma.decrypt(threadId, encryptedMessage);
+    }
+
     public void sendMessage(@NonNull String threadId, @NonNull Message message, boolean isGroup) {
 
         DocumentReference messageRef = db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(KEY_MESSAGES).document();
@@ -144,22 +160,6 @@ public class ThreadManager {
             return;
 
         db.collection(THREAD_COLLECTION_NAME).whereArrayContains("users", userId).addSnapshotListener(activity, eventListener);
-    }
-
-    public static String encryptMessage(String threadId, String message) {
-
-        String encryptedMessage = null;
-        try {
-            encryptedMessage = AESNygma.encrypt(threadId, message);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return encryptedMessage;
-    }
-
-    public static String decryptMessage(String threadId, String encryptedMessage) throws Exception {
-
-        return AESNygma.decrypt(threadId, encryptedMessage);
     }
 
     public void changeThreadBackground(@NonNull String fileRef, @NonNull Float opacity, @NonNull String threadId, @NonNull String userId, OnCompleteListener<Void> onCompleteListener) {

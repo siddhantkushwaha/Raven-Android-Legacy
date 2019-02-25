@@ -66,7 +66,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var currentUserEventListener: EventListener<DocumentSnapshot>
     private lateinit var allThreadsFirestoreListener: EventListener<QuerySnapshot>
 
-    private val allThreadDocIds =  HashMap<String, DocumentSnapshot> ()
+    private val allThreadDocIds = HashMap<String, DocumentSnapshot>()
 
     private lateinit var realm: Realm
     private lateinit var allThreads: RealmResults<RavenThread>

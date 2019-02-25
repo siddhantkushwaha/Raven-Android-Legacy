@@ -112,6 +112,7 @@
                     android:textSize="18sp"
                     android:visibility="visible" />
             </LinearLayout>
+
             <ProgressBar
                 android:id="@+id/progressBar"
                 style="?android:attr/progressBarStyleHorizontal"

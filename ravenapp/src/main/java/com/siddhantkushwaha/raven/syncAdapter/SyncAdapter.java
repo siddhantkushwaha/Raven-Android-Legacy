@@ -44,12 +44,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         Crashlytics.setUserName(FirebaseAuth.getInstance().getUid());
     }
 
-    @Override
-    public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-
-        syncContacts(context);
-    }
-
     public static void syncContacts(Context context) {
 
         Realm realm = RealmUtil.getCustomRealmInstance(context);
@@ -84,5 +78,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     RavenUserUtil.deleteByPhoneNumber(realm, false, contact.getKey());
             });
         }
+    }
+
+    @Override
+    public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
+
+        syncContacts(context);
     }
 }

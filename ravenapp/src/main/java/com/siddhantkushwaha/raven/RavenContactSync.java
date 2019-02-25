@@ -26,25 +26,6 @@ public class RavenContactSync {
 //     TODO PERIODIC SYNC
 //     public static final long SYNC_INTERVAL = 60L;
 
-    public class TableObserver extends ContentObserver {
-
-        TableObserver(Handler handler) {
-            super(handler);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-
-            onChange(selfChange, null);
-        }
-
-        @Override
-        public void onChange(boolean selfChange, Uri changeUri) {
-
-            ContentResolver.requestSync(mAccount, AUTHORITY, Bundle.EMPTY);
-        }
-    }
-
     public static Account CreateSyncAccount(Context context) {
 
         Account newAccount = new Account(ACCOUNT, ACCOUNT_TYPE);
@@ -78,5 +59,24 @@ public class RavenContactSync {
     public static void reSync(Context context) {
 
         ContentResolver.requestSync(CreateSyncAccount(context), AUTHORITY, Bundle.EMPTY);
+    }
+
+    public class TableObserver extends ContentObserver {
+
+        TableObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+
+            onChange(selfChange, null);
+        }
+
+        @Override
+        public void onChange(boolean selfChange, Uri changeUri) {
+
+            ContentResolver.requestSync(mAccount, AUTHORITY, Bundle.EMPTY);
+        }
     }
 }

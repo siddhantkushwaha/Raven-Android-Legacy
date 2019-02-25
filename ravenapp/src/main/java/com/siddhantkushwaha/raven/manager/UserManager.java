@@ -24,22 +24,15 @@ import androidx.annotation.NonNull;
 
 public class UserManager {
 
-    private static String TAG = "USER_MANAGER";
-
     public static final String KEY_PHONE = "phoneNumber";
     public static final String PRETTY_PHONE = "Phone Number";
-
     public static final String KEY_USER_ID = "userId";
-
     public static final String KEY_NAME = "userProfile.name";
     public static final String PRETTY_NAME = "Name";
-
     public static final String KEY_ABOUT = "userProfile.about";
     public static final String PRETTY_ABOUT = "About";
-
     public static final String KEY_PROFILE_PIC = "userProfile.picUrl";
     public static final String PRETTY_PROFILE_PIC = "Profile Picture";
-
     public static final String KEY_LOCATION = "userLocation";
     public static final String PRETTY_LOCATION = "Location";
     public static final String KEY_LOCATION_PRIVACY = "userLocation.privacyStatus";
@@ -48,15 +41,13 @@ public class UserManager {
     public static final String KEY_LOCATION_TIMESTAMP = "userLocation.timestamp";
     public static final String KEY_LOCATION_LATITUDE = "userLocation.latitude";
     public static final String KEY_LOCATION_LONGITUDE = "userLocation.longitude";
-
     public static final String KEY_USER_PRESENCE_ONLINE = "userPresence.online";
     public static final String KEY_USER_PRESENCE_LAST_SEEN = "userPresence.lastSeen";
-
     public static final String ENUM_USER_PRIVACY_PUBLIC = "PUBLIC";
     public static final String ENUM_USER_PRIVACY_CONTACTS = "CONTACTS";
     public static final String ENUM_USER_PRIVACY_NONE = "NONE";
-
     private static final String COLLECTION_NAME = "users";
+    private static String TAG = "USER_MANAGER";
     private FirebaseFirestore db;
 
     /* start ==> default functions */

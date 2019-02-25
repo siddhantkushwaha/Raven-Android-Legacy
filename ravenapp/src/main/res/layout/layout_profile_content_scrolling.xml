@@ -64,9 +64,9 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingRight="12dp"
                     android:paddingStart="12dp"
                     android:paddingTop="12dp"
+                    android:paddingRight="12dp"
                     android:text="Location"
                     android:textColor="@color/colorPrimary"
                     android:textSize="18sp" />
@@ -91,20 +91,20 @@
                         android:id="@+id/myLocationButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
                         android:layout_alignParentEnd="true"
-                        android:layout_marginBottom="12dp"
+                        android:layout_alignParentBottom="true"
                         android:layout_marginEnd="12dp"
+                        android:layout_marginBottom="12dp"
                         android:src="@drawable/button_my_location" />
 
                 </RelativeLayout>
 
 
                 <LinearLayout
-                    android:orientation="horizontal"
                     android:layout_width="match_parent"
-                    android:gravity="center_vertical"
                     android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
                     android:padding="12dp">
 
                     <TextView

@@ -9,10 +9,6 @@ public class FirebaseStorageUtil {
 
     private static final String prefix = "gs://raven-f6b32.appspot.com/";
 
-    public interface OnComplete {
-        void onComplete(String uri);
-    }
-
     public static void getDownloadUrl(Context context, String fileRef, OnComplete onComplete) {
 
         String url = LocalStorage.get(context, "fileUrl", fileRef);
@@ -34,5 +30,9 @@ public class FirebaseStorageUtil {
 
     public static void deleteFile(String fileRef) {
         FirebaseStorage.getInstance().getReference(fileRef.replace(prefix, "")).delete();
+    }
+
+    public interface OnComplete {
+        void onComplete(String uri);
     }
 }

@@ -1,11 +1,11 @@
 package com.siddhantkushwaha.raven.custom;
 
+import android.util.Base64;
+
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import android.util.Base64;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -21,6 +21,10 @@ public class AESNygma {
     private static final String HASH_ALGORITHM = "SHA-256";
 
     private static final byte[] ivBytes = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+    private AESNygma() {
+
+    }
 
     public static void main(String[] args) {
         try {
@@ -52,7 +56,6 @@ public class AESNygma {
         return new SecretKeySpec(key, "AES");
     }
 
-
     /**
      * Encrypt and encode message using 256-bit AES with key generated from password.
      *
@@ -75,7 +78,6 @@ public class AESNygma {
         }
     }
 
-
     /**
      * More flexible AES encrypt that doesn't encode
      *
@@ -92,7 +94,6 @@ public class AESNygma {
         cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
         return cipher.doFinal(message);
     }
-
 
     /**
      * Decrypt and decode ciphertext using 256-bit AES with key generated from password
@@ -115,7 +116,6 @@ public class AESNygma {
         }
     }
 
-
     /**
      * More flexible AES decrypt that doesn't encode
      *
@@ -131,10 +131,5 @@ public class AESNygma {
         IvParameterSpec ivSpec = new IvParameterSpec(iv);
         cipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
         return cipher.doFinal(decodedCipherText);
-    }
-
-
-    private AESNygma() {
-
     }
 }

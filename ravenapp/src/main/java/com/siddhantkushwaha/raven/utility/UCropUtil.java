@@ -14,7 +14,7 @@ import androidx.core.content.ContextCompat;
 
 public class UCropUtil {
 
-    public static void startCrop (@NonNull Activity activity, @NonNull Uri uri) {
+    public static void startCrop(@NonNull Activity activity, @NonNull Uri uri) {
 
         UCrop uCrop = UCrop.of(uri, Uri.fromFile(new File(activity.getCacheDir(), "file_to_send.png")));
         uCrop.withMaxResultSize(1024, 1024);

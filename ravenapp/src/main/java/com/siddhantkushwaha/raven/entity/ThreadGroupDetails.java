@@ -9,19 +9,19 @@ public class ThreadGroupDetails {
 
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getName() {
         return name;
     }
 
-    public void setPicUrl(String picUrl) {
-        this.picUrl = picUrl;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getPicUrl() {
         return picUrl;
+    }
+
+    public void setPicUrl(String picUrl) {
+        this.picUrl = picUrl;
     }
 }
