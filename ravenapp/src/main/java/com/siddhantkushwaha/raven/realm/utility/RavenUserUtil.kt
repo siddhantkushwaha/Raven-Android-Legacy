@@ -51,11 +51,16 @@ class RavenUserUtil {
         }
 
         @JvmStatic
-        fun deleteByPhoneNumber(realm: Realm, phoneNumber: String) {
+        fun deleteByPhoneNumber(realm: Realm, performAsync: Boolean, phoneNumber: String) {
 
-            realm.executeTransactionAsync {
+            val transaction = Realm.Transaction {
                 it.where(RavenUser::class.java).equalTo("phoneNumber", phoneNumber).findAll().deleteAllFromRealm()
             }
+
+            if (performAsync)
+                realm.executeTransactionAsync(transaction)
+            else
+                realm.executeTransaction(transaction)
         }
     }
 }

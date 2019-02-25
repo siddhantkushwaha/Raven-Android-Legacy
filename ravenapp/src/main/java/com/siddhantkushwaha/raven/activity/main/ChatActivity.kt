@@ -45,7 +45,6 @@ import io.realm.Realm
 import io.realm.RealmResults
 import io.realm.Sort
 import kotlinx.android.synthetic.main.activity_chat.*
-import java.util.*
 
 class ChatActivity : AppCompatActivity() {
 
@@ -148,7 +147,9 @@ class ChatActivity : AppCompatActivity() {
 
         threadDocEventListener = EventListener { threadSnap, firebaseFirestoreException1 ->
 
-            RavenThreadUtil.setThread(realm, true, threadId, FirebaseAuth.getInstance().uid!!, threadSnap, firebaseFirestoreException1)
+            firebaseFirestoreException1?.printStackTrace()
+
+            RavenThreadUtil.setThread(realm, true, threadId, FirebaseAuth.getInstance().uid!!, threadSnap)
 
             thread = threadSnap?.toObject(Thread::class.java)
 
@@ -163,13 +164,13 @@ class ChatActivity : AppCompatActivity() {
             val messageList = RavenThreadUtil.getMessagesByUserId(FirebaseAuth.getInstance().uid!!, thread?.messages)
             messageList?.forEach { me ->
 
-                RavenMessageUtil.setMessage(realm, false, threadId, me.key, me.value, null)
+                RavenMessageUtil.setMessage(realm, false, threadId, me.key, me.value)
             }
 
             if (::allMessages.isInitialized)
                 for (rm: RavenMessage in allMessages) {
                     if (messageList?.containsKey(rm.messageId) != true) {
-                        RavenMessageUtil.setMessage(realm, false, threadId, rm.messageId, null, null)
+                        RavenMessageUtil.setMessage(realm, false, threadId, rm.messageId, null)
                     }
                 }
             // --------------------------------------

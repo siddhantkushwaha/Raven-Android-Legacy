@@ -31,7 +31,10 @@ import com.siddhantkushwaha.raven.realm.entity.RavenThread
 import com.siddhantkushwaha.raven.realm.utility.RavenMessageUtil
 import com.siddhantkushwaha.raven.realm.utility.RavenThreadUtil
 import com.siddhantkushwaha.raven.realm.utility.RavenUserUtil
-import com.siddhantkushwaha.raven.utility.*
+import com.siddhantkushwaha.raven.utility.Common
+import com.siddhantkushwaha.raven.utility.FirebaseUtils
+import com.siddhantkushwaha.raven.utility.GlideUtilV2
+import com.siddhantkushwaha.raven.utility.RealmUtil
 import io.realm.OrderedRealmCollectionChangeListener
 import io.realm.Realm
 import io.realm.RealmResults
@@ -63,7 +66,7 @@ class HomeActivity : AppCompatActivity() {
     private lateinit var currentUserEventListener: EventListener<DocumentSnapshot>
     private lateinit var allThreadsFirestoreListener: EventListener<QuerySnapshot>
 
-    private lateinit var allThreadDocIds: ObservableHashMap<String, DocumentSnapshot>
+    private val allThreadDocIds =  HashMap<String, DocumentSnapshot> ()
 
     private lateinit var realm: Realm
     private lateinit var allThreads: RealmResults<RavenThread>
@@ -130,43 +133,9 @@ class HomeActivity : AppCompatActivity() {
             */
         }
 
-        allThreadDocIds = ObservableHashMap(object : ObservableHashMap.OnDataChanged<String, DocumentSnapshot> {
-            override fun onDataAdded(key: String, value: DocumentSnapshot) {
-
-                RavenThreadUtil.setThread(realm, true, key, FirebaseAuth.getInstance().uid!!, value)
-
-                val thread = value.toObject(Thread::class.java)
-                val users: ArrayList<String>? = thread?.users
-
-                if (thread?.groupDetails == null && users != null && users.size == 2) {
-                    var anotherUserId = users[0]
-                    if (users[0] == FirebaseAuth.getInstance().uid)
-                        anotherUserId = users[1]
-                    userManager.startUserSyncByUserId(this@HomeActivity, anotherUserId) { documentSnapshot, firebaseFirestoreException ->
-                        RavenUserUtil.setUser(realm, true, anotherUserId, documentSnapshot, firebaseFirestoreException)
-                    }
-                }
-
-                val lm = RavenThreadUtil.findMostRecentMessage(FirebaseAuth.getInstance().uid!!, thread?.messages)
-                if (lm != null) {
-                    RavenMessageUtil.setMessage(realm, true, key, lm.key, lm.value, null)
-                    RavenThreadUtil.setLastMessage(realm, true, key, lm.key)
-                } else {
-                    RavenThreadUtil.setLastMessage(realm, true, key)
-                }
-            }
-
-            override fun onDataRemoved(key: String) {
-                RavenThreadUtil.setThread(realm, true, key, FirebaseAuth.getInstance().uid!!)
-            }
-
-            override fun onDataChanged(data: HashMap<String, DocumentSnapshot>) {
-                // pass
-            }
-
-        })
-
         allThreadsFirestoreListener = EventListener { t, firebaseFirestoreException ->
+
+            firebaseFirestoreException?.printStackTrace()
 
             t?.documentChanges?.forEach {
 
@@ -174,17 +143,44 @@ class HomeActivity : AppCompatActivity() {
                 val threadId = threadSnap.id
 
                 when (it.type) {
-                    DocumentChange.Type.ADDED, DocumentChange.Type.MODIFIED -> allThreadDocIds.add(threadId, threadSnap)
-                    DocumentChange.Type.REMOVED -> allThreadDocIds.remove(threadId)
+                    DocumentChange.Type.ADDED, DocumentChange.Type.MODIFIED -> {
+
+                        RavenThreadUtil.setThread(realm, false, threadId, FirebaseAuth.getInstance().uid!!, threadSnap)
+
+                        val thread = threadSnap.toObject(Thread::class.java)
+                        val users: ArrayList<String>? = thread?.users
+
+                        if (thread?.groupDetails == null && users != null && users.size == 2) {
+                            var anotherUserId = users[0]
+                            if (users[0] == FirebaseAuth.getInstance().uid)
+                                anotherUserId = users[1]
+                            userManager.startUserSyncByUserId(this@HomeActivity, anotherUserId) { documentSnapshot, firebaseFirestoreException ->
+                                RavenUserUtil.setUser(realm, false, anotherUserId, documentSnapshot, firebaseFirestoreException)
+                            }
+                        }
+
+                        val lm = RavenThreadUtil.findMostRecentMessage(FirebaseAuth.getInstance().uid!!, thread?.messages)
+                        if (lm != null) {
+                            RavenMessageUtil.setMessage(realm, false, threadId, lm.key, lm.value, null)
+                            RavenThreadUtil.setLastMessage(realm, false, threadId, lm.key)
+                        } else {
+                            RavenThreadUtil.setLastMessage(realm, false, threadId)
+                        }
+
+                        allThreadDocIds[threadId] = threadSnap
+                    }
+
+                    DocumentChange.Type.REMOVED -> {
+                        RavenThreadUtil.setThread(realm, false, threadId, FirebaseAuth.getInstance().uid!!)
+                        allThreadDocIds.remove(threadId)
+                    }
                 }
             }
 
-            firebaseFirestoreException?.printStackTrace()
-
             if (::allThreads.isInitialized)
                 for (rt in allThreads) {
-                    if (!allThreadDocIds.getData().containsKey(rt.threadId))
-                        RavenThreadUtil.setThread(realm, true, rt.threadId, FirebaseAuth.getInstance().uid!!)
+                    if (!allThreadDocIds.containsKey(rt.threadId))
+                        RavenThreadUtil.setThread(realm, false, rt.threadId, FirebaseAuth.getInstance().uid!!)
                 }
         }
 

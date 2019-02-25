@@ -79,9 +79,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     DocumentSnapshot documentSnapshot = querySnapshot.getDocuments().get(0);
                     String userId = documentSnapshot.getId();
 
-                    RavenUserUtil.setUser(realm, true, userId, documentSnapshot, null, true, contact.getValue());
+                    RavenUserUtil.setUser(realm, false, userId, documentSnapshot, null, true, contact.getValue());
                 } else
-                    RavenUserUtil.deleteByPhoneNumber(realm, contact.getKey());
+                    RavenUserUtil.deleteByPhoneNumber(realm, false, contact.getKey());
             });
         }
     }
