@@ -2,7 +2,6 @@ package com.siddhantkushwaha.raven.adapter
 
 import android.content.Context
 import android.content.res.ColorStateList
-import android.graphics.Bitmap
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
@@ -11,9 +10,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.SimpleTarget
-import com.bumptech.glide.request.transition.Transition
 import com.google.firebase.auth.FirebaseAuth
 import com.siddhantkushwaha.nuttertools.JodaTimeUtil
 import com.siddhantkushwaha.raven.R
@@ -117,7 +113,7 @@ class MessageAdapter(private val context: Context, private val ravenThreadResult
             val text: TextView = itemView.findViewById(R.id.text)
             val time: TextView = itemView.findViewById(R.id.time)
 
-            messageAdapter.setImage(image, text, ravenMessage.fileRef)
+            messageAdapter.setImage(image, ravenMessage.fileRef)
 
             if (ravenMessage.text != null) {
                 text.visibility = View.VISIBLE
@@ -160,7 +156,7 @@ class MessageAdapter(private val context: Context, private val ravenThreadResult
 
             messageAdapter.setName(name, ravenMessage.sentByUserId)
 
-            messageAdapter.setImage(image, text, ravenMessage.fileRef)
+            messageAdapter.setImage(image, ravenMessage.fileRef)
 
             if (ravenMessage.text != null) {
                 body.visibility = View.VISIBLE
@@ -211,22 +207,12 @@ class MessageAdapter(private val context: Context, private val ravenThreadResult
         }
     }
 
-    fun setImage(imageView: ImageView, text: TextView, fileRef: String?) {
+    fun setImage(imageView: ImageView, fileRef: String?) {
 
+        imageView.setImageDrawable(context.getDrawable(R.drawable.hourglass))
         if (fileRef != null)
             FirebaseStorageUtil.getDownloadUrl(context, fileRef) { url ->
-                GlideUtilV2.loadImageAsBitmap(context, url, RequestOptions(), object : SimpleTarget<Bitmap>() {
-                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                        imageView.setImageBitmap(resource)
-                        /*Palette.from(resource).generate {
-                                    val swatch = it?.darkVibrantSwatch
-                                    if (swatch != null)
-                                        text.backgroundTintList = Common.getColorStateList(swatch.rgb)
-                                    else
-                                        text.backgroundTintList = null
-                                }*/
-                    }
-                })
+                GlideUtilV2.loadImageInChat(context, url, imageView)
             }
     }
 

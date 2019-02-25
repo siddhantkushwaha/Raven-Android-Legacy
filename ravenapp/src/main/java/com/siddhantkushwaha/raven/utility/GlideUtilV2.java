@@ -59,7 +59,7 @@ public class GlideUtilV2 extends GlideUtil {
                 .load(uri)
                 .apply(new RequestOptions().placeholder(R.drawable.hourglass))
                 .apply(new RequestOptions().error(R.drawable.bug))
-                .transforms(new CenterCrop(), new RoundedCorners(72))
+                .transforms(new CenterCrop(), new RoundedCorners(24))
                 .into(imageView);
     }
 }
