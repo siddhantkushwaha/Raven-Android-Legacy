@@ -253,7 +253,7 @@ class MessageAdapter(private val context: Context, private val ravenThreadResult
 
     fun setMessageText(text: TextView, encryptedText: String?, body: LinearLayout? = null) {
 
-        val colorStateList = Common.getColorStateList(Color.rgb(220, 0, 0))
+        val colorStateList = Common.getColorStateList(Color.rgb(163, 163, 163))
         val ravenThread = ravenThreadResult.first(null)
         if (ravenThread != null) {
             try {
@@ -285,7 +285,7 @@ class MessageAdapter(private val context: Context, private val ravenThreadResult
             if (seenByAll != null) {
                 if (seenByAll) {
                     time.setTextColor(Color.BLACK)
-                    time.backgroundTintList = Common.getColorStateList(Color.rgb(0, 220, 0))
+                    time.backgroundTintList = Common.getColorStateList(Color.rgb(113, 255, 146))
                 } else {
                     time.setTextColor(Color.WHITE)
                     time.backgroundTintList = null

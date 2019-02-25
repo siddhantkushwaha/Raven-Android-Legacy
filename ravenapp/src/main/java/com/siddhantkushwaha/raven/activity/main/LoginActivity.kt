@@ -131,7 +131,6 @@ class LoginActivity : AppCompatActivity() {
         }
         verify.setOnClickListener {
             verifyOtp()
-            updateActivityState(activityStateVerifyingCode)
         }
         wrongPhone.setOnClickListener {
             updateActivityState(activityStateEnterPhone)
@@ -221,9 +220,9 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun verifyOtp() {
-        if (phoneVerificationId != null) {
-            signIn(PhoneAuthProvider.getCredential(phoneVerificationId.toString(), otp.text?.toString()
-                    ?: ""))
+        if (phoneVerificationId != null && otp.text.isNotBlank()) {
+            updateActivityState(activityStateVerifyingCode)
+            signIn(PhoneAuthProvider.getCredential(phoneVerificationId.toString(), otp.text.toString()))
         } else {
             updateActivityState(activityStateCodeVerificationFailed)
         }

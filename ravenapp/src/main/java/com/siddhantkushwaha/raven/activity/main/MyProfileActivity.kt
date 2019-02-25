@@ -287,10 +287,10 @@ class MyProfileActivity : AppCompatActivity() {
 
         val map = HashMap<String, Any>()
 
-        if (nameEditText.text.toString() != user?.userProfile?.name)
+        if (nameEditText.text.toString() != user?.userProfile?.name && nameEditText.text.isNotBlank())
             map[UserManager.KEY_NAME] = nameEditText.text.toString()
 
-        if (aboutEditText.text.toString() != user?.userProfile?.about)
+        if (aboutEditText.text.toString() != user?.userProfile?.about && nameEditText.text.isNotBlank())
             map[UserManager.KEY_ABOUT] = aboutEditText.text.toString()
 
         if (map.isNotEmpty())
