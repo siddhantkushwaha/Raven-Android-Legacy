@@ -1,51 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:clipToPadding="false"
-    android:paddingBottom="2dp">
+    android:orientation="vertical">
 
-    <ImageView
-        android:id="@+id/image"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:outlineProvider="bounds"
-        android:scaleType="centerCrop"
-        android:src="@color/colorGrey"
-        android:translationZ="4dp" />
-
-    <TextView
-        android:id="@+id/text"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/image"
-        android:layout_alignEnd="@+id/image"
-        android:layout_marginStart="120dp"
-        android:layout_marginTop="-4dp"
-        android:layout_marginEnd="8dp"
-        android:background="@drawable/message_holder_common"
-        android:padding="12dp"
-        android:text="Hey there."
-        android:textColor="@color/colorWhite"
-        android:textSize="16sp"
-        android:translationZ="2dp" />
+        android:clipToPadding="false"
+        android:paddingBottom="2dp">
 
-    <TextView
-        android:id="@+id/time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/image"
-        android:layout_marginTop="112dp"
-        android:layout_marginEnd="-33dp"
-        android:layout_toStartOf="@+id/image"
-        android:background="@drawable/message_holder_common"
-        android:padding="6dp"
-        android:text="11:40 PM"
-        android:textColor="@color/colorWhite"
-        android:textSize="12sp"
-        android:translationZ="6dp" />
-</RelativeLayout>
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:outlineProvider="bounds"
+            android:scaleType="centerCrop"
+            android:src="@color/colorGrey"
+            android:translationZ="4dp" />
+
+        <TextView
+            android:id="@+id/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/image"
+            android:layout_alignEnd="@+id/image"
+            android:layout_marginStart="120dp"
+            android:layout_marginTop="-4dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/message_holder_common"
+            android:padding="12dp"
+            android:text="Hey there."
+            android:textColor="@color/colorWhite"
+            android:textSize="16sp"
+            android:translationZ="2dp" />
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/image"
+            android:layout_marginTop="112dp"
+            android:layout_marginEnd="-33dp"
+            android:layout_toStartOf="@+id/image"
+            android:background="@drawable/message_holder_common"
+            android:padding="6dp"
+            android:text="11:40 PM"
+            android:textColor="@color/colorWhite"
+            android:textSize="12sp"
+            android:translationZ="6dp" />
+    </RelativeLayout>
+</LinearLayout>

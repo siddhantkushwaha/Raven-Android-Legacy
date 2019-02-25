@@ -1,72 +1,80 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:clipToPadding="false"
-    android:paddingBottom="2dp">
+    android:orientation="vertical">
 
-    <ImageView
-        android:id="@+id/image"
-        android:layout_width="250dp"
-        android:layout_height="250dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:outlineProvider="bounds"
-        android:scaleType="centerCrop"
-        android:src="@color/colorGreyDark"
-        android:translationZ="4dp" />
-
-    <LinearLayout
-        android:id="@+id/body"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/image"
-        android:layout_alignStart="@+id/image"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="-4dp"
-        android:layout_marginEnd="120dp"
-        android:background="@drawable/message_holder_common"
-        android:backgroundTint="@color/colorWhite"
-        android:orientation="vertical"
-        android:padding="12dp"
-        android:translationZ="2dp">
+        android:clipToPadding="false"
+        android:paddingBottom="2dp">
 
-        <TextView
-            android:id="@+id/name"
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:outlineProvider="bounds"
+            android:scaleType="centerCrop"
+            android:src="@color/colorGreyDark"
+            android:translationZ="4dp" />
+
+        <LinearLayout
+            android:id="@+id/body"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:lines="1"
-            android:text="@string/default_name"
-            android:textColor="@color/colorRed"
-            android:textSize="12sp"
-            android:textStyle="bold"
-            android:visibility="visible" />
+            android:layout_below="@+id/image"
+            android:layout_alignStart="@+id/image"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="-4dp"
+            android:layout_marginEnd="120dp"
+            android:background="@drawable/message_holder_common"
+            android:backgroundTint="@color/colorWhite"
+            android:orientation="vertical"
+            android:padding="12dp"
+            android:translationZ="2dp">
+
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:lines="1"
+                android:text="@string/default_name"
+                android:textColor="@color/colorRed"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hey there."
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp"
+                android:visibility="visible" />
+        </LinearLayout>
 
         <TextView
-            android:id="@+id/text"
+            android:id="@+id/time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hey there."
+            android:layout_alignTop="@+id/image"
+            android:layout_marginStart="-33dp"
+            android:layout_marginTop="112dp"
+            android:layout_toEndOf="@+id/image"
+            android:background="@drawable/message_holder_common"
+            android:backgroundTint="@color/colorWhite"
+            android:padding="6dp"
+            android:text="11:40 PM"
             android:textColor="@color/colorBlack"
-            android:textSize="16sp" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/image"
-        android:layout_marginStart="-33dp"
-        android:layout_marginTop="112dp"
-        android:layout_toEndOf="@+id/image"
-        android:background="@drawable/message_holder_common"
-        android:backgroundTint="@color/colorWhite"
-        android:padding="6dp"
-        android:text="11:40 PM"
-        android:textColor="@color/colorBlack"
-        android:textSize="12sp"
-        android:translationZ="6dp" />
-</RelativeLayout>
+            android:textSize="12sp"
+            android:translationZ="6dp" />
+    </RelativeLayout>
+</LinearLayout>

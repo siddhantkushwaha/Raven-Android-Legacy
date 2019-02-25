@@ -213,15 +213,6 @@ class HomeActivity : AppCompatActivity() {
                         ?: return@setOnItemLongClickListener true
 
                 val doc = FirebaseUtils.getFirestoreDb(true).collection("threads").document(threadId)
-
-                doc.collection("messages").get().addOnCompleteListener {
-                    if (it.isSuccessful) {
-                        it.result?.documents?.forEach { sn ->
-                            sn.reference.delete()
-                        }
-                    }
-                }
-
                 doc.delete()
             }
 

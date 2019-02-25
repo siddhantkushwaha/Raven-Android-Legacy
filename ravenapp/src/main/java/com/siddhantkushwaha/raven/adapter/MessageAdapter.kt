@@ -15,6 +15,7 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.firebase.auth.FirebaseAuth
+import com.siddhantkushwaha.nuttertools.JodaTimeUtil
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.realm.entity.RavenMessage
@@ -25,6 +26,7 @@ import com.siddhantkushwaha.raven.utility.GlideUtilV2
 import io.realm.OrderedRealmCollection
 import io.realm.RealmRecyclerViewAdapter
 import io.realm.RealmResults
+import kotlinx.android.synthetic.main.layout_message_banner.view.*
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import java.security.GeneralSecurityException
@@ -34,6 +36,7 @@ import kotlin.collections.HashMap
 class MessageAdapter(private val context: Context, private val ravenThreadResult: RealmResults<RavenThread>, data: OrderedRealmCollection<RavenMessage>, autoUpdate: Boolean, private val onClickListener: OnClickListener) : RealmRecyclerViewAdapter<RavenMessage, RecyclerView.ViewHolder>(data, autoUpdate) {
 
     private val colorsForUsers = HashMap<String, Int>()
+    private val timeBanner = HashMap<String, String>()
 
     override fun getItemViewType(position: Int): Int {
         return data!![position].getMessageType(FirebaseAuth.getInstance().uid!!)
@@ -72,6 +75,18 @@ class MessageAdapter(private val context: Context, private val ravenThreadResult
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
 
         val ravenMessage = data?.get(position)!!
+        val curTime = ravenMessage.timestamp ?: ravenMessage.localTimestamp
+
+        if (curTime != null && position == 0) {
+            timeBanner[ravenMessage.messageId] = curTime
+        } else {
+            val rvp = data?.get(position - 1)!!
+            val preTime = rvp.timestamp ?: rvp.localTimestamp
+            if (curTime != null && preTime != null)
+                if (JodaTimeUtil.dateCmp(DateTime.parse(curTime), DateTime.parse(preTime)) != 0)
+                    timeBanner[ravenMessage.messageId] = curTime
+        }
+
         when (holder.itemViewType) {
 
             1 -> (holder as SentMessageViewHolder).bind(ravenMessage)
@@ -166,6 +181,31 @@ class MessageAdapter(private val context: Context, private val ravenThreadResult
             itemView.setBackgroundResource(R.color.colorMessageSelected)
         else
             itemView.setBackgroundResource(android.R.color.transparent)
+
+        setTimeBanner(ravenMessage.messageId, itemView)
+    }
+
+    private fun setTimeBanner(messageId: String, itemView: View) {
+
+        val timeText = timeBanner[messageId]
+
+        val insertPoint = itemView.findViewById(R.id.root) as ViewGroup
+        val banner = insertPoint.findViewById<View>(R.id.banner)
+
+        if (timeText != null) {
+            val text = DateTimeFormat.forPattern("MMMM dd, yyyy").print(DateTime.parse(timeText))
+            if (banner != null) {
+                banner.visibility = View.VISIBLE
+                banner.banner.text = text
+            } else {
+                val layoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+                val bannerLayout = layoutInflater.inflate(R.layout.layout_message_banner, null)
+                bannerLayout.banner.text = text
+                insertPoint.addView(bannerLayout, 0, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+            }
+        } else if (banner != null) {
+            banner.visibility = View.GONE
+        }
     }
 
     fun setImage(imageView: ImageView, text: TextView, fileRef: String?) {
@@ -278,7 +318,6 @@ class MessageAdapter(private val context: Context, private val ravenThreadResult
             true
         }
     }
-
 
     interface OnClickListener {
         fun onClick(ravenMessage: RavenMessage)
