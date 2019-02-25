@@ -163,10 +163,13 @@ class MessageAdapter(private val context: Context, private val ravenThreadResult
             messageAdapter.setImage(image, text, ravenMessage.fileRef)
 
             if (ravenMessage.text != null) {
+                body.visibility = View.VISIBLE
                 text.visibility = View.VISIBLE
                 messageAdapter.setMessageText(text, ravenMessage.text, body)
-            } else
+            } else {
+                body.visibility = name.visibility
                 text.visibility = View.GONE
+            }
 
             messageAdapter.setMessageTimeAndStatus(time, ravenMessage.timestamp)
             messageAdapter.setProperties(itemView, ravenMessage)
