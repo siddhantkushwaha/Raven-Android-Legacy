@@ -1,12 +1,15 @@
 package com.siddhantkushwaha.raven.activity
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.core.app.ActivityCompat
 import com.google.firebase.auth.FirebaseAuth
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ContactsUtil
@@ -34,10 +37,11 @@ class ContactsActivity : AppCompatActivity() {
 
     private val tag = ContactsActivity::class.java.toString()
 
-    private var realm: Realm? = null
-    private var results: RealmResults<RavenUser>? = null
-    private var ravenContactAdapter: ContactAdapter? = null
-    private var listener: OrderedRealmCollectionChangeListener<RealmResults<RavenUser>>? = null
+    private lateinit var realm: Realm
+    private lateinit var allContacts: RealmResults<RavenUser>
+    private lateinit var contactsAdapter: ContactAdapter
+    private lateinit var contactsChangeListener: RealmChangeListener<RealmResults<RavenUser>>
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,11 +55,10 @@ class ContactsActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         refreshButton.setOnClickListener {
-            Toast.makeText(this@ContactsActivity, "Syncing contacts.", Toast.LENGTH_LONG).show()
-//            RavenContactSync.reSync(this@ContactsActivity)
-//            AppInfo.openAppInfo(this);
-            ContactsUtil.getReadContactsPermission(this@ContactsActivity)
-            SyncAdapter.syncContacts(this@ContactsActivity)
+            if (!ContactsUtil.contactsReadPermission(this@ContactsActivity))
+                getContactsReadPermission()
+            else
+                startSyncing()
         }
 
         searchView.setIconifiedByDefault(true)
@@ -75,12 +78,30 @@ class ContactsActivity : AppCompatActivity() {
         })
 
         searchView.setOnCloseListener {
-            setDefaultResults()
+            userListView.adapter = contactsAdapter
             false
         }
 
         userListView.emptyView = emptyView
-        retrieveRavenContacts()
+
+        allContacts = realm.where(RavenUser::class.java).isNotNull("contactName").sort("contactName", Sort.ASCENDING).findAllAsync()
+
+        contactsChangeListener = RealmChangeListener {
+            Log.i(tag, "Data Changed ${allContacts.size}")
+            contactsAdapter.notifyDataSetChanged()
+        }
+
+        contactsAdapter = ContactAdapter(this@ContactsActivity, allContacts)
+
+        userListView.adapter = contactsAdapter
+        userListView.setOnItemClickListener { _, _, position, _ ->
+
+            val userId = (userListView.adapter as ContactAdapter).getItem(position)?.userId
+                    ?: return@setOnItemClickListener
+            val threadId = RavenUtils.getThreadId(FirebaseAuth.getInstance().uid, userId)
+            ChatActivity.openActivity(this@ContactsActivity, false,
+                    ChatActivity.Companion.IntentData(threadId))
+        }
     }
 
     override fun onStart() {
@@ -88,7 +109,8 @@ class ContactsActivity : AppCompatActivity() {
 
         ActivityInfo.setActivityInfo(this::class.java.toString(), intent.extras)
 
-        results?.addChangeListener(listener!!)
+        Log.i(tag, "adding change listener")
+        allContacts.addChangeListener(contactsChangeListener)
     }
 
     override fun onPause() {
@@ -96,43 +118,44 @@ class ContactsActivity : AppCompatActivity() {
 
         ActivityInfo.setActivityInfo(null, null)
 
-        results?.removeAllChangeListeners()
+        allContacts.removeAllChangeListeners()
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        when (requestCode) {
+
+            0 -> {
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    startSyncing()
+                }
+                return
+            }
+
+            else -> {
+                // other request codes
+            }
+        }
+    }
+
+    private fun getContactsReadPermission() {
+
+        ActivityCompat.requestPermissions(this@ContactsActivity,
+                Array(1) { Manifest.permission.READ_CONTACTS },
+                0);
+    }
+
+    private fun startSyncing() {
+        Toast.makeText(this@ContactsActivity, "Syncing contacts.", Toast.LENGTH_LONG).show()
+        SyncAdapter.syncContacts(this@ContactsActivity)
     }
 
     private fun filter(query: String) {
 
-        Log.i(tag, "Searching for $query")
-        val searchResults = realm?.where(RavenUser::class.java)?.isNotNull("contactName")?.like("contactName", "*$query*", Case.INSENSITIVE)?.sort("contactName", Sort.ASCENDING)?.findAll()
-        Log.i(tag, "Searching for ${searchResults?.size}")
+        val regex = "*$query*"
+        val searchResults = realm.where(RavenUser::class.java).isNotNull("contactName").like("contactName", regex, Case.INSENSITIVE).sort("contactName", Sort.ASCENDING).findAll()
         val searchAdapter = ContactAdapter(this@ContactsActivity, searchResults)
-
         userListView.adapter = searchAdapter
-        userListView.setOnItemClickListener { _, _, position, _ ->
-
-            val userId = searchAdapter.getItem(position)!!.userId
-            val threadId = RavenUtils.getThreadId(FirebaseAuth.getInstance().uid, userId)
-            ChatActivity.openActivity(this@ContactsActivity, false,
-                    ChatActivity.Companion.IntentData(threadId))
-        }
-    }
-
-    private fun retrieveRavenContacts() {
-
-        results = realm?.where(RavenUser::class.java)?.isNotNull("contactName")?.sort("contactName", Sort.ASCENDING)?.findAllAsync()
-        ravenContactAdapter = ContactAdapter(this@ContactsActivity, results)
-        listener = OrderedRealmCollectionChangeListener { _, _ -> ravenContactAdapter?.notifyDataSetChanged() }
-
-        setDefaultResults()
-    }
-
-    private fun setDefaultResults() {
-        userListView.adapter = ravenContactAdapter
-        userListView.setOnItemClickListener { _, _, position, _ ->
-
-            val userId = ravenContactAdapter?.getItem(position)!!.userId
-            val threadId = RavenUtils.getThreadId(FirebaseAuth.getInstance().uid, userId)
-            ChatActivity.openActivity(this@ContactsActivity, false,
-                    ChatActivity.Companion.IntentData(threadId))
-        }
     }
 }

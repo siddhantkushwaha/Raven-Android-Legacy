@@ -46,36 +46,45 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     public static void syncContacts(Context context) {
 
-        Realm realm = RealmUtil.getCustomRealmInstance(context);
-
         HashMap<String, String> contactsList = ContactsUtil.getAllContacts(context);
+        if (contactsList == null)
+            return;
 
-        realm.executeTransactionAsync(realmL -> {
-            RealmResults<RavenUser> realmResults = realmL.where(RavenUser.class).findAll();
-            for (RavenUser contact : realmResults) {
-                if (!contactsList.containsKey(contact.phoneNumber)) {
-                    RavenUser ravenUser = realmL.where(RavenUser.class).equalTo("phoneNumber", contact.phoneNumber).findFirst();
-                    if (ravenUser != null) {
-                        ravenUser.contactName = null;
-                        realmL.insertOrUpdate(ravenUser);
+        Realm realm = RealmUtil.getCustomRealmInstance(context);
+        try {
+            realm.executeTransaction(realmL -> {
+                RealmResults<RavenUser> realmResults = realmL.where(RavenUser.class).isNotNull("contactName").findAll();
+                for (RavenUser contact : realmResults) {
+                    if (!contactsList.containsKey(contact.phoneNumber)) {
+                        contact.contactName = null;
+                        realmL.insertOrUpdate(contact);
                     }
                 }
-            }
-        });
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            Crashlytics.logException(e);
+        }
 
         UserManager userManager = new UserManager();
         for (Map.Entry<String, String> contact : contactsList.entrySet()) {
             userManager.startGetUserByAttribute(UserManager.KEY_PHONE, contact.getKey(), task -> {
 
                 QuerySnapshot querySnapshot = task.getResult();
-                if (querySnapshot != null && !querySnapshot.isEmpty()) {
 
-                    DocumentSnapshot documentSnapshot = querySnapshot.getDocuments().get(0);
-                    String userId = documentSnapshot.getId();
+                try {
+                    if (querySnapshot != null && !querySnapshot.isEmpty()) {
 
-                    RavenUserUtil.setUser(realm, false, userId, documentSnapshot, null, true, contact.getValue());
-                } else
-                    RavenUserUtil.deleteByPhoneNumber(realm, false, contact.getKey());
+                        DocumentSnapshot documentSnapshot = querySnapshot.getDocuments().get(0);
+                        String userId = documentSnapshot.getId();
+
+                        RavenUserUtil.setUser(realm, false, userId, documentSnapshot, null, true, contact.getValue());
+                    } else
+                        RavenUserUtil.setContactName(realm, false, contact.getKey(), null);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Crashlytics.logException(e);
+                }
             });
         }
     }
