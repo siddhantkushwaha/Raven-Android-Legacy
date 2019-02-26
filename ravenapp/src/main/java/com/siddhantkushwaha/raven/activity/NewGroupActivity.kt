@@ -76,7 +76,7 @@ class NewGroupActivity : AppCompatActivity() {
 
         userListView.emptyView = emptyView
 
-        allContacts = realm.where(RavenUser::class.java).isNotNull("contactName").sort("contactName", Sort.ASCENDING).findAllAsync()
+        allContacts = realm.where(RavenUser::class.java).isNotNull("contactName").notEqualTo("userId", FirebaseAuth.getInstance().uid).sort("contactName", Sort.ASCENDING).findAllAsync()
 
         contactsChangeListener = RealmChangeListener {
             contactsAdapter.notifyDataSetChanged()
@@ -117,6 +117,11 @@ class NewGroupActivity : AppCompatActivity() {
         allContacts.removeAllChangeListeners()
     }
 
+    override fun onNavigateUp(): Boolean {
+        onBackPressed()
+        return super.onNavigateUp()
+    }
+
     private fun filter(query: String) {
 
         val regex = "*$query*"
@@ -134,7 +139,7 @@ class NewGroupActivity : AppCompatActivity() {
     private fun deselectAll() {
 
         realm.executeTransactionAsync { realmL ->
-            realmL.where(RavenUser::class.java).isNotNull("contactName").findAll().forEach { ru ->
+            realmL.where(RavenUser::class.java).isNotNull("contactName").notEqualTo("userId", FirebaseAuth.getInstance().uid).findAll().forEach { ru ->
                 ru.selected = false
                 realmL.insertOrUpdate(ru)
             }

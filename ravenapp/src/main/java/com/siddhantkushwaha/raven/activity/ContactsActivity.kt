@@ -83,7 +83,7 @@ class ContactsActivity : AppCompatActivity() {
         }
 
         newGroup.setOnClickListener {
-            Toast.makeText(this@ContactsActivity, " 123456", Toast.LENGTH_LONG).show()
+            NewGroupActivity.openActivity(this@ContactsActivity, false)
         }
 
         userListView.emptyView = emptyView
