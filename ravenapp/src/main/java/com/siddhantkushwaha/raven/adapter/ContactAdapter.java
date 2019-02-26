@@ -37,17 +37,17 @@ public class ContactAdapter extends RealmBaseAdapter<RavenUser> {
 
         View listItem = convertView;
         if (listItem == null)
-            listItem = LayoutInflater.from(context).inflate(R.layout.layout_user_profile, parent, false);
+            listItem = LayoutInflater.from(context).inflate(R.layout.layout_user, parent, false);
 
         RavenUser contact = data.get(position);
 
-        ImageView imageView = listItem.findViewById(R.id.displayPicImageView);
+        ImageView imageView = listItem.findViewById(R.id.displayPic);
         if (contact.picUrl != null)
             GlideUtilV2.loadProfilePhotoCircle(context, imageView, contact.picUrl);
         else
             GlideUtilV2.loadProfilePhotoCircle(context, imageView, null);
 
-        TextView name = listItem.findViewById(R.id.nameTextView);
+        TextView name = listItem.findViewById(R.id.name);
         if (contact.contactName != null)
             name.setText(contact.contactName);
         else if (contact.displayName != null)
@@ -57,7 +57,7 @@ public class ContactAdapter extends RealmBaseAdapter<RavenUser> {
         else
             name.setText(R.string.default_name);
 
-        TextView about = listItem.findViewById(R.id.aboutTextView);
+        TextView about = listItem.findViewById(R.id.about);
         if (contact.about != null)
             about.setText(contact.about);
         else

@@ -19,7 +19,7 @@
         android:paddingBottom="12dp">
 
         <ImageView
-            android:id="@+id/displayPicImageView"
+            android:id="@+id/displayPic"
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:layout_marginStart="20dp"
