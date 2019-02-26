@@ -21,9 +21,11 @@ import com.google.firebase.storage.UploadTask;
 import com.siddhantkushwaha.raven.custom.AESNygma;
 import com.siddhantkushwaha.raven.entity.Message;
 import com.siddhantkushwaha.raven.entity.Thread;
+import com.siddhantkushwaha.raven.entity.ThreadGroupDetails;
 import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil;
 import com.siddhantkushwaha.raven.utility.FirebaseUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import androidx.annotation.NonNull;
@@ -55,6 +57,22 @@ public class ThreadManager {
     public static String decryptMessage(String threadId, String encryptedMessage) throws Exception {
 
         return AESNygma.decrypt(threadId, encryptedMessage);
+    }
+
+    public void createGroup(@NonNull String name, @NonNull ArrayList<String> users, OnCompleteListener<DocumentReference> onCompleteListener) {
+
+        if (users.isEmpty())
+            return;
+
+        Thread thread = new Thread();
+        ThreadGroupDetails threadGroupDetails = new ThreadGroupDetails();
+
+        threadGroupDetails.setName(name);
+        thread.setGroupDetails(threadGroupDetails);
+
+        thread.setUsers(users);
+
+        db.collection(THREAD_COLLECTION_NAME).add(thread).addOnCompleteListener(onCompleteListener);
     }
 
     public void sendMessage(@NonNull String threadId, @NonNull Message message, boolean isGroup) {

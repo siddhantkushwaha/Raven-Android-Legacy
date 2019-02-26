@@ -17,9 +17,9 @@
 
     <ImageView
         android:id="@+id/badge"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
-        android:src="@drawable/badge_done"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@drawable/badge_done_stroke"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/displayPic"
         app:layout_constraintEnd_toEndOf="@+id/displayPic" />

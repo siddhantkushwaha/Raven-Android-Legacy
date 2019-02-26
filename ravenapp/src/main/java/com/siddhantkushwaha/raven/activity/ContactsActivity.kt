@@ -82,6 +82,10 @@ class ContactsActivity : AppCompatActivity() {
             false
         }
 
+        newGroup.setOnClickListener {
+            Toast.makeText(this@ContactsActivity, " 123456", Toast.LENGTH_LONG).show()
+        }
+
         userListView.emptyView = emptyView
 
         allContacts = realm.where(RavenUser::class.java).isNotNull("contactName").sort("contactName", Sort.ASCENDING).findAllAsync()

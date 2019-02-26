@@ -63,6 +63,12 @@ public class ContactAdapter extends RealmBaseAdapter<RavenUser> {
         else
             about.setText(R.string.default_about);
 
+        ImageView badge = listItem.findViewById(R.id.badge);
+        if (contact.selected)
+            badge.setVisibility(View.VISIBLE);
+        else
+            badge.setVisibility(View.GONE);
+
         return listItem;
     }
 }

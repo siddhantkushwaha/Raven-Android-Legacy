@@ -14,4 +14,6 @@ public class RavenUser extends RealmObject {
     public String picUrl;
 
     public String contactName;
+
+    public boolean selected = false;
 }
