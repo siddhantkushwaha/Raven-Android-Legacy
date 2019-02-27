@@ -9,7 +9,7 @@
     tools:context=".activity.ContactsActivity">
 
     <include
-        layout="@layout/layout12346"
+        layout="@layout/activity_base_raven_user"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

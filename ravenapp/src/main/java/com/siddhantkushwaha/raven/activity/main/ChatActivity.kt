@@ -350,8 +350,8 @@ class ChatActivity : AppCompatActivity() {
         ravenUserResult.addChangeListener(ravenUserChangeListener)
     }
 
-    override fun onPause() {
-        super.onPause()
+    override fun onStop() {
+        super.onStop()
 
         ActivityInfo.setActivityInfo(null, null)
 

@@ -19,7 +19,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".activity.Activity2345"></activity>
+        <activity android:name=".activity.BaseRavenUserActivity"></activity>
         <!-- __________________________ app activities __________________________ -->
         <activity android:name=".activity.main.LoginActivity">
             <intent-filter>
