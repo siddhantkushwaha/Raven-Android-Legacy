@@ -113,6 +113,7 @@ class ChatActivity : AppCompatActivity() {
         setContentView(R.layout.activity_chat)
 
         realm = RealmUtil.getCustomRealmInstance(this@ChatActivity)
+        setMessageSelectedPropertyForAll(false)
 
         val intentData = getIntentData(this)
 
