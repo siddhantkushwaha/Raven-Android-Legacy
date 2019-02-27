@@ -6,6 +6,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -22,6 +24,7 @@ import com.siddhantkushwaha.raven.utility.RavenUtils
 import com.siddhantkushwaha.raven.utility.RealmUtil
 import io.realm.*
 import kotlinx.android.synthetic.main.activity_contacts.*
+import kotlinx.android.synthetic.main.layout12346.*
 
 class ContactsActivity : AppCompatActivity() {
 
@@ -51,16 +54,11 @@ class ContactsActivity : AppCompatActivity() {
         realm = RealmUtil.getCustomRealmInstance(this)
         deselectAll()
 
+
+        toolbar.title = "Contacts"
         setSupportActionBar(toolbar)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-        refreshButton.setOnClickListener {
-            if (!ContactsUtil.contactsReadPermission(this@ContactsActivity))
-                getContactsReadPermission()
-            else
-                startSyncing()
-        }
 
         searchView.setIconifiedByDefault(true)
         searchView.maxWidth = android.R.attr.width
@@ -124,6 +122,29 @@ class ContactsActivity : AppCompatActivity() {
         allContacts.removeAllChangeListeners()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+
+        val syncItem = menu?.add(Menu.NONE, 1, 1, "Refresh")
+        syncItem?.icon = getDrawable(R.drawable.button_refresh)
+        syncItem?.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+
+        when (item?.itemId) {
+
+            1 -> {
+                if (!ContactsUtil.contactsReadPermission(this@ContactsActivity))
+                    getContactsReadPermission()
+                else
+                    startSyncing()
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
@@ -157,7 +178,7 @@ class ContactsActivity : AppCompatActivity() {
     private fun filter(query: String) {
 
         val regex = "*$query*"
-        val searchResults = realm.where(RavenUser::class.java).isNotNull("contactName").like("contactName", regex, Case.INSENSITIVE).sort("contactName", Sort.ASCENDING).findAll()
+        val searchResults = realm.where(RavenUser::class.java).isNotNull("contactName").notEqualTo("userId", FirebaseAuth.getInstance().uid).like("contactName", regex, Case.INSENSITIVE).sort("contactName", Sort.ASCENDING).findAll()
         val searchAdapter = ContactAdapter(this@ContactsActivity, searchResults)
         userListView.adapter = searchAdapter
     }

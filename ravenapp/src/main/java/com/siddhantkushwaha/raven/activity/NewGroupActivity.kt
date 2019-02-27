@@ -17,6 +17,7 @@ import com.siddhantkushwaha.raven.realm.entity.RavenUser
 import com.siddhantkushwaha.raven.utility.RealmUtil
 import io.realm.*
 import kotlinx.android.synthetic.main.activity_new_group.*
+import kotlinx.android.synthetic.main.layout12346.*
 
 class NewGroupActivity : AppCompatActivity() {
 
@@ -43,6 +44,7 @@ class NewGroupActivity : AppCompatActivity() {
         realm = RealmUtil.getCustomRealmInstance(this)
         deselectAll()
 
+        toolbar.title = "New Group"
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -67,31 +69,28 @@ class NewGroupActivity : AppCompatActivity() {
             false
         }
 
-        createGroup.setOnClickListener {
-            if (groupName.text.isNotBlank()) {
-                // create group
-                val groupName = groupName.text.toString().trim()
-                createGroup(groupName)
-            } else
-                Toast.makeText(this@NewGroupActivity, "Group name cannot be empty.", Toast.LENGTH_LONG).show()
+        done.setOnClickListener {
+
+            val groupName = "New Group"
+            createGroup(groupName)
         }
 
         userListView.emptyView = emptyView
 
         allContacts = realm.where(RavenUser::class.java).isNotNull("contactName").notEqualTo("userId", FirebaseAuth.getInstance().uid).sort("contactName", Sort.ASCENDING).findAllAsync()
 
+
+
+        contactsAdapter = ContactAdapter(this@NewGroupActivity, allContacts)
         contactsChangeListener = RealmChangeListener {
             contactsAdapter.notifyDataSetChanged()
 
             if (getSelected().isNotEmpty()) {
-                createGroup.visibility = View.VISIBLE
+                done.visibility = View.VISIBLE
             } else {
-                createGroup.visibility = View.GONE
+                done.visibility = View.GONE
             }
         }
-
-        contactsAdapter = ContactAdapter(this@NewGroupActivity, allContacts)
-
         userListView.adapter = contactsAdapter
         userListView.setOnItemClickListener { _, _, position, _ ->
 
@@ -125,20 +124,10 @@ class NewGroupActivity : AppCompatActivity() {
         return super.onSupportNavigateUp()
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show()
-        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show()
-        }
-    }
-
     private fun filter(query: String) {
 
         val regex = "*$query*"
-        val searchResults = realm.where(RavenUser::class.java).isNotNull("contactName").like("contactName", regex, Case.INSENSITIVE).sort("contactName", Sort.ASCENDING).findAll()
+        val searchResults = realm.where(RavenUser::class.java).isNotNull("contactName").notEqualTo("userId", FirebaseAuth.getInstance().uid).like("contactName", regex, Case.INSENSITIVE).sort("contactName", Sort.ASCENDING).findAll()
         val searchAdapter = ContactAdapter(this@NewGroupActivity, searchResults)
         userListView.adapter = searchAdapter
     }
@@ -173,12 +162,14 @@ class NewGroupActivity : AppCompatActivity() {
         if (!userIds.contains(myUserId))
             userIds.add(myUserId)
 
-        ThreadManager().createGroup(groupName, userIds) { task ->
+        val permissions = HashMap<String, String>()
+        permissions[FirebaseAuth.getInstance().uid!!] = "admin"
+
+        ThreadManager().createGroup(groupName, userIds, permissions) { task ->
             val threadId = task.result?.id
             if (task.isSuccessful && threadId != null) {
 
                 Toast.makeText(this@NewGroupActivity, "Group $groupName created.", Toast.LENGTH_LONG).show()
-                deselectAll()
                 ChatActivity.openActivity(this@NewGroupActivity, true, ChatActivity.Companion.IntentData(threadId))
             }
         }

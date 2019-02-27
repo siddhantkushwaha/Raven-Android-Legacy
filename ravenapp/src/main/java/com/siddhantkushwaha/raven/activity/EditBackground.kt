@@ -91,29 +91,26 @@ class EditBackground : AppCompatActivity() {
         })
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-    }
-
     override fun onSupportNavigateUp(): Boolean {
-
-        // val intentData = getIntentData(this)
-        // ChatBackgroundGallery.openActivity(this, true, ChatBackgroundGallery.Companion.IntentData(intentData.userId, intentData.threadId))
 
         onBackPressed()
 
         return super.onNavigateUp()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_accept, menu)
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+
+        val doneItem = menu?.add(Menu.NONE, 1, 1, "Done")
+        doneItem?.icon = getDrawable(R.drawable.button_done)
+        doneItem?.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+
         return super.onCreateOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         when (item.itemId) {
-            R.id.action_accept -> ThreadManager().changeThreadBackground(wallpaperMetadata!!.highResRef!!, alpha, threadId!!, userId!!) {
+            1 -> ThreadManager().changeThreadBackground(wallpaperMetadata!!.highResRef!!, alpha, threadId!!, userId!!) {
                 if (it.isSuccessful) {
 
                     Toast.makeText(this, "Background updated.", Toast.LENGTH_SHORT).show()

@@ -8,78 +8,22 @@
     android:clipToPadding="false"
     tools:context=".activity.ContactsActivity">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:elevation="2dp"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:contentInsetStart="0dp"
-        app:contentInsetStartWithNavigation="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:title="New Group">
-
-        <ImageButton
-            android:id="@+id/createGroup"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="end"
-            android:layout_marginEnd="12dp"
-            android:background="@android:color/transparent"
-            android:gravity="center_vertical"
-            android:src="@drawable/button_done"
-            android:visibility="gone" />
-
-        <androidx.appcompat.widget.SearchView
-            android:id="@+id/searchView"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="end"
-            android:gravity="center_vertical"
-            app:queryHint="Search for Raven Users." />
-    </androidx.appcompat.widget.Toolbar>
-
-    <EditText
-        android:id="@+id/groupName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/colorGrey"
-        android:hint="Enter group name"
-        android:lines="1"
-        android:padding="16dp"
-        android:textColor="@color/colorBlack"
-        android:textSize="20sp"
-        android:translationZ="2dp"
-        android:visibility="visible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
-
-    <ImageView
-        android:id="@+id/emptyView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:padding="84dp"
-        android:src="@drawable/searching"
-        android:visibility="visible"
+    <include
+        layout="@layout/layout12346"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/groupName" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <ListView
-        android:id="@+id/userListView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@color/colorWhite"
-        android:divider="@null"
-        android:visibility="visible"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/done"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
+        app:fabSize="normal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/groupName" />
+        app:srcCompat="@drawable/button_done" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

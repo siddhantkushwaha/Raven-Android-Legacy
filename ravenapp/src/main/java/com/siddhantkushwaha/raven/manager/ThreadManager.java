@@ -59,7 +59,7 @@ public class ThreadManager {
         return AESNygma.decrypt(threadId, encryptedMessage);
     }
 
-    public void createGroup(@NonNull String name, @NonNull ArrayList<String> users, OnCompleteListener<DocumentReference> onCompleteListener) {
+    public void createGroup(@NonNull String name, @NonNull ArrayList<String> users, @NonNull HashMap<String, String> permissions, OnCompleteListener<DocumentReference> onCompleteListener) {
 
         if (users.isEmpty())
             return;
@@ -68,6 +68,8 @@ public class ThreadManager {
         ThreadGroupDetails threadGroupDetails = new ThreadGroupDetails();
 
         threadGroupDetails.setName(name);
+        threadGroupDetails.setPermissions(permissions);
+
         thread.setGroupDetails(threadGroupDetails);
 
         thread.setUsers(users);
