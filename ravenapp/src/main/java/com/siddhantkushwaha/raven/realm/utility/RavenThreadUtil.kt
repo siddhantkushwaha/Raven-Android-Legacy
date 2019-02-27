@@ -41,7 +41,7 @@ class RavenThreadUtil {
                     ravenThread.userId = userId
 
                     clone(ravenThread, thread)
-                    addUsers(realmL, ravenThread, thread.users)
+                    addUsers(realmL, ravenThread, thread.users ?: ArrayList())
 
                     realmL.insertOrUpdate(ravenThread)
                 } else {
