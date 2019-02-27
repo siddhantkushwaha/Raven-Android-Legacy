@@ -25,6 +25,8 @@
         android:text="Raven User"
         android:textColor="@color/colorBlack"
         android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/text"
         app:layout_constraintEnd_toStartOf="@+id/timestamp"
         app:layout_constraintStart_toEndOf="@+id/displayPic"
         app:layout_constraintTop_toTopOf="@+id/displayPic" />
@@ -42,8 +44,8 @@
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@+id/displayPic"
         app:layout_constraintEnd_toStartOf="@+id/status"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/icon" />
+        app:layout_constraintStart_toEndOf="@+id/icon"
+        app:layout_constraintTop_toBottomOf="@+id/name" />
 
     <ImageView
         android:id="@+id/icon"

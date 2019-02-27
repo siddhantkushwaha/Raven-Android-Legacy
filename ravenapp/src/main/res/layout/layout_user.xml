@@ -34,7 +34,9 @@
         android:text="@string/default_name"
         android:textColor="@color/colorBlack"
         android:textSize="18sp"
+        android:textStyle="bold"
         android:visibility="visible"
+        app:layout_constraintBottom_toTopOf="@+id/about"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/displayPic"
         app:layout_constraintTop_toTopOf="@+id/displayPic" />
@@ -42,7 +44,7 @@
     <TextView
         android:id="@+id/about"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="25dp"
         android:ellipsize="end"
         android:lines="1"
         android:maxLines="1"
@@ -52,6 +54,6 @@
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@+id/displayPic"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="@+id/name" />
+        app:layout_constraintStart_toStartOf="@+id/name"
+        app:layout_constraintTop_toBottomOf="@+id/name" />
 </androidx.constraintlayout.widget.ConstraintLayout>

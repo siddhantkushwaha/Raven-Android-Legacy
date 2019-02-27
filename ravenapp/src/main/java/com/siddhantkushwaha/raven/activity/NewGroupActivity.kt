@@ -119,6 +119,12 @@ class NewGroupActivity : AppCompatActivity() {
         allContacts.removeAllChangeListeners()
     }
 
+    override fun onSupportNavigateUp(): Boolean {
+
+        onBackPressed()
+        return super.onSupportNavigateUp()
+    }
+
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
 

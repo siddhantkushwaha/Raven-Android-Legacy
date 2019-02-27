@@ -189,21 +189,15 @@ class MessageAdapter(private val context: Context, private val ravenThreadResult
         val timeText = timeBanner[messageId]
 
         val insertPoint = itemView.findViewById(R.id.root) as ViewGroup
-        val banner = insertPoint.findViewById<View>(R.id.banner)
+        var bannerRoot = insertPoint.findViewById<View>(R.id.bannerRoot)
+        insertPoint.removeView(bannerRoot)
 
         if (timeText != null) {
             val text = DateTimeFormat.forPattern("MMMM dd, yyyy").print(DateTime.parse(timeText))
-            if (banner != null) {
-                banner.visibility = View.VISIBLE
-                banner.banner.text = text
-            } else {
-                val layoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-                val bannerLayout = layoutInflater.inflate(R.layout.layout_message_banner, null)
-                bannerLayout.banner.text = text
-                insertPoint.addView(bannerLayout, 0, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
-            }
-        } else if (banner != null) {
-            banner.visibility = View.GONE
+            val layoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+            bannerRoot = layoutInflater.inflate(R.layout.layout_message_banner, null)
+            bannerRoot.banner.text = text
+            insertPoint.addView(bannerRoot, 0, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
         }
     }
 
