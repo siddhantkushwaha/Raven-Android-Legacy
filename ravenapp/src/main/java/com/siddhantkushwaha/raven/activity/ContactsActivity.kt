@@ -49,6 +49,7 @@ class ContactsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_contacts)
 
         realm = RealmUtil.getCustomRealmInstance(this)
+        deselectAll()
 
         setSupportActionBar(toolbar)
 
@@ -88,8 +89,7 @@ class ContactsActivity : AppCompatActivity() {
 
         userListView.emptyView = emptyView
 
-        allContacts = realm.where(RavenUser::class.java).isNotNull("contactName").sort("contactName", Sort.ASCENDING).findAllAsync()
-
+        allContacts = realm.where(RavenUser::class.java).isNotNull("contactName").notEqualTo("userId", FirebaseAuth.getInstance().uid).sort("contactName", Sort.ASCENDING).findAllAsync()
         contactsChangeListener = RealmChangeListener {
             Log.i(tag, "Data Changed ${allContacts.size}")
             contactsAdapter.notifyDataSetChanged()
@@ -113,12 +113,11 @@ class ContactsActivity : AppCompatActivity() {
 
         ActivityInfo.setActivityInfo(this::class.java.toString(), intent.extras)
 
-        Log.i(tag, "adding change listener")
         allContacts.addChangeListener(contactsChangeListener)
     }
 
-    override fun onPause() {
-        super.onPause()
+    override fun onStop() {
+        super.onStop()
 
         ActivityInfo.setActivityInfo(null, null)
 
@@ -161,5 +160,15 @@ class ContactsActivity : AppCompatActivity() {
         val searchResults = realm.where(RavenUser::class.java).isNotNull("contactName").like("contactName", regex, Case.INSENSITIVE).sort("contactName", Sort.ASCENDING).findAll()
         val searchAdapter = ContactAdapter(this@ContactsActivity, searchResults)
         userListView.adapter = searchAdapter
+    }
+
+    private fun deselectAll() {
+
+        realm.executeTransactionAsync { realmL ->
+            realmL.where(RavenUser::class.java).isNotNull("contactName").notEqualTo("userId", FirebaseAuth.getInstance().uid).findAll().forEach { ru ->
+                ru.selected = false
+                realmL.insertOrUpdate(ru)
+            }
+        }
     }
 }

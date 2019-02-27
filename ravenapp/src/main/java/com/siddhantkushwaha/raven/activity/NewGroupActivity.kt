@@ -2,6 +2,7 @@ package com.siddhantkushwaha.raven.activity
 
 import android.app.Activity
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -20,6 +21,7 @@ import kotlinx.android.synthetic.main.activity_new_group.*
 class NewGroupActivity : AppCompatActivity() {
 
     companion object {
+        val tag = NewGroupActivity::class.java.toString()
         fun openActivity(activity: Activity, finish: Boolean) {
 
             val intent = Intent(activity, NewGroupActivity::class.java)
@@ -34,12 +36,12 @@ class NewGroupActivity : AppCompatActivity() {
     private lateinit var contactsAdapter: ContactAdapter
     private lateinit var contactsChangeListener: RealmChangeListener<RealmResults<RavenUser>>
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_new_group)
 
         realm = RealmUtil.getCustomRealmInstance(this)
+        deselectAll()
 
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -111,15 +113,20 @@ class NewGroupActivity : AppCompatActivity() {
         allContacts.addChangeListener(contactsChangeListener)
     }
 
-    override fun onPause() {
-        super.onPause()
+    override fun onStop() {
+        super.onStop()
 
         allContacts.removeAllChangeListeners()
     }
 
-    override fun onNavigateUp(): Boolean {
-        onBackPressed()
-        return super.onNavigateUp()
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show()
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun filter(query: String) {

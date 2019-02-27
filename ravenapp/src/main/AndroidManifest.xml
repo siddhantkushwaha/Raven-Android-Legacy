@@ -38,6 +38,7 @@
         <activity android:name=".activity.ProfileActivity" />
         <activity
             android:name=".activity.ContactsActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
             android:parentActivityName=".activity.main.HomeActivity" />
         <activity android:name=".activity.ImageFullScreenActivity" />
         <activity
@@ -45,7 +46,9 @@
             android:parentActivityName=".activity.main.HomeActivity" />
         <activity android:name=".activity.ChatBackgroundGallery" />
         <activity android:name=".activity.EditBackground" />
-        <activity android:name=".activity.NewGroupActivity" />
+        <activity
+            android:name=".activity.NewGroupActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize" />
 
         <!-- _____________________________________________________________________ -->
 
