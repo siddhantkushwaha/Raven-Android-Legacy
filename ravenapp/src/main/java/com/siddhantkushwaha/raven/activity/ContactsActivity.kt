@@ -3,13 +3,15 @@ package com.siddhantkushwaha.raven.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import com.google.firebase.auth.FirebaseAuth
+import com.siddhantkushwaha.raven.BuildConfig
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.activity.main.ChatActivity
 import com.siddhantkushwaha.raven.adapter.ContactAdapter
 import com.siddhantkushwaha.raven.utility.RavenUtils
-import kotlinx.android.synthetic.main.activity_contacts.*
 import kotlinx.android.synthetic.main.activity_base_raven_user.*
+import kotlinx.android.synthetic.main.activity_contacts.*
 
 class ContactsActivity : BaseRavenUserActivity(R.layout.activity_contacts) {
 
@@ -27,6 +29,12 @@ class ContactsActivity : BaseRavenUserActivity(R.layout.activity_contacts) {
         super.onCreate(savedInstanceState)
 
         toolbar.title = "Contacts"
+
+        if (BuildConfig.DEBUG)
+            newGroup.visibility = View.VISIBLE
+        else
+            newGroup.visibility = View.GONE
+
 
         newGroup.setOnClickListener {
             NewGroupActivity.openActivity(this@ContactsActivity, false)
