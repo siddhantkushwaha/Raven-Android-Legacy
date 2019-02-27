@@ -299,6 +299,6 @@ class HomeActivity : AppCompatActivity() {
                 ?: getString(R.string.default_name)
         navigation.getHeaderView(0).findViewById<TextView>(R.id.phoneTextView).text = user.phoneNumber
                 ?: "Phone"
-        GlideUtilV2.loadProfilePhotoCircle(this@HomeActivity, navigation.getHeaderView(0).findViewById(R.id.displayPicImageView), user.userProfile?.picUrl)
+        GlideUtilV2.loadProfilePhotoCircle(this@HomeActivity, navigation.getHeaderView(0).findViewById(R.id.displayPic), user.userProfile?.picUrl)
     }
 }
