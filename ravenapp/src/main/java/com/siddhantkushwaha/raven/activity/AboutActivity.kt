@@ -36,6 +36,6 @@ class AboutActivity : AppCompatActivity() {
         }
 
         versionName.text = "v${BuildConfig.VERSION_NAME}"
-        versionCode.text = "$versionCode-{BuildConfig.VERSION_CODE.toString()}"
+        versionCode.text = "versionCode-${BuildConfig.VERSION_CODE.toString()}"
     }
 }
