@@ -25,6 +25,7 @@ import com.siddhantkushwaha.android.thugtools.thugtools.utility.ImageUtil
 import com.siddhantkushwaha.raven.NotificationSender
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.activity.ChatBackgroundGallery
+import com.siddhantkushwaha.raven.activity.GroupProfileActivity
 import com.siddhantkushwaha.raven.activity.ImageFullScreenActivity
 import com.siddhantkushwaha.raven.activity.ProfileActivity
 import com.siddhantkushwaha.raven.adapter.MessageAdapter
@@ -130,6 +131,8 @@ class ChatActivity : AppCompatActivity() {
         userProfileLayout.setOnClickListener {
             if (userId != RavenUtils.GROUP)
                 ProfileActivity.openActivity(this@ChatActivity, false, ProfileActivity.Companion.IntentData(userId))
+            else
+                GroupProfileActivity.openActivity(this@ChatActivity, false, GroupProfileActivity.Companion.IntentData(threadId))
         }
 
         sendButton.setOnClickListener {
@@ -157,7 +160,7 @@ class ChatActivity : AppCompatActivity() {
             if (userId == RavenUtils.GROUP)
                 thread?.users?.forEach { userId ->
                     userManager.startUserSyncByUserId(this@ChatActivity, userId) { userSnap, firebaseFirestoreException2 ->
-                        RavenUserUtil.setUser(realm, true, userId, userSnap, firebaseFirestoreException2)
+                        RavenUserUtil.setUser(realm, false, userId, userSnap, firebaseFirestoreException2)
                     }
                 }
 

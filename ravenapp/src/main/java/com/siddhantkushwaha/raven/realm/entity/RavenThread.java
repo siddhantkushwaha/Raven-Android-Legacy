@@ -14,6 +14,8 @@ public class RavenThread extends RealmObject {
     public String groupName;
     public RealmList<RavenUser> users;
 
+    public String permissions;
+
     public RavenMessage lastMessage;
 
     public String backgroundFileRef;

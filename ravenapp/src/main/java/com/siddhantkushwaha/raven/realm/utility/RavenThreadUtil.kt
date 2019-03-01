@@ -2,6 +2,7 @@ package com.siddhantkushwaha.raven.realm.utility
 
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestoreException
+import com.siddhantkushwaha.nuttertools.GsonUtil
 import com.siddhantkushwaha.raven.entity.Message
 import com.siddhantkushwaha.raven.entity.Thread
 import com.siddhantkushwaha.raven.realm.entity.RavenMessage
@@ -19,6 +20,8 @@ class RavenThreadUtil {
 
             ravenThread.groupName = thread.groupDetails?.name
             ravenThread.picUrl = thread.groupDetails?.picUrl
+
+            ravenThread.permissions = GsonUtil.toGson(thread.groupDetails?.permissions)
 
             ravenThread.backgroundFileRef = thread.backgroundMetadata?.fileRef
             ravenThread.backgroundOpacity = thread.backgroundMetadata?.opacity

@@ -7,13 +7,12 @@ import android.view.View
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.siddhantkushwaha.raven.R
-import com.siddhantkushwaha.raven.activity.main.ChatActivity
 import com.siddhantkushwaha.raven.adapter.ContactAdapter
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.realm.entity.RavenUser
 import io.realm.RealmChangeListener
-import kotlinx.android.synthetic.main.activity_new_group.*
 import kotlinx.android.synthetic.main.activity_base_raven_user.*
+import kotlinx.android.synthetic.main.activity_new_group.*
 
 class NewGroupActivity : BaseRavenUserActivity(R.layout.activity_new_group) {
 
@@ -92,7 +91,8 @@ class NewGroupActivity : BaseRavenUserActivity(R.layout.activity_new_group) {
             if (task.isSuccessful && threadId != null) {
 
                 Toast.makeText(this@NewGroupActivity, "Group $groupName created.", Toast.LENGTH_LONG).show()
-                ChatActivity.openActivity(this@NewGroupActivity, true, ChatActivity.Companion.IntentData(threadId))
+                //ChatActivity.openActivity(this@NewGroupActivity, true, ChatActivity.Companion.IntentData(threadId))
+                GroupProfileActivity.openActivity(this@NewGroupActivity, true, GroupProfileActivity.Companion.IntentData(threadId))
             }
         }
     }

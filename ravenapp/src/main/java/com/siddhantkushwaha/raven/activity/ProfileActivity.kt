@@ -28,7 +28,7 @@ import com.siddhantkushwaha.raven.manager.UserManager
 import com.siddhantkushwaha.raven.utility.GlideUtilV2
 import com.siddhantkushwaha.raven.utility.JodaTimeUtilV2
 import kotlinx.android.synthetic.main.activity_profile.*
-import kotlinx.android.synthetic.main.layout_profile_content_scrolling.*
+import kotlinx.android.synthetic.main.layout_app_bar_thread_profile.*
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
 
