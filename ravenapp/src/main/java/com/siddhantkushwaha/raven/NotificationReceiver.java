@@ -10,6 +10,7 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.siddhantkushwaha.raven.entity.Message;
 import com.siddhantkushwaha.raven.manager.ThreadManager;
+import com.siddhantkushwaha.raven.utility.Common;
 import com.siddhantkushwaha.raven.utility.RavenUtils;
 
 import java.util.ArrayList;
@@ -64,9 +65,9 @@ public class NotificationReceiver extends BroadcastReceiver {
             messageObject.setSentTime(Timestamp.now());
             messageObject.setNotDeletedBy(users);
 
-            new ThreadManager().sendMessage(threadId, messageObject, RavenUtils.isGroup(threadId, senderUid));
+            //new ThreadManager().sendMessage(threadId, messageObject, RavenUtils.isGroup(threadId, senderUid));
 
-            NotificationSender.cancelNotification(context, threadId, 0);
+            //NotificationSender.cancelNotification(context, threadId, 0);
         }
     }
 }

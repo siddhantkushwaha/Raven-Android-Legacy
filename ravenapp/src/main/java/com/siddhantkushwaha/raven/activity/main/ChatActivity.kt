@@ -20,6 +20,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
+import com.google.firebase.storage.FirebaseStorage
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ImageUtil
 import com.siddhantkushwaha.raven.NotificationSender
@@ -46,6 +47,7 @@ import io.realm.Realm
 import io.realm.RealmResults
 import io.realm.Sort
 import kotlinx.android.synthetic.main.activity_chat.*
+import java.io.File
 
 class ChatActivity : AppCompatActivity() {
 
@@ -174,7 +176,8 @@ class ChatActivity : AppCompatActivity() {
             if (::allMessages.isInitialized)
                 for (rm: RavenMessage in allMessages) {
                     if (messageList?.containsKey(rm.messageId) != true) {
-                        RavenMessageUtil.setMessage(realm, false, threadId, rm.messageId, null)
+                        if (rm.timestamp != null)
+                            RavenMessageUtil.setMessage(realm, false, threadId, rm.messageId, null)
                     }
                 }
             // --------------------------------------
@@ -230,6 +233,8 @@ class ChatActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Log.e(tag, "No last message found $threadId")
             }
+
+            startPendingUploads(res)
         }
 
         selectedMessages = messageQuery.equalTo("selected", true).findAllAsync()
@@ -311,25 +316,25 @@ class ChatActivity : AppCompatActivity() {
 
         messageRecyclerView.layoutManager = linearLayoutManager
         messageRecyclerView.adapter = ravenMessageAdapter
-        messageRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                super.onScrolled(recyclerView, dx, dy)
-
-                val firstVisibleItemPosition = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
-                val lastVisibleItemPosition = linearLayoutManager.findLastCompletelyVisibleItemPosition()
-
-                if (firstVisibleItemPosition == -1 || lastVisibleItemPosition == -1)
-                    return
-
-                for (i in firstVisibleItemPosition..lastVisibleItemPosition) {
-                    val ravenMessage = ravenMessageAdapter.getItem(i)!!
-                    if (ravenMessage.sentByUserId != FirebaseAuth.getInstance().uid && ravenMessage.getSeenByUserId(FirebaseAuth.getInstance().uid!!) == null) {
-                        threadManager.markMessageAsRead(threadId, ravenMessage.messageId, Timestamp.now(), null)
-                    }
-                }
-            }
-        })
+//        messageRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+//
+//            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+//                super.onScrolled(recyclerView, dx, dy)
+//
+//                val firstVisibleItemPosition = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
+//                val lastVisibleItemPosition = linearLayoutManager.findLastCompletelyVisibleItemPosition()
+//
+//                if (firstVisibleItemPosition == -1 || lastVisibleItemPosition == -1)
+//                    return
+//
+//                for (i in firstVisibleItemPosition..lastVisibleItemPosition) {
+//                    val ravenMessage = ravenMessageAdapter.getItem(i)!!
+//                    if (ravenMessage.sentByUserId != FirebaseAuth.getInstance().uid && ravenMessage.getSeenByUserId(FirebaseAuth.getInstance().uid!!) == null) {
+//                        //threadManager.markMessagesAsRead(threadId, Timestamp.now())
+//                    }
+//                }
+//            }
+//        })
     }
 
     override fun onStart() {
@@ -370,8 +375,7 @@ class ChatActivity : AppCompatActivity() {
         when (requestCode) {
             ImageUtil.pickImage -> {
                 if (resultCode == Activity.RESULT_OK) {
-                    Log.i(tag, data?.data?.toString())
-                    UCropUtil.startCrop(this@ChatActivity, data?.data ?: return)
+                    startCrop(data?.data ?: return)
                 }
             }
 
@@ -409,14 +413,13 @@ class ChatActivity : AppCompatActivity() {
         onSupportNavigateUp()
     }
 
-    private fun sendMessage(messageText: String? = null, fileRef: String? = null) {
+    private fun sendMessage(messageText: String? = null, uploadUri: String? = null) {
 
         val encryptedMessage = ThreadManager.encryptMessage(threadId, messageText)
 
         val message = Message()
 
         message.text = encryptedMessage
-        message.fileRef = fileRef
 
         message.sentByUserId = FirebaseAuth.getInstance().uid!!
         message.sentTime = Timestamp.now()
@@ -427,17 +430,37 @@ class ChatActivity : AppCompatActivity() {
 
         message.notDeletedBy = users
 
-        threadManager.sendMessage(threadId, message, userId == RavenUtils.GROUP)
+        if (uploadUri == null) {
+            threadManager.sendMessage(threadId, Common.randomString(), message, userId == RavenUtils.GROUP)
+        } else
+            realm.executeTransaction { realmL ->
+
+                val newMessage = RavenMessage()
+                newMessage.threadId = threadId
+                newMessage.messageId = Common.randomString()
+                RavenMessageUtil.clone(newMessage, message)
+
+                newMessage.uploadUri = uploadUri
+
+                realmL.insert(newMessage)
+            }
+    }
+
+    private fun startCrop(uri: Uri) {
+
+        val file = File(cacheDir, "${Common.randomString()}.png")
+        val destUri = Uri.fromFile(file)
+        UCropUtil.startCrop(this@ChatActivity, uri, destUri)
     }
 
     private fun handleCropResult(uri: Uri) {
 
-        // sendMessage(fileRef = uri.toString())
-        threadManager.sendFile(threadId, uri, null, {
-            val result = it.result
-            if (it.isSuccessful && result != null)
-                sendMessage(fileRef = result.storage.path)
-        })
+        var messageText: String? = null
+        if (messageEditText.text.isNotBlank())
+            messageText = messageEditText.text.toString().trim()
+
+        messageEditText.setText("")
+        sendMessage(messageText = messageText, uploadUri = uri.toString())
     }
 
     @SuppressLint("CheckResult")
@@ -500,9 +523,10 @@ class ChatActivity : AppCompatActivity() {
                     "Delete for me"
             ) { _, _ ->
 
-                selectedMessages.forEach {
-                    threadManager.deleteForCurrentUser(threadId, it.messageId)
-                }
+                // TODO do this in bulk and not for each message individually
+//                selectedMessages.forEach {
+//                    threadManager.deleteForCurrentUser(threadId, it.messageId)
+//                }
             }
 
             setNegativeButton(
@@ -515,9 +539,11 @@ class ChatActivity : AppCompatActivity() {
                 setNeutralButton(
                         "Delete for Everyone"
                 ) { _, _ ->
-                    selectedMessages.forEach {
-                        threadManager.deleteMessageForEveryone(threadId, it.messageId, it.fileRef, null)
-                    }
+
+                    // TODO do this in bulk and not for each message individually
+//                    selectedMessages.forEach {
+//                        threadManager.deleteMessageForEveryone(threadId, it.messageId, it.fileRef, null)
+//                    }
 
                     setMessageSelectedPropertyForAll(false)
                 }
@@ -528,4 +554,57 @@ class ChatActivity : AppCompatActivity() {
         alertDialog.setMessage("Delete messages ?")
         alertDialog.show()
     }
+
+    private fun startPendingUploads(res: RealmResults<RavenMessage>) {
+
+        res.filter { rm ->
+            rm.uploadUri != null && rm.fileRef == null
+        }.forEach { rm ->
+            startUploading(rm)
+        }
+    }
+
+    private fun startUploading(rm: RavenMessage) {
+
+        val storageRef = FirebaseStorage.getInstance().getReference("thread_media/$threadId/IMG_${rm.messageId}.png")
+
+        if (storageRef.activeUploadTasks.isNotEmpty()) {
+
+            Log.i(tag, "Upload for ${rm.messageId} already exists.")
+
+        } else {
+
+            Log.i(tag, "Starting upload for ${rm.messageId}. because fileRef = ${rm.fileRef} and uploadUri = ${rm.uploadUri}")
+
+            val uploadTask = storageRef.putFile(Uri.parse(rm.uploadUri))
+            uploadTask.addOnProgressListener {
+
+                Log.i(tag, "${it.bytesTransferred.toDouble()} ${it.totalByteCount.toDouble()}")
+                Log.i(tag, "${it.bytesTransferred.toDouble() / it.totalByteCount.toDouble()}")
+
+            }.addOnCompleteListener {
+
+                Log.i(tag, "Upload completed for ${rm.messageId}")
+
+                val fileRef = it.result?.storage?.path
+
+                val message = RavenMessageUtil.revClone(rm)
+                message.fileRef = fileRef
+
+                realm.executeTransaction { realmL ->
+
+                    val rmL = realmL.where(RavenMessage::class.java).equalTo("messageId", rm.messageId).findFirst()
+                            ?: return@executeTransaction
+                    rmL.fileRef = fileRef
+
+                    realmL.insertOrUpdate(rmL)
+                }
+
+                threadManager.sendMessage(rm.threadId, rm.messageId, message, userId == RavenUtils.GROUP)
+            }
+        }
+    }
 }
+
+
+

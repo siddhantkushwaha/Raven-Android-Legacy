@@ -59,35 +59,6 @@ class RavenThreadUtil {
         }
 
         @JvmStatic
-        fun setLastMessage(realm: Realm, performAsync: Boolean, threadId: String, messageId: String = "NoMessage") {
-
-            val transaction = Realm.Transaction { realmL ->
-                val ravenThread = realmL.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
-                        ?: return@Transaction
-                var ravenMessage = realmL.where(RavenMessage::class.java).equalTo("messageId", messageId).findFirst()
-
-                if (messageId != "NoMessage" && ravenMessage == null) {
-                    ravenMessage = RavenMessage()
-                    ravenMessage.threadId = threadId
-                    ravenMessage.messageId = messageId
-                    ravenMessage = realmL.copyToRealmOrUpdate(ravenMessage)
-                }
-
-                ravenThread.lastMessage = ravenMessage
-
-                if (ravenMessage != null)
-                    ravenThread.timestamp = ravenMessage.timestamp ?: ravenMessage.localTimestamp
-
-                realmL.insertOrUpdate(ravenThread)
-            }
-
-            if (performAsync)
-                realm.executeTransactionAsync(transaction)
-            else
-                realm.executeTransaction(transaction)
-        }
-
-        @JvmStatic
         fun addUsers(realmL: Realm, ravenThread: RavenThread, userIds: ArrayList<String>) {
 
             if (ravenThread.users == null)
@@ -126,11 +97,29 @@ class RavenThreadUtil {
         }
 
         @JvmStatic
-        fun findMostRecentMessage(userId: String, messages: HashMap<String, Message>?): MutableMap.MutableEntry<String, Message>? {
+        fun setLastMessage(realm: Realm, performAsync: Boolean, threadId: String, userId: String) {
 
-            return messages?.entries?.sortedBy { me ->
-                me.value.timestamp
-            }?.findLast { me -> me.value.notDeletedBy.contains(userId) }
+            val transaction = Realm.Transaction { realmL ->
+
+                val rt = realmL.where(RavenThread::class.java).equalTo("threadId", threadId).findFirst()
+                        ?: return@Transaction
+
+                val allMsg = realmL.where(RavenMessage::class.java).equalTo("threadId", threadId).findAll()
+                val lastMessage = allMsg.sortedBy { rm ->
+                    rm.localTimestamp
+                }.findLast { rm ->
+                    rm.notDeletedBy?.contains(userId) == true
+                }
+
+                rt.lastMessage = lastMessage
+
+                realmL.insertOrUpdate(rt)
+            }
+
+            if (performAsync)
+                realm.executeTransactionAsync(transaction)
+            else
+                realm.executeTransaction(transaction)
         }
     }
 }

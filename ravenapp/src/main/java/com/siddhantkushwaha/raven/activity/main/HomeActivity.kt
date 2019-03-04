@@ -28,7 +28,6 @@ import com.siddhantkushwaha.raven.entity.User
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.manager.UserManager
 import com.siddhantkushwaha.raven.realm.entity.RavenThread
-import com.siddhantkushwaha.raven.realm.utility.RavenMessageUtil
 import com.siddhantkushwaha.raven.realm.utility.RavenThreadUtil
 import com.siddhantkushwaha.raven.realm.utility.RavenUserUtil
 import com.siddhantkushwaha.raven.utility.Common
@@ -159,14 +158,7 @@ class HomeActivity : AppCompatActivity() {
                             }
                         }
 
-                        val lm = RavenThreadUtil.findMostRecentMessage(FirebaseAuth.getInstance().uid!!, thread?.messages)
-                        if (lm != null) {
-                            RavenMessageUtil.setMessage(realm, false, threadId, lm.key, lm.value, null)
-                            RavenThreadUtil.setLastMessage(realm, false, threadId, lm.key)
-                        } else {
-                            RavenThreadUtil.setLastMessage(realm, false, threadId)
-                        }
-
+                        RavenThreadUtil.setLastMessage(realm, false, threadId, FirebaseAuth.getInstance().uid!!)
                         allThreadDocIds[threadId] = threadSnap
                     }
 

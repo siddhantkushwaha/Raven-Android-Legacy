@@ -19,19 +19,22 @@ public class RavenMessage extends RealmObject {
 
     @Nullable
     public String text;
+
     @Nullable
     public String fileRef;
+
     @Nullable
     public String sentByUserId;
 
-    // These are in JodaTime
     @Nullable
     public String timestamp;
-    @Nullable
-    public String localTimestamp;
 
     @Nullable
     public String seenBy;
+
+
+    @Nullable
+    public String localTimestamp;
 
     @Nullable
     public String deletedBy;
@@ -39,7 +42,12 @@ public class RavenMessage extends RealmObject {
     @Nullable
     public RealmList<String> notDeletedBy;
 
-    public boolean selected = false;
+    @NonNull
+    public Boolean selected = false;
+
+    @Nullable
+    public String uploadUri;
+
 
     public Integer getMessageType(@NonNull String userId) {
 
@@ -47,7 +55,7 @@ public class RavenMessage extends RealmObject {
             return -1;
 
         if (sentByUserId.equals(userId))
-            if (fileRef == null)
+            if (fileRef == null && uploadUri == null)
                 return 1;
             else
                 return 2;

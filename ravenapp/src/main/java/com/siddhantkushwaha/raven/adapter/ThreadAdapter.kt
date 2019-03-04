@@ -91,8 +91,9 @@ class ThreadAdapter(private val context: Context, private val data: OrderedRealm
 
                 val text = ravenThread.lastMessage.text
                 val fileRef = ravenThread.lastMessage.fileRef
+                val uploadUri = ravenThread.lastMessage.uploadUri
 
-                val messageText = if (text == null && fileRef == null) {
+                val messageText = if (text == null && fileRef == null && uploadUri == null) {
                     "Message Deleted."
                 } else if (text == null) {
                     "Photo."

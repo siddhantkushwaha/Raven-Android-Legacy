@@ -3,6 +3,7 @@ package com.siddhantkushwaha.raven.adapter
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -113,7 +114,7 @@ class MessageAdapter(private val context: Context, private val ravenThreadResult
             val text: TextView = itemView.findViewById(R.id.text)
             val time: TextView = itemView.findViewById(R.id.time)
 
-            messageAdapter.setImage(image, ravenMessage.fileRef)
+            messageAdapter.setImage(image, ravenMessage.fileRef, ravenMessage.uploadUri)
 
             if (ravenMessage.text != null) {
                 text.visibility = View.VISIBLE
@@ -199,15 +200,6 @@ class MessageAdapter(private val context: Context, private val ravenThreadResult
             bannerRoot.banner.text = text
             insertPoint.addView(bannerRoot, 0, ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
         }
-    }
-
-    fun setImage(imageView: ImageView, fileRef: String?) {
-
-        imageView.setImageDrawable(context.getDrawable(R.drawable.hourglass))
-        if (fileRef != null)
-            FirebaseStorageUtil.getDownloadUrl(context, fileRef) { url ->
-                GlideUtilV2.loadImageInChat(context, url, imageView)
-            }
     }
 
     fun setName(nameTextView: TextView, userId: String?) {
@@ -305,5 +297,17 @@ class MessageAdapter(private val context: Context, private val ravenThreadResult
     interface OnClickListener {
         fun onClick(ravenMessage: RavenMessage)
         fun onLongClick(ravenMessage: RavenMessage)
+    }
+
+    fun setImage(imageView: ImageView, fileRef: String? = null, uploadUri: String? = null) {
+
+        imageView.setImageDrawable(context.getDrawable(R.drawable.hourglass))
+        if (fileRef != null) {
+            FirebaseStorageUtil.getDownloadUrl(context, fileRef) { url ->
+                GlideUtilV2.loadImageInChat(context, url, imageView)
+            }
+        } else {
+            GlideUtilV2.loadImageInChat(context, uploadUri, imageView)
+        }
     }
 }

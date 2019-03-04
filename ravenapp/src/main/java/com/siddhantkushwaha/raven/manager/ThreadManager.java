@@ -77,9 +77,7 @@ public class ThreadManager {
         db.collection(THREAD_COLLECTION_NAME).add(thread).addOnCompleteListener(onCompleteListener);
     }
 
-    public void sendMessage(@NonNull String threadId, @NonNull Message message, boolean isGroup) {
-
-        DocumentReference messageRef = db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(KEY_MESSAGES).document();
+    public void sendMessage(@NonNull String threadId, @NonNull String messageId, @NonNull Message message, boolean isGroup) {
 
         WriteBatch batch = db.batch();
 
@@ -89,7 +87,7 @@ public class ThreadManager {
             threadMap.put("users", FieldValue.arrayUnion(message.getNotDeletedBy().toArray()));
 
         HashMap<String, Object> messageMap = new HashMap<>();
-        messageMap.put(messageRef.getId(), message);
+        messageMap.put(messageId, message);
         threadMap.put(KEY_MESSAGES, messageMap);
 
         batch.set(db.collection(THREAD_COLLECTION_NAME).document(threadId), threadMap, SetOptions.merge());
@@ -98,26 +96,11 @@ public class ThreadManager {
 
             HashMap<String, Object> map = new HashMap<>();
             map.put("threadId", threadId);
-            map.put("messageId", messageRef.getId());
+            map.put("messageId", messageId);
             message.getNotDeletedBy().remove(FirebaseAuth.getInstance().getUid());
             map.put("sentTo", message.getNotDeletedBy());
             FirebaseUtils.getRealtimeDb(true).getReference(KEY_MESSAGES).push().setValue(map);
         });
-    }
-
-    public void sendFile(@NonNull String threadId, @NonNull Uri uri, @Nullable OnProgressListener<UploadTask.TaskSnapshot> onProgressListener, @NonNull OnCompleteListener<UploadTask.TaskSnapshot> onCompleteListener) {
-
-        // shortcut to generate a random fileId for now
-        String fileId = db.collection(THREAD_COLLECTION_NAME).document(threadId).collection(KEY_MESSAGES).document().getId();
-
-        StorageReference fileRef = FirebaseStorage.getInstance().getReference("thread_media/" + threadId + "/" + fileId + "/media.png");
-        UploadTask uploadTask = fileRef.putFile(uri);
-
-        if (onProgressListener != null) {
-            uploadTask.addOnProgressListener(onProgressListener);
-        }
-
-        uploadTask.addOnCompleteListener(onCompleteListener);
     }
 
     public void markMessageAsRead(@NonNull String threadId, @NonNull String messageId, Timestamp timestamp, OnCompleteListener<Object> onCompleteListener) {

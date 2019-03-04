@@ -1,5 +1,6 @@
 package com.siddhantkushwaha.raven.realm.utility
 
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.siddhantkushwaha.nuttertools.GsonUtil
@@ -41,6 +42,8 @@ class RavenMessageUtil {
                 }
                 ravenMessage.seenBy = GsonUtil.toGson(map)
             }
+
+            ravenMessage.uploadUri = null
         }
 
         @JvmStatic
@@ -68,6 +71,25 @@ class RavenMessageUtil {
                 realm.executeTransactionAsync(transaction)
             else
                 realm.executeTransaction(transaction)
+        }
+
+        @JvmStatic
+        fun revClone(ravenMessage: RavenMessage): Message {
+
+            val message = Message()
+
+            message.text = ravenMessage.text
+            message.fileRef = ravenMessage.fileRef
+            message.sentByUserId = ravenMessage.sentByUserId
+
+            message.sentTime = Timestamp(DateTime.parse(ravenMessage.localTimestamp).toDate())
+
+            message.notDeletedBy = ArrayList()
+            ravenMessage.notDeletedBy?.forEach {
+                message.notDeletedBy.add(it)
+            }
+
+            return message
         }
     }
 }
