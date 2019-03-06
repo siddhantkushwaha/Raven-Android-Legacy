@@ -555,7 +555,7 @@ class ChatActivity : AppCompatActivity() {
         val updates = res.filter { rm ->
 
             rm.value.sentByUserId != FirebaseAuth.getInstance().uid &&
-                    !rm.value.seenBy.containsKey(FirebaseAuth.getInstance().uid)
+                    rm.value.seenBy?.containsKey(FirebaseAuth.getInstance().uid) != true
         }.map { rm ->
             "messages.${rm.key}.seenBy.${FirebaseAuth.getInstance().uid}" to Timestamp.now()
         }.toMap()

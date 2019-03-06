@@ -44,7 +44,8 @@ private fun sendNotification(context: Context, threadId: String, thread: Thread,
 
     val notificationSender = NotificationSender(context)
 
-    notificationSender.sendNotificationWithReplyAction(requestCode, threadId, thread.groupDetails?.name, user.userProfile?.name, if (isGroup) thread.groupDetails?.picUrl else user.userProfile?.picUrl, message.text, isGroup, thread.users, intent)
+    notificationSender.sendNotificationWithReplyAction(requestCode, threadId, thread.groupDetails?.name, user.userProfile?.name
+            ?: user.phoneNumber, if (isGroup) thread.groupDetails?.picUrl else user.userProfile?.picUrl, message.text, isGroup, thread.users, intent)
 }
 
 private fun setMessageText(message: Message, threadId: String) {
