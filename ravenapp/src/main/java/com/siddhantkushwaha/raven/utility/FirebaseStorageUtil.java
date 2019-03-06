@@ -5,6 +5,10 @@ import android.content.Context;
 import com.google.firebase.storage.FirebaseStorage;
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.LocalStorage;
 
+import java.util.List;
+
+import androidx.annotation.NonNull;
+
 public class FirebaseStorageUtil {
 
     private static final String prefix = "gs://raven-f6b32.appspot.com/";
@@ -29,7 +33,15 @@ public class FirebaseStorageUtil {
     }
 
     public static void deleteFile(String fileRef) {
-        FirebaseStorage.getInstance().getReference(fileRef.replace(prefix, "")).delete();
+        if (fileRef != null)
+            FirebaseStorage.getInstance().getReference(fileRef.replace(prefix, "")).delete();
+    }
+
+    public static void deleteFiles(@NonNull List<String> fileArr) {
+
+        for (String fileRef : fileArr) {
+            deleteFile(fileRef);
+        }
     }
 
     public interface OnComplete {

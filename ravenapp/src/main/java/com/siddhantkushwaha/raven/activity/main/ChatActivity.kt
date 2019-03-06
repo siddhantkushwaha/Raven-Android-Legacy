@@ -14,12 +14,12 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.storage.FirebaseStorage
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.android.thugtools.thugtools.utility.ImageUtil
@@ -181,6 +181,8 @@ class ChatActivity : AppCompatActivity() {
                     }
                 }
             // --------------------------------------
+
+            markMessagesAsSeen(messageList)
         }
 
         ravenThreadResult = realm.where(RavenThread::class.java).equalTo("threadId", threadId).findAllAsync()
@@ -282,8 +284,6 @@ class ChatActivity : AppCompatActivity() {
         }
 
         selectedMessagesListener = OrderedRealmCollectionChangeListener { _, _ ->
-            Log.i(tag, selectedMessages.size.toString())
-
             if (selectedMessages.size > 0) {
 
                 if (actionMode == null) actionMode = startSupportActionMode(actionModeCallback)
@@ -308,7 +308,6 @@ class ChatActivity : AppCompatActivity() {
                 val messageId = ravenMessage.messageId ?: return
                 setMessageSelectedProperty(messageId, true)
             }
-
         })
 
         linearLayoutManager = LinearLayoutManager(this@ChatActivity)
@@ -316,25 +315,6 @@ class ChatActivity : AppCompatActivity() {
 
         messageRecyclerView.layoutManager = linearLayoutManager
         messageRecyclerView.adapter = ravenMessageAdapter
-//        messageRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-//
-//            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-//                super.onScrolled(recyclerView, dx, dy)
-//
-//                val firstVisibleItemPosition = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
-//                val lastVisibleItemPosition = linearLayoutManager.findLastCompletelyVisibleItemPosition()
-//
-//                if (firstVisibleItemPosition == -1 || lastVisibleItemPosition == -1)
-//                    return
-//
-//                for (i in firstVisibleItemPosition..lastVisibleItemPosition) {
-//                    val ravenMessage = ravenMessageAdapter.getItem(i)!!
-//                    if (ravenMessage.sentByUserId != FirebaseAuth.getInstance().uid && ravenMessage.getSeenByUserId(FirebaseAuth.getInstance().uid!!) == null) {
-//                        //threadManager.markMessagesAsRead(threadId, Timestamp.now())
-//                    }
-//                }
-//            }
-//        })
     }
 
     override fun onStart() {
@@ -523,10 +503,11 @@ class ChatActivity : AppCompatActivity() {
                     "Delete for me"
             ) { _, _ ->
 
-                // TODO do this in bulk and not for each message individually
-//                selectedMessages.forEach {
-//                    threadManager.deleteForCurrentUser(threadId, it.messageId)
-//                }
+                val updates = selectedMessages.map { rm ->
+                    "messages.${rm.messageId}.notDeletedBy" to FieldValue.arrayRemove(FirebaseAuth.getInstance().uid)
+                }.toMap()
+
+                threadManager.updateThread(threadId, updates)
             }
 
             setNegativeButton(
@@ -540,10 +521,21 @@ class ChatActivity : AppCompatActivity() {
                         "Delete for Everyone"
                 ) { _, _ ->
 
-                    // TODO do this in bulk and not for each message individually
-//                    selectedMessages.forEach {
-//                        threadManager.deleteMessageForEveryone(threadId, it.messageId, it.fileRef, null)
-//                    }
+                    val updates1 = selectedMessages.filter { rm -> rm.text != null }.map { rm ->
+                        "messages.${rm.messageId}.text" to FieldValue.delete()
+                    }.toMap()
+
+                    val updates2 = selectedMessages.filter { rm -> rm.fileRef != null }.map { rm ->
+                        "messages.${rm.messageId}.fileRef" to FieldValue.delete()
+                    }.toMap()
+
+                    val fileArr = selectedMessages.filter { rm -> rm.fileRef != null }.map { rm ->
+                        rm.fileRef
+                    }
+
+                    threadManager.updateThread(threadId, updates1)
+                    threadManager.updateThread(threadId, updates2)
+                    FirebaseStorageUtil.deleteFiles(fileArr)
 
                     setMessageSelectedPropertyForAll(false)
                 }
@@ -553,6 +545,22 @@ class ChatActivity : AppCompatActivity() {
         val alertDialog = builder.create()
         alertDialog.setMessage("Delete messages ?")
         alertDialog.show()
+    }
+
+    private fun markMessagesAsSeen(res: Map<String, Message>?) {
+
+        if (res == null)
+            return
+
+        val updates = res.filter { rm ->
+
+            rm.value.sentByUserId != FirebaseAuth.getInstance().uid &&
+                    !rm.value.seenBy.containsKey(FirebaseAuth.getInstance().uid)
+        }.map { rm ->
+            "messages.${rm.key}.seenBy.${FirebaseAuth.getInstance().uid}" to Timestamp.now()
+        }.toMap()
+
+        threadManager.updateThread(threadId, updates)
     }
 
     private fun startPendingUploads(res: RealmResults<RavenMessage>) {
@@ -605,6 +613,3 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 }
-
-
-

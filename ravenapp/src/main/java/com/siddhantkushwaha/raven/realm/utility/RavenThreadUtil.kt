@@ -113,6 +113,11 @@ class RavenThreadUtil {
 
                 rt.lastMessage = lastMessage
 
+                val threadTimestamp = lastMessage?.timestamp ?: lastMessage?.localTimestamp
+                if (threadTimestamp != null) {
+                    rt.timestamp = threadTimestamp
+                }
+
                 realmL.insertOrUpdate(rt)
             }
 
