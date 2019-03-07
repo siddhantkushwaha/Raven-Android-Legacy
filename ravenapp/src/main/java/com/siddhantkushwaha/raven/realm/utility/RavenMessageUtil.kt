@@ -6,6 +6,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException
 import com.siddhantkushwaha.nuttertools.GsonUtil
 import com.siddhantkushwaha.raven.entity.Message
 import com.siddhantkushwaha.raven.realm.entity.RavenMessage
+import com.siddhantkushwaha.raven.utility.JodaTimeUtilV2
 import io.realm.Realm
 import io.realm.RealmList
 import org.joda.time.DateTime
@@ -21,10 +22,8 @@ class RavenMessageUtil {
             ravenMessage.fileRef = message.fileRef
             ravenMessage.sentByUserId = message.sentByUserId
 
-            ravenMessage.localTimestamp = DateTime(message.sentTime.toDate()).toString()
-
-            if (message.timestamp != null)
-                ravenMessage.timestamp = DateTime(message.timestamp.toDate()).toString()
+            ravenMessage.localTimestamp = JodaTimeUtilV2.getDateTimeAsString(message.sentTime)
+            ravenMessage.timestamp = JodaTimeUtilV2.getDateTimeAsString(message.timestamp)
 
             if (message.notDeletedBy != null) {
                 val arr = RealmList<String>()
@@ -38,7 +37,7 @@ class RavenMessageUtil {
             if (message.seenBy != null) {
                 val map = HashMap<String, String>()
                 message.seenBy.forEach { pair ->
-                    map[pair.key] = DateTime(pair.value.toDate()).toString()
+                    map[pair.key] = JodaTimeUtilV2.getDateTimeAsString(pair.value)
                 }
                 ravenMessage.seenBy = GsonUtil.toGson(map)
             }

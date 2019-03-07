@@ -97,6 +97,13 @@ class RavenThreadUtil {
         }
 
         @JvmStatic
+        fun getLastMessageByUserId(userId: String, messages: HashMap<String, Message>?): Map.Entry<String, Message>? {
+            return getMessagesByUserId(userId, messages)?.entries?.sortedBy { me ->
+                me.value.sentTime
+            }?.last()
+        }
+
+        @JvmStatic
         fun setLastMessage(realm: Realm, performAsync: Boolean, threadId: String, userId: String) {
 
             val transaction = Realm.Transaction { realmL ->

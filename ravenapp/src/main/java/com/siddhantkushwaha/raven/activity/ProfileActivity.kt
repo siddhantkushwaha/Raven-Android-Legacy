@@ -187,7 +187,7 @@ class ProfileActivity : AppCompatActivity() {
                         ?: 0.0)
                 moveCamera(latLng, 0, "Last seen here.")
 
-                val time = JodaTimeUtilV2.getJodaDateTimeFromFirebaseTimestamp(user?.userLocation?.timestamp)
+                val time = JodaTimeUtilV2.getDateTime(user?.userLocation?.timestamp)
                 val build = DateTimeFormat.forPattern("hh:mm a 'on' MMMMMMMMM d, yyyy").withZone(DateTimeZone.getDefault())
                 locationInfoTextView.text = build.print(time)
             } else {

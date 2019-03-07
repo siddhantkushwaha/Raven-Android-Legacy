@@ -28,6 +28,7 @@ import com.siddhantkushwaha.raven.entity.User
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.manager.UserManager
 import com.siddhantkushwaha.raven.realm.entity.RavenThread
+import com.siddhantkushwaha.raven.realm.utility.RavenMessageUtil
 import com.siddhantkushwaha.raven.realm.utility.RavenThreadUtil
 import com.siddhantkushwaha.raven.realm.utility.RavenUserUtil
 import com.siddhantkushwaha.raven.utility.Common
@@ -158,6 +159,11 @@ class HomeActivity : AppCompatActivity() {
                             }
                         }
 
+                        val lastSyncedMessage = RavenThreadUtil.getLastMessageByUserId(FirebaseAuth.getInstance().uid!!, thread?.messages)
+                        if (lastSyncedMessage != null) {
+                            RavenMessageUtil.setMessage(realm, false, threadId, lastSyncedMessage.key, lastSyncedMessage.value)
+                        }
+
                         RavenThreadUtil.setLastMessage(realm, false, threadId, FirebaseAuth.getInstance().uid!!)
                         allThreadDocIds[threadId] = threadSnap
                     }
@@ -176,7 +182,7 @@ class HomeActivity : AppCompatActivity() {
                 }
         }
 
-        allThreads = realm.where(RavenThread::class.java).equalTo("userId", FirebaseAuth.getInstance().uid).sort("timestamp", Sort.DESCENDING, "lastMessage.timestamp", Sort.DESCENDING).findAllAsync()
+        allThreads = realm.where(RavenThread::class.java).equalTo("userId", FirebaseAuth.getInstance().uid).sort("timestamp", Sort.DESCENDING).findAllAsync()
 
         allThreadsAdapter = ThreadAdapter(this@HomeActivity, allThreads)
         threadListView.emptyView = emptyView

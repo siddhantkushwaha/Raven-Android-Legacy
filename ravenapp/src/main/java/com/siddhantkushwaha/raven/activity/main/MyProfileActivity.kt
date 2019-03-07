@@ -338,7 +338,7 @@ class MyProfileActivity : AppCompatActivity() {
                 statusLocationPublicTextView.text = "Your location is private."
             statusLocationPublic.setOnCheckedChangeListener(privacyChangeListener)
 
-            val time = JodaTimeUtilV2.getJodaDateTimeFromFirebaseTimestamp(user?.userLocation?.timestamp)
+            val time = JodaTimeUtilV2.getDateTime(user?.userLocation?.timestamp)
             val build = DateTimeFormat.forPattern("hh:mm a 'on' MMMMMMMMM d, yyyy").withZone(DateTimeZone.getDefault())
             lastUpdatedTextView.text = build.print(time)
 
