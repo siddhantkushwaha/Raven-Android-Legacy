@@ -65,9 +65,9 @@ public class NotificationReceiver extends BroadcastReceiver {
             messageObject.setSentTime(Timestamp.now());
             messageObject.setNotDeletedBy(users);
 
-            //new ThreadManager().sendMessage(threadId, messageObject, RavenUtils.isGroup(threadId, senderUid));
+            new ThreadManager().sendMessage(threadId, Common.randomString(24), messageObject, RavenUtils.isGroup(threadId, senderUid));
 
-            //NotificationSender.cancelNotification(context, threadId, 0);
+            NotificationSender.cancelNotification(context, threadId, 0);
         }
     }
 }

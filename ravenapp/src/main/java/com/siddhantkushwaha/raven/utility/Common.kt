@@ -33,7 +33,8 @@ class Common {
             return ColorStateList(states, colors)
         }
 
-        fun randomString(size: Int = 36): String {
+        @JvmStatic
+        fun randomString(size: Int = 24): String {
 
             val charPool: List<Char> = ('a'..'z') + ('A'..'Z') + ('0'..'9')
             return (1..size)
