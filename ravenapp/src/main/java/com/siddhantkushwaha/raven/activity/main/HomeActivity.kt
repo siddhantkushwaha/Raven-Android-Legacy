@@ -2,13 +2,9 @@ package com.siddhantkushwaha.raven.activity.main
 
 import android.app.Activity
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Bundle
-import android.view.MenuItem
-import android.widget.TextView
-import androidx.appcompat.app.ActionBarDrawerToggle
+import android.view.animation.AccelerateInterpolator
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.GravityCompat
 import com.crashlytics.android.Crashlytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentChange
@@ -23,25 +19,21 @@ import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.activity.AboutActivity
 import com.siddhantkushwaha.raven.activity.ContactsActivity
 import com.siddhantkushwaha.raven.adapter.ThreadAdapter
+import com.siddhantkushwaha.raven.custom.NavigationIconClickListener
 import com.siddhantkushwaha.raven.entity.Thread
-import com.siddhantkushwaha.raven.entity.User
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.manager.UserManager
 import com.siddhantkushwaha.raven.realm.entity.RavenThread
 import com.siddhantkushwaha.raven.realm.utility.RavenMessageUtil
 import com.siddhantkushwaha.raven.realm.utility.RavenThreadUtil
 import com.siddhantkushwaha.raven.realm.utility.RavenUserUtil
-import com.siddhantkushwaha.raven.utility.Common
 import com.siddhantkushwaha.raven.utility.FirebaseUtils
-import com.siddhantkushwaha.raven.utility.GlideUtilV2
 import com.siddhantkushwaha.raven.utility.RealmUtil
 import io.realm.OrderedRealmCollectionChangeListener
 import io.realm.Realm
 import io.realm.RealmResults
 import io.realm.Sort
 import kotlinx.android.synthetic.main.activity_home.*
-import kotlinx.android.synthetic.main.layout_toolbar.*
-
 
 class HomeActivity : AppCompatActivity() {
 
@@ -57,13 +49,11 @@ class HomeActivity : AppCompatActivity() {
 
     private val tag = HomeActivity::class.java.toString()
 
-    private var drawerToggle: ActionBarDrawerToggle? = null
+    private lateinit var navigationIconClickListener: NavigationIconClickListener
 
-    private val user: User = User()
     private val userManager: UserManager = UserManager()
     private val threadManager: ThreadManager = ThreadManager()
 
-    private lateinit var currentUserEventListener: EventListener<DocumentSnapshot>
     private lateinit var allThreadsFirestoreListener: EventListener<QuerySnapshot>
 
     private val allThreadDocIds = HashMap<String, DocumentSnapshot>()
@@ -83,35 +73,30 @@ class HomeActivity : AppCompatActivity() {
 
         realm = RealmUtil.getCustomRealmInstance(this@HomeActivity)
 
-        setSupportActionBar(toolbar)
-        toolbar.title = "Raven"
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        setActionBar(toolbar)
         supportActionBar?.setHomeButtonEnabled(true)
 
-        drawerToggle = ActionBarDrawerToggle(this@HomeActivity, drawer_layout, R.string.drawer_open, R.string.drawer_close)
-        drawer_layout.addDrawerListener(drawerToggle!!)
-        navigation.setNavigationItemSelectedListener {
-            when (it.itemId) {
-                R.id.action_my_profile -> {
-                    actionMyProfile()
-                }
+        navigationIconClickListener = NavigationIconClickListener(
+                this@HomeActivity,
+                linearLayout2,
+                AccelerateInterpolator(),
+                getDrawable(R.drawable.ham_menu_white),
+                getDrawable(R.drawable.btn_close_white)
+        )
 
-                R.id.action_logout -> {
-                    actionLogout()
-                }
+        toolbar.setNavigationOnClickListener(navigationIconClickListener)
 
-                R.id.action_clear_data -> {
-                    Common.clearData(this@HomeActivity)
-                }
-
-                R.id.action_about -> {
-                    actionAbout()
-                }
-            }
-            false
+        btn_my_profile.setOnClickListener {
+            MyProfileActivity.openActivity(this@HomeActivity, false)
         }
 
-        navigation.menu.findItem(R.id.action_clear_data).isVisible = BuildConfig.DEBUG
+        btn_about.setOnClickListener {
+            AboutActivity.openActivity(this@HomeActivity, false)
+        }
+
+        btn_logout.setOnClickListener {
+            logout()
+        }
 
         contacts.setOnClickListener {
             ContactsActivity.openActivity(this@HomeActivity, false)
@@ -213,16 +198,6 @@ class HomeActivity : AppCompatActivity() {
             true
         }
 
-        currentUserEventListener = EventListener { snapshot, _ ->
-
-            if (snapshot != null && snapshot.exists()) {
-                user.cloneObject(snapshot.toObject(User::class.java)!!)
-            }
-            updateProfileUi()
-        }
-
-        // RavenContactSync.setupSync(this@HomeActivity)
-
         val map = HashMap<String, Any>()
         map[UserManager.KEY_PHONE] = FirebaseAuth.getInstance().currentUser!!.phoneNumber!!
         userManager.setUserFields(FirebaseAuth.getInstance().uid!!, map) {
@@ -239,7 +214,6 @@ class HomeActivity : AppCompatActivity() {
 
         ActivityInfo.setActivityInfo(this::class.java.toString(), intent.extras)
 
-        userManager.startUserSyncByUserId(this@HomeActivity, FirebaseAuth.getInstance().uid!!, currentUserEventListener)
         threadManager.startAllThreadsSyncByUserId(this@HomeActivity, FirebaseAuth.getInstance().uid, allThreadsFirestoreListener)
 
         allThreads.addChangeListener(allThreadsRealmListener)
@@ -253,50 +227,11 @@ class HomeActivity : AppCompatActivity() {
         allThreads.removeAllChangeListeners()
     }
 
-    override fun onBackPressed() {
-
-        if (drawer_layout.isDrawerOpen(GravityCompat.START))
-            drawer_layout.closeDrawers()
-        else
-            super.onBackPressed()
-    }
-
-    override fun onPostCreate(savedInstanceState: Bundle?) {
-        super.onPostCreate(savedInstanceState)
-        drawerToggle?.syncState()
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        drawerToggle?.onConfigurationChanged(newConfig)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        return drawerToggle?.onOptionsItemSelected(item) ?: false || super.onOptionsItemSelected(item)
-    }
-
-    private fun actionMyProfile() {
-        MyProfileActivity.openActivity(this@HomeActivity, false)
-    }
-
-    private fun actionLogout() {
+    private fun logout() {
 
         FirebaseMessaging.getInstance().unsubscribeFromTopic(FirebaseAuth.getInstance().uid!!)
 
         FirebaseAuth.getInstance().signOut()
         LoginActivity.openActivity(this@HomeActivity, true)
-    }
-
-    private fun actionAbout() {
-        AboutActivity.openActivity(this@HomeActivity, false)
-    }
-
-    private fun updateProfileUi() {
-
-        navigation.getHeaderView(0).findViewById<TextView>(R.id.nameTextView).text = user.userProfile?.name
-                ?: getString(R.string.default_name)
-        navigation.getHeaderView(0).findViewById<TextView>(R.id.phoneTextView).text = user.phoneNumber
-                ?: "Phone"
-        GlideUtilV2.loadProfilePhotoCircle(this@HomeActivity, navigation.getHeaderView(0).findViewById(R.id.displayPic), user.userProfile?.picUrl)
     }
 }
