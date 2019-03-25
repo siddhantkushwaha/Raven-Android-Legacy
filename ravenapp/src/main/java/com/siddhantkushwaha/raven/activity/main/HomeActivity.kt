@@ -21,6 +21,7 @@ import com.siddhantkushwaha.raven.activity.ContactsActivity
 import com.siddhantkushwaha.raven.adapter.ThreadAdapter
 import com.siddhantkushwaha.raven.custom.NavigationIconClickListener
 import com.siddhantkushwaha.raven.entity.Thread
+import com.siddhantkushwaha.raven.entity.User
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.manager.UserManager
 import com.siddhantkushwaha.raven.realm.entity.RavenThread
@@ -28,6 +29,7 @@ import com.siddhantkushwaha.raven.realm.utility.RavenMessageUtil
 import com.siddhantkushwaha.raven.realm.utility.RavenThreadUtil
 import com.siddhantkushwaha.raven.realm.utility.RavenUserUtil
 import com.siddhantkushwaha.raven.utility.FirebaseUtils
+import com.siddhantkushwaha.raven.utility.GlideUtilV2
 import com.siddhantkushwaha.raven.utility.RealmUtil
 import io.realm.OrderedRealmCollectionChangeListener
 import io.realm.Realm
@@ -54,6 +56,7 @@ class HomeActivity : AppCompatActivity() {
     private val userManager: UserManager = UserManager()
     private val threadManager: ThreadManager = ThreadManager()
 
+    private lateinit var userProfileListener: EventListener<DocumentSnapshot>
     private lateinit var allThreadsFirestoreListener: EventListener<QuerySnapshot>
 
     private val allThreadDocIds = HashMap<String, DocumentSnapshot>()
@@ -80,8 +83,9 @@ class HomeActivity : AppCompatActivity() {
                 this@HomeActivity,
                 linearLayout2,
                 AccelerateInterpolator(),
-                getDrawable(R.drawable.ham_menu_white),
-                getDrawable(R.drawable.btn_close_white)
+                getDrawable(R.drawable.btn_white_ham_menu),
+                getDrawable(R.drawable.btn_close_white),
+                linearLayout
         )
 
         toolbar.setNavigationOnClickListener(navigationIconClickListener)
@@ -111,11 +115,20 @@ class HomeActivity : AppCompatActivity() {
                     threadId,
                     requestCode,
                     "admin",
-                    "notificaiton pending intent test..",
+                    "notificaiton pending intent background_activity_home..",
                     intent)
 
             notificationSender.sendNotificationWithReplyAction("12345", threadId, user?.userProfile?.picUrl)
             */
+        }
+
+        userProfileListener = EventListener { userSnap, firebaseFirestoreException ->
+
+            val user = userSnap?.toObject(User::class.java)
+
+            GlideUtilV2.loadProfilePhotoCircle(this@HomeActivity, btn_my_profile, user?.userProfile?.picUrl)
+
+            firebaseFirestoreException?.printStackTrace()
         }
 
         allThreadsFirestoreListener = EventListener { t, firebaseFirestoreException ->
@@ -209,11 +222,13 @@ class HomeActivity : AppCompatActivity() {
         FirebaseMessaging.getInstance().subscribeToTopic(FirebaseAuth.getInstance().uid!!)
     }
 
+
     override fun onStart() {
         super.onStart()
 
         ActivityInfo.setActivityInfo(this::class.java.toString(), intent.extras)
 
+        userManager.startUserSyncByUserId(this@HomeActivity, FirebaseAuth.getInstance().uid, userProfileListener)
         threadManager.startAllThreadsSyncByUserId(this@HomeActivity, FirebaseAuth.getInstance().uid, allThreadsFirestoreListener)
 
         allThreads.addChangeListener(allThreadsRealmListener)

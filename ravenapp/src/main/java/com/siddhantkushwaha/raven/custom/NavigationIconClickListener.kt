@@ -11,12 +11,12 @@ import android.view.animation.Interpolator
 import android.widget.ImageView
 
 /**
- * [android.view.View.OnClickListener] used to translate the product grid sheet downward on
+ * [android.view.View.OnClickListener] used to translate the product grid upperSheet downward on
  * the Y-axis when the navigation icon in the toolbar is pressed.
  */
 open class NavigationIconClickListener @JvmOverloads internal constructor(
-        private val context: Context, private val sheet: View, private val interpolator: Interpolator? = null,
-        private val openIcon: Drawable? = null, private val closeIcon: Drawable? = null) : View.OnClickListener {
+        private val context: Context, private val upperSheet: View, private val interpolator: Interpolator? = null,
+        private val openIcon: Drawable? = null, private val closeIcon: Drawable? = null, private val bottomSheet: View? = null) : View.OnClickListener {
 
     private val animatorSet = AnimatorSet()
     private val height: Int
@@ -38,9 +38,9 @@ open class NavigationIconClickListener @JvmOverloads internal constructor(
 
         updateIcon(view)
 
-        val translateY = (height * 0.5).toInt()
+        val translateY = bottomSheet?.height ?: (height * 0.4).toInt()
 
-        val animator = ObjectAnimator.ofFloat(sheet, "translationY", (if (backdropShown) translateY else 0).toFloat())
+        val animator = ObjectAnimator.ofFloat(upperSheet, "translationY", (if (backdropShown) translateY else 0).toFloat())
         animator.duration = 400
         if (interpolator != null) {
             animator.interpolator = interpolator
@@ -60,9 +60,5 @@ open class NavigationIconClickListener @JvmOverloads internal constructor(
                 view.setImageDrawable(openIcon)
             }
         }
-    }
-
-    fun getBackdropShown() : Boolean {
-        return backdropShown;
     }
 }
