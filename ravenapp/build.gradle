@@ -42,31 +42,26 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 
     // other common dependencies
-    implementation 'androidx.appcompat:appcompat:1.1.0-alpha03'
+    implementation 'androidx.appcompat:appcompat:1.1.0-alpha04'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
     // for annotations after migrating to androidX
     annotationProcessor 'androidx.annotation:annotation:1.0.2'
 
-    // dependencies for testing purpose
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.background_activity_home:runner:1.1.1'
-    androidTestImplementation 'androidx.background_activity_home.espresso:espresso-core:3.1.1'
-
     /* ----------------------------------------------------------------------------- */
 
     // for UI (material design)
-    implementation 'com.google.android.material:material:1.1.0-alpha04'
+    implementation 'com.google.android.material:material:1.1.0-alpha05'
     implementation 'androidx.palette:palette:1.0.0'
     implementation 'androidx.cardview:cardview:1.0.0'
 
     // firebase modules
     implementation 'com.google.firebase:firebase-core:16.0.8'
-    implementation 'com.google.firebase:firebase-auth:16.2.0'
+    implementation 'com.google.firebase:firebase-auth:16.2.1'
     implementation 'com.google.firebase:firebase-storage:16.1.0'
     implementation 'com.google.firebase:firebase-database:16.1.0'
-    implementation 'com.google.firebase:firebase-messaging:17.5.0'
-    implementation 'com.google.firebase:firebase-firestore:18.1.0'
+    implementation 'com.google.firebase:firebase-messaging:17.6.0'
+    implementation 'com.google.firebase:firebase-firestore:18.2.0'
 
     // for google maps
     implementation 'com.google.android.gms:play-services-maps:16.1.0'
