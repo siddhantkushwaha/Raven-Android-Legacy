@@ -75,10 +75,20 @@ dependencies {
     implementation 'com.github.yalantis:ucrop:2.2.2-native'
     implementation 'com.github.MikeOrtiz:TouchImageView:2.1.1'
 
+    implementation 'com.github.bumptech.glide:glide:4.9.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
+
+    implementation 'joda-time:joda-time:2.10.1'
+
+    implementation 'com.google.code.gson:gson:2.8.5'
+
+    // fix'em
+
     //for crashylitics
     implementation 'com.crashlytics.sdk.android:crashlytics:2.9.9'
 
     implementation 'com.github.siddhantkushwaha:thugtools:1.0.1'
+    implementation 'com.github.siddhantkushwaha:nuttertools:1.0.0'
 }
 
 apply plugin: 'com.google.gms.google-services'

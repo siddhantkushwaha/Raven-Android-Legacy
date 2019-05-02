@@ -1,6 +1,7 @@
 package com.siddhantkushwaha.raven.activity
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.Menu
@@ -19,6 +20,7 @@ import com.siddhantkushwaha.raven.utility.RealmUtil
 import io.realm.*
 import kotlinx.android.synthetic.main.activity_base_raven_user.*
 
+@SuppressLint("Registered")
 open class BaseRavenUserActivity(private val layout: Int) : AppCompatActivity() {
 
     internal lateinit var realm: Realm
