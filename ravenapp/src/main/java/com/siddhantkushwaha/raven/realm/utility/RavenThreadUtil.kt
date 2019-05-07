@@ -2,12 +2,12 @@ package com.siddhantkushwaha.raven.realm.utility
 
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestoreException
-import com.siddhantkushwaha.nuttertools.GsonUtil
 import com.siddhantkushwaha.raven.entity.Message
 import com.siddhantkushwaha.raven.entity.Thread
 import com.siddhantkushwaha.raven.realm.entity.RavenMessage
 import com.siddhantkushwaha.raven.realm.entity.RavenThread
 import com.siddhantkushwaha.raven.realm.entity.RavenUser
+import com.siddhantkushwaha.raven.utility.GsonUtil
 import io.realm.Realm
 import io.realm.RealmList
 

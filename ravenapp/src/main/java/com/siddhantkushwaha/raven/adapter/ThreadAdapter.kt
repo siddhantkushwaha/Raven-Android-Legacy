@@ -11,8 +11,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.realm.entity.RavenThread
-import com.siddhantkushwaha.raven.utility.GlideUtilV2
-import com.siddhantkushwaha.raven.utility.JodaTimeUtilV2
+import com.siddhantkushwaha.raven.utility.GlideUtil
+import com.siddhantkushwaha.raven.utility.JodaTimeUtil
 import io.realm.OrderedRealmCollection
 import io.realm.RealmBaseAdapter
 import kotlinx.android.synthetic.main.layout_thread.view.*
@@ -45,7 +45,7 @@ class ThreadAdapter(private val context: Context, private val data: OrderedRealm
         }
 
         listItem.name.text = threadTitle
-        GlideUtilV2.loadProfilePhotoCircle(context, listItem.displayPic, threadPic)
+        GlideUtil.loadProfilePhotoCircle(context, listItem.displayPic, threadPic)
 
         when (ravenThread.lastMessage) {
             null -> {
@@ -110,8 +110,8 @@ class ThreadAdapter(private val context: Context, private val data: OrderedRealm
         if (ravenThread.timestamp != null) {
             val time = DateTime.parse(ravenThread.timestamp)
             when {
-                JodaTimeUtilV2.isToday(time) -> listItem.timestamp.text = DateTimeFormat.forPattern("hh:mm:aa").print(time)
-                JodaTimeUtilV2.isYesterday(time) -> listItem.timestamp.text = "Yesterday"
+                JodaTimeUtil.isToday(time) -> listItem.timestamp.text = DateTimeFormat.forPattern("hh:mm:aa").print(time)
+                JodaTimeUtil.isYesterday(time) -> listItem.timestamp.text = "Yesterday"
                 else -> listItem.timestamp.text = DateTimeFormat.forPattern("dd/MM/yy").print(time)
             }
         } else

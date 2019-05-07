@@ -51,17 +51,17 @@ dependencies {
     /* ----------------------------------------------------------------------------- */
 
     // for UI (material design)
-    implementation 'com.google.android.material:material:1.1.0-alpha05'
+    implementation 'com.google.android.material:material:1.1.0-alpha06'
     implementation 'androidx.palette:palette:1.0.0'
     implementation 'androidx.cardview:cardview:1.0.0'
 
     // firebase modules
-    implementation 'com.google.firebase:firebase-core:16.0.8'
-    implementation 'com.google.firebase:firebase-auth:16.2.1'
-    implementation 'com.google.firebase:firebase-storage:16.1.0'
-    implementation 'com.google.firebase:firebase-database:16.1.0'
-    implementation 'com.google.firebase:firebase-messaging:17.6.0'
-    implementation 'com.google.firebase:firebase-firestore:18.2.0'
+    implementation 'com.google.firebase:firebase-core:16.0.9'
+    implementation 'com.google.firebase:firebase-auth:17.0.0'
+    implementation 'com.google.firebase:firebase-storage:17.0.0'
+    implementation 'com.google.firebase:firebase-database:17.0.0'
+    implementation 'com.google.firebase:firebase-messaging:18.0.0'
+    implementation 'com.google.firebase:firebase-firestore:19.0.0'
 
     // for google maps
     implementation 'com.google.android.gms:play-services-maps:16.1.0'
@@ -82,13 +82,8 @@ dependencies {
 
     implementation 'com.google.code.gson:gson:2.8.5'
 
-    // fix'em
-
     //for crashylitics
-    implementation 'com.crashlytics.sdk.android:crashlytics:2.9.9'
-
-    implementation 'com.github.siddhantkushwaha:thugtools:1.0.1'
-    implementation 'com.github.siddhantkushwaha:nuttertools:1.0.0'
+    implementation 'com.crashlytics.sdk.android:crashlytics:2.10.0'
 }
 
 apply plugin: 'com.google.gms.google-services'

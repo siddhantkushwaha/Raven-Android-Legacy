@@ -13,7 +13,6 @@ import com.bumptech.glide.request.transition.Transition
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
-import com.siddhantkushwaha.android.thugtools.thugtools.utility.UiUtil
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.adapter.GroupUserAdapter
 import com.siddhantkushwaha.raven.entity.Thread
@@ -22,8 +21,9 @@ import com.siddhantkushwaha.raven.manager.UserManager
 import com.siddhantkushwaha.raven.realm.entity.RavenThread
 import com.siddhantkushwaha.raven.realm.utility.RavenThreadUtil
 import com.siddhantkushwaha.raven.realm.utility.RavenUserUtil
-import com.siddhantkushwaha.raven.utility.GlideUtilV2
+import com.siddhantkushwaha.raven.utility.GlideUtil
 import com.siddhantkushwaha.raven.utility.RealmUtil
+import com.siddhantkushwaha.raven.utility.UiUtil
 import io.realm.OrderedRealmCollectionChangeListener
 import io.realm.Realm
 import io.realm.RealmResults
@@ -126,8 +126,8 @@ class GroupProfileActivity : AppCompatActivity() {
 
         collapsingToolbar.title = rt?.groupName ?: "Group"
 
-        GlideUtilV2.loadProfilePhotoSquare(this@GroupProfileActivity, imageRelativeLayout, rt?.picUrl)
-        GlideUtilV2.loadImageAsBitmap(this@GroupProfileActivity, rt?.picUrl, RequestOptions(), object : SimpleTarget<Bitmap>() {
+        GlideUtil.loadProfilePhotoSquare(this@GroupProfileActivity, imageRelativeLayout, rt?.picUrl)
+        GlideUtil.loadImageAsBitmap(this@GroupProfileActivity, rt?.picUrl, RequestOptions(), object : SimpleTarget<Bitmap>() {
             override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
 
                 Palette.from(resource).generate {

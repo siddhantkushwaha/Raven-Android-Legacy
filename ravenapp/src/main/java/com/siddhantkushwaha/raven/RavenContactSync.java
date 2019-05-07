@@ -11,7 +11,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.ContactsContract;
 
-import com.siddhantkushwaha.android.thugtools.thugtools.utility.ContactsUtil;
+import com.siddhantkushwaha.raven.utility.ContactsUtil;
+
 
 public class RavenContactSync {
 

@@ -11,11 +11,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import com.google.firebase.auth.FirebaseAuth
-import com.siddhantkushwaha.android.thugtools.thugtools.utility.ContactsUtil
+
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.adapter.ContactAdapter
 import com.siddhantkushwaha.raven.realm.entity.RavenUser
 import com.siddhantkushwaha.raven.syncAdapter.SyncAdapter
+import com.siddhantkushwaha.raven.utility.ContactsUtil
 import com.siddhantkushwaha.raven.utility.RealmUtil
 import io.realm.*
 import kotlinx.android.synthetic.main.activity_base_raven_user.*

@@ -7,11 +7,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+
 import com.siddhantkushwaha.raven.R;
 import com.siddhantkushwaha.raven.realm.entity.RavenUser;
-import com.siddhantkushwaha.raven.utility.GlideUtilV2;
+import com.siddhantkushwaha.raven.utility.GlideUtil;
 
-import androidx.annotation.Nullable;
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmBaseAdapter;
 
@@ -43,9 +44,9 @@ public class ContactAdapter extends RealmBaseAdapter<RavenUser> {
 
         ImageView imageView = listItem.findViewById(R.id.displayPic);
         if (contact.picUrl != null)
-            GlideUtilV2.loadProfilePhotoCircle(context, imageView, contact.picUrl);
+            GlideUtil.loadProfilePhotoCircle(context, imageView, contact.picUrl);
         else
-            GlideUtilV2.loadProfilePhotoCircle(context, imageView, null);
+            GlideUtil.loadProfilePhotoCircle(context, imageView, null);
 
         TextView name = listItem.findViewById(R.id.name);
         if (contact.contactName != null)

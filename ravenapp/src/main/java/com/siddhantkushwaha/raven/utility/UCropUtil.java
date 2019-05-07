@@ -4,13 +4,13 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.net.Uri;
 
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+
 import com.siddhantkushwaha.raven.R;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
-
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 
 public class UCropUtil {
 

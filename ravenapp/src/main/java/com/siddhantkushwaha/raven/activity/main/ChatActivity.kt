@@ -21,8 +21,6 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.storage.FirebaseStorage
-import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
-import com.siddhantkushwaha.android.thugtools.thugtools.utility.ImageUtil
 import com.siddhantkushwaha.raven.NotificationSender
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.activity.ChatBackgroundGallery
@@ -195,7 +193,7 @@ class ChatActivity : AppCompatActivity() {
                 loadBackground(rt.backgroundFileRef, rt.backgroundOpacity)
                 if (rt.isGroup) {
                     nameTextView.text = rt.groupName ?: "Raven Group"
-                    GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, rt.picUrl)
+                    GlideUtil.loadProfilePhotoCircle(this, imageRelativeLayout, rt.picUrl)
                 }
             }
         }
@@ -207,7 +205,7 @@ class ChatActivity : AppCompatActivity() {
             if (userId != RavenUtils.GROUP && ru != null) {
                 nameTextView.text = ru.contactName ?: ru.displayName
                         ?: ru.phoneNumber ?: getString(R.string.default_name)
-                GlideUtilV2.loadProfilePhotoCircle(this, imageRelativeLayout, ru.picUrl)
+                GlideUtil.loadProfilePhotoCircle(this, imageRelativeLayout, ru.picUrl)
             }
         }
 
@@ -455,12 +453,12 @@ class ChatActivity : AppCompatActivity() {
 
                 if (it != null) {
                     background.alpha = alpha ?: 1F
-                    GlideUtilV2.loadChatBackground(this@ChatActivity, it, requestOptions, background)
+                    GlideUtil.loadChatBackground(this@ChatActivity, it, requestOptions, background)
                 } else
-                    GlideUtilV2.loadChatBackground(this@ChatActivity, null, requestOptions, background)
+                    GlideUtil.loadChatBackground(this@ChatActivity, null, requestOptions, background)
             }
         } else
-            GlideUtilV2.loadChatBackground(this@ChatActivity, null, requestOptions, background)
+            GlideUtil.loadChatBackground(this@ChatActivity, null, requestOptions, background)
     }
 
     private fun setMessageSelectedProperty(messageId: String, toggle: Boolean, value: Boolean = false) {

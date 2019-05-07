@@ -1,7 +1,6 @@
 package com.siddhantkushwaha.raven.service
 
 import android.content.Context
-import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.raven.NotificationSender
 import com.siddhantkushwaha.raven.activity.main.ChatActivity
 import com.siddhantkushwaha.raven.entity.Message
@@ -9,6 +8,7 @@ import com.siddhantkushwaha.raven.entity.Thread
 import com.siddhantkushwaha.raven.entity.User
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.manager.UserManager
+import com.siddhantkushwaha.raven.utility.ActivityInfo
 import com.siddhantkushwaha.raven.utility.FirebaseUtils
 import com.siddhantkushwaha.raven.utility.RavenUtils
 import java.util.*

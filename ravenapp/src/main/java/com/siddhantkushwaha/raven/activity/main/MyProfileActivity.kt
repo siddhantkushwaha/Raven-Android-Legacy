@@ -26,13 +26,13 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.storage.FirebaseStorage
-import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.custom.CustomMapFragment
 import com.siddhantkushwaha.raven.entity.User
 import com.siddhantkushwaha.raven.manager.UserManager
-import com.siddhantkushwaha.raven.utility.GlideUtilV2
-import com.siddhantkushwaha.raven.utility.JodaTimeUtilV2
+import com.siddhantkushwaha.raven.utility.ActivityInfo
+import com.siddhantkushwaha.raven.utility.GlideUtil
+import com.siddhantkushwaha.raven.utility.JodaTimeUtil
 import com.siddhantkushwaha.raven.utilityActivity.activityRemoveDisplayPicture
 import com.yalantis.ucrop.UCrop
 import kotlinx.android.synthetic.main.activity_my_profile.*
@@ -319,7 +319,7 @@ class MyProfileActivity : AppCompatActivity() {
         aboutEditText.setText(user?.userProfile?.about ?: getString(R.string.default_about))
         phoneEditText.setText(FirebaseAuth.getInstance().currentUser?.phoneNumber)
 
-        GlideUtilV2.loadProfilePhotoCircle(this@MyProfileActivity, profilePicture, user?.userProfile?.picUrl)
+        GlideUtil.loadProfilePhotoCircle(this@MyProfileActivity, profilePicture, user?.userProfile?.picUrl)
 
         if (user?.userLocation != null) {
 
@@ -338,7 +338,7 @@ class MyProfileActivity : AppCompatActivity() {
                 statusLocationPublicTextView.text = "Your location is private."
             statusLocationPublic.setOnCheckedChangeListener(privacyChangeListener)
 
-            val time = JodaTimeUtilV2.getDateTime(user?.userLocation?.timestamp)
+            val time = JodaTimeUtil.getDateTime(user?.userLocation?.timestamp)
             val build = DateTimeFormat.forPattern("hh:mm a 'on' MMMMMMMMM d, yyyy").withZone(DateTimeZone.getDefault())
             lastUpdatedTextView.text = build.print(time)
 

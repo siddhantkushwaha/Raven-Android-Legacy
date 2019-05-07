@@ -2,6 +2,8 @@ package com.siddhantkushwaha.raven.manager;
 
 import android.app.Activity;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -24,8 +26,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import androidx.annotation.NonNull;
-
 public class ThreadManager {
 
     private static final String THREAD_COLLECTION_NAME = "threads";
@@ -36,11 +36,6 @@ public class ThreadManager {
     public ThreadManager() {
 
         db = FirebaseUtils.getFirestoreDb(true);
-    }
-
-    public void updateThread(@NotNull String threadId, @NotNull Map<String, Object> updates) {
-
-        db.collection(THREAD_COLLECTION_NAME).document(threadId).update(updates);
     }
 
     public static String encryptMessage(String threadId, String message) {
@@ -57,6 +52,11 @@ public class ThreadManager {
     public static String decryptMessage(String threadId, String encryptedMessage) throws Exception {
 
         return AESNygma.decrypt(threadId, encryptedMessage);
+    }
+
+    public void updateThread(@NotNull String threadId, @NotNull Map<String, Object> updates) {
+
+        db.collection(THREAD_COLLECTION_NAME).document(threadId).update(updates);
     }
 
     public void createGroup(@NonNull String name, @NonNull ArrayList<String> users, @NonNull HashMap<String, String> permissions, OnCompleteListener<DocumentReference> onCompleteListener) {

@@ -13,10 +13,10 @@ import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.siddhantkushwaha.android.thugtools.thugtools.utility.ContactsUtil;
 import com.siddhantkushwaha.raven.manager.UserManager;
 import com.siddhantkushwaha.raven.realm.entity.RavenUser;
 import com.siddhantkushwaha.raven.realm.utility.RavenUserUtil;
+import com.siddhantkushwaha.raven.utility.ContactsUtil;
 import com.siddhantkushwaha.raven.utility.RealmUtil;
 
 import java.util.HashMap;

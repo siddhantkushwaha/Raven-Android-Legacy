@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.RemoteInput;
+
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.siddhantkushwaha.raven.entity.Message;
@@ -14,9 +17,6 @@ import com.siddhantkushwaha.raven.utility.Common;
 import com.siddhantkushwaha.raven.utility.RavenUtils;
 
 import java.util.ArrayList;
-
-import androidx.annotation.NonNull;
-import androidx.core.app.RemoteInput;
 
 public class NotificationReceiver extends BroadcastReceiver {
 

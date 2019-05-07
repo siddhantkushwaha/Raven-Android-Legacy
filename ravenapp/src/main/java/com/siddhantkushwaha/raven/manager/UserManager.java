@@ -3,6 +3,8 @@ package com.siddhantkushwaha.raven.manager;
 import android.app.Activity;
 import android.net.Uri;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -19,8 +21,6 @@ import com.siddhantkushwaha.raven.utility.FirebaseUtils;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import androidx.annotation.NonNull;
 
 public class UserManager {
 

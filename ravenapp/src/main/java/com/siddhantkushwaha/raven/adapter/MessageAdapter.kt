@@ -11,14 +11,14 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
-import com.siddhantkushwaha.nuttertools.JodaTimeUtil
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.realm.entity.RavenMessage
 import com.siddhantkushwaha.raven.realm.entity.RavenThread
 import com.siddhantkushwaha.raven.utility.Common
 import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil
-import com.siddhantkushwaha.raven.utility.GlideUtilV2
+import com.siddhantkushwaha.raven.utility.GlideUtil
+import com.siddhantkushwaha.raven.utility.JodaTimeUtil
 import io.realm.OrderedRealmCollection
 import io.realm.RealmRecyclerViewAdapter
 import io.realm.RealmResults
@@ -303,10 +303,10 @@ class MessageAdapter(private val context: Context, private val ravenThreadResult
         imageView.setImageDrawable(context.getDrawable(R.drawable.hourglass))
         if (fileRef != null) {
             FirebaseStorageUtil.getDownloadUrl(context, fileRef) { url ->
-                GlideUtilV2.loadImageInChat(context, url, imageView)
+                GlideUtil.loadImageInChat(context, url, imageView)
             }
         } else {
-            GlideUtilV2.loadImageInChat(context, uploadUri, imageView)
+            GlideUtil.loadImageInChat(context, uploadUri, imageView)
         }
     }
 }

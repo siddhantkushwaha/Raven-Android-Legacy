@@ -12,18 +12,18 @@ import android.graphics.drawable.Drawable;
 import android.view.View;
 import android.widget.RemoteViews;
 
-import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.transition.Transition;
-import com.siddhantkushwaha.android.thugtools.thugtools.utility.GlideApp;
-
-import java.util.ArrayList;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.RemoteInput;
 import androidx.core.content.ContextCompat;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
+
+import java.util.ArrayList;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
@@ -74,7 +74,7 @@ public class NotificationSender {
         requestOptions.error(R.drawable.image_unknown_user_circle);
         requestOptions.placeholder(R.drawable.image_unknown_user_circle);
 
-        GlideApp.with(context)
+        Glide.with(context)
                 .asBitmap()
                 .load(picUrl)
                 .circleCrop()

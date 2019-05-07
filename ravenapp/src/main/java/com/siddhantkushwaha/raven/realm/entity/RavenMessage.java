@@ -1,11 +1,13 @@
 package com.siddhantkushwaha.raven.realm.entity;
 
-import com.siddhantkushwaha.nuttertools.GsonUtil;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+
+import com.siddhantkushwaha.raven.utility.GsonUtil;
 
 import java.util.HashMap;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;

@@ -12,8 +12,8 @@ import com.google.firebase.FirebaseException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthProvider
-import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.raven.R
+import com.siddhantkushwaha.raven.utility.ActivityInfo
 import com.siddhantkushwaha.raven.utility.ObservableObject
 import kotlinx.android.synthetic.main.activity_login.*
 import java.util.concurrent.TimeUnit

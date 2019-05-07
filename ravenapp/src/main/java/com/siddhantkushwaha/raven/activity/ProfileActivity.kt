@@ -19,14 +19,14 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
-import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
-import com.siddhantkushwaha.android.thugtools.thugtools.utility.UiUtil
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.custom.CustomMapFragment
 import com.siddhantkushwaha.raven.entity.User
 import com.siddhantkushwaha.raven.manager.UserManager
-import com.siddhantkushwaha.raven.utility.GlideUtilV2
-import com.siddhantkushwaha.raven.utility.JodaTimeUtilV2
+import com.siddhantkushwaha.raven.utility.ActivityInfo
+import com.siddhantkushwaha.raven.utility.GlideUtil
+import com.siddhantkushwaha.raven.utility.JodaTimeUtil
+import com.siddhantkushwaha.raven.utility.UiUtil
 import kotlinx.android.synthetic.main.activity_profile.*
 import kotlinx.android.synthetic.main.layout_app_bar_thread_profile.*
 import org.joda.time.DateTimeZone
@@ -160,8 +160,8 @@ class ProfileActivity : AppCompatActivity() {
         collapsingToolbar.title = user?.userProfile?.name ?: getString(R.string.default_name)
         aboutTextView.text = user?.userProfile?.about ?: getString(R.string.default_about)
 
-        GlideUtilV2.loadProfilePhotoSquare(this@ProfileActivity, imageRelativeLayout, user?.userProfile?.picUrl)
-        GlideUtilV2.loadImageAsBitmap(this@ProfileActivity, user?.userProfile?.picUrl, RequestOptions(), object : SimpleTarget<Bitmap>() {
+        GlideUtil.loadProfilePhotoSquare(this@ProfileActivity, imageRelativeLayout, user?.userProfile?.picUrl)
+        GlideUtil.loadImageAsBitmap(this@ProfileActivity, user?.userProfile?.picUrl, RequestOptions(), object : SimpleTarget<Bitmap>() {
             override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
 
                 Palette.from(resource).generate {
@@ -187,7 +187,7 @@ class ProfileActivity : AppCompatActivity() {
                         ?: 0.0)
                 moveCamera(latLng, 0, "Last seen here.")
 
-                val time = JodaTimeUtilV2.getDateTime(user?.userLocation?.timestamp)
+                val time = JodaTimeUtil.getDateTime(user?.userLocation?.timestamp)
                 val build = DateTimeFormat.forPattern("hh:mm a 'on' MMMMMMMMM d, yyyy").withZone(DateTimeZone.getDefault())
                 locationInfoTextView.text = build.print(time)
             } else {

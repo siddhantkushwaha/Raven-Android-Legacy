@@ -9,13 +9,13 @@ import android.view.MenuItem
 import android.widget.SeekBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.siddhantkushwaha.nuttertools.GsonUtil
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.activity.main.ChatActivity
 import com.siddhantkushwaha.raven.entity.WallpaperMetadata
 import com.siddhantkushwaha.raven.manager.ThreadManager
 import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil
-import com.siddhantkushwaha.raven.utility.GlideUtilV2
+import com.siddhantkushwaha.raven.utility.GlideUtil
+import com.siddhantkushwaha.raven.utility.GsonUtil
 import kotlinx.android.synthetic.main.activity_edit_background.*
 import kotlinx.android.synthetic.main.layout_toolbar.*
 
@@ -68,7 +68,7 @@ class EditBackground : AppCompatActivity() {
         threadId = intentData.threadId
 
         FirebaseStorageUtil.getDownloadUrl(this@EditBackground, wallpaperMetadata!!.highResRef) {
-            GlideUtilV2.loadImage(this@EditBackground, it, background, R.color.colorGreyDark, R.color.colorBlack)
+            GlideUtil.loadImage(this@EditBackground, it, background, R.color.colorGreyDark, R.color.colorBlack)
         }
 
         infoText.text = wallpaperMetadata?.info ?: "No information available."

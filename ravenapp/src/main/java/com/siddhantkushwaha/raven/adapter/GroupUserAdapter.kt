@@ -5,11 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import com.siddhantkushwaha.nuttertools.GsonUtil
 import com.siddhantkushwaha.raven.R
 import com.siddhantkushwaha.raven.realm.entity.RavenThread
 import com.siddhantkushwaha.raven.realm.entity.RavenUser
-import com.siddhantkushwaha.raven.utility.GlideUtilV2
+import com.siddhantkushwaha.raven.utility.GlideUtil
+import com.siddhantkushwaha.raven.utility.GsonUtil
 import io.realm.RealmList
 import kotlinx.android.synthetic.main.layout_user.view.*
 
@@ -33,7 +33,7 @@ class GroupUserAdapter(private val context: Context, private val users: RealmLis
 
         val ravenUser = users[position]!!
 
-        GlideUtilV2.loadProfilePhotoCircle(context, listItem.displayPic, ravenUser.picUrl)
+        GlideUtil.loadProfilePhotoCircle(context, listItem.displayPic, ravenUser.picUrl)
 
         listItem.name.text = ravenUser.contactName ?: ravenUser.displayName ?: ravenUser.phoneNumber
                 ?: context.getString(R.string.default_name)

@@ -9,7 +9,7 @@ import android.widget.BaseAdapter;
 import com.siddhantkushwaha.raven.R;
 import com.siddhantkushwaha.raven.entity.WallpaperMetadata;
 import com.siddhantkushwaha.raven.utility.FirebaseStorageUtil;
-import com.siddhantkushwaha.raven.utility.GlideUtilV2;
+import com.siddhantkushwaha.raven.utility.GlideUtil;
 
 import java.util.ArrayList;
 
@@ -52,7 +52,7 @@ public class ChatBackgroundGalleryAdapter extends BaseAdapter {
         String fileRef = data.get(position).getLowResRef();
         firebaseStorageUtil.getDownloadUrl(context, fileRef, uri -> {
 
-            GlideUtilV2.loadImage(context, uri, finalListItem.findViewById(R.id.image), R.drawable.hourglass, R.drawable.bug);
+            GlideUtil.loadImage(context, uri, finalListItem.findViewById(R.id.image), R.drawable.hourglass, R.drawable.bug);
         });
 
         return listItem;

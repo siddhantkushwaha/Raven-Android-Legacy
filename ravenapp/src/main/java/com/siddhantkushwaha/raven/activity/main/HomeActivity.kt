@@ -12,7 +12,6 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.messaging.FirebaseMessaging
-import com.siddhantkushwaha.android.thugtools.thugtools.utility.ActivityInfo
 import com.siddhantkushwaha.raven.BuildConfig
 import com.siddhantkushwaha.raven.HomeActivityUtil
 import com.siddhantkushwaha.raven.R
@@ -28,8 +27,9 @@ import com.siddhantkushwaha.raven.realm.entity.RavenThread
 import com.siddhantkushwaha.raven.realm.utility.RavenMessageUtil
 import com.siddhantkushwaha.raven.realm.utility.RavenThreadUtil
 import com.siddhantkushwaha.raven.realm.utility.RavenUserUtil
+import com.siddhantkushwaha.raven.utility.ActivityInfo
 import com.siddhantkushwaha.raven.utility.FirebaseUtils
-import com.siddhantkushwaha.raven.utility.GlideUtilV2
+import com.siddhantkushwaha.raven.utility.GlideUtil
 import com.siddhantkushwaha.raven.utility.RealmUtil
 import io.realm.OrderedRealmCollectionChangeListener
 import io.realm.Realm
@@ -126,7 +126,7 @@ class HomeActivity : AppCompatActivity() {
 
             val user = userSnap?.toObject(User::class.java)
 
-            GlideUtilV2.loadProfilePhotoCircle(this@HomeActivity, btn_my_profile, user?.userProfile?.picUrl)
+            GlideUtil.loadProfilePhotoCircle(this@HomeActivity, btn_my_profile, user?.userProfile?.picUrl)
 
             firebaseFirestoreException?.printStackTrace()
         }

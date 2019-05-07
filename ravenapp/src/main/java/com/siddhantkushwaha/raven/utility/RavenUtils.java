@@ -1,9 +1,9 @@
 package com.siddhantkushwaha.raven.utility;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
-
-import androidx.annotation.NonNull;
 
 public class RavenUtils {
 
