@@ -67,7 +67,7 @@ public class RavenContactSync {
     public static void reportException(Context context, Exception e) {
         e.printStackTrace();
 
-        Crashlytics.log(1000, "PHONE", FirebaseAuth.getInstance().getUid());
+        Crashlytics.log(1000, "UID", FirebaseAuth.getInstance().getUid());
         Crashlytics.logException(e);
 
         Toast.makeText(context, "Please contact Siddhant if you are seeing this message. " +

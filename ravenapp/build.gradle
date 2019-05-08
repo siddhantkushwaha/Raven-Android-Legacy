@@ -16,8 +16,8 @@ android {
         applicationId "com.siddhantkushwaha.raven"
         minSdkVersion 24
         targetSdkVersion 28
-        versionCode 53
-        versionName "1.3.0"
+        versionCode 54
+        versionName "1.3.0.1"
         testInstrumentationRunner "android.support.background_activity_home.runner.AndroidJUnitRunner"
     }
     buildTypes {
