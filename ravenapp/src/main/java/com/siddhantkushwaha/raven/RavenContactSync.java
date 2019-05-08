@@ -1,83 +1,76 @@
 package com.siddhantkushwaha.raven;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.app.Activity;
-import android.content.ContentResolver;
 import android.content.Context;
-import android.database.ContentObserver;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
-import android.provider.ContactsContract;
+import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.siddhantkushwaha.raven.manager.UserManager;
+import com.siddhantkushwaha.raven.realm.entity.RavenUser;
+import com.siddhantkushwaha.raven.realm.utility.RavenUserUtil;
 import com.siddhantkushwaha.raven.utility.ContactsUtil;
+import com.siddhantkushwaha.raven.utility.RealmUtil;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 public class RavenContactSync {
 
-    public static final String ACCOUNT_TYPE = "com.siddhantkushwaha.raven.datasync";
-    public static final String ACCOUNT = "Raven Account";
-    public static final String AUTHORITY = "com.siddhantkushwaha.raven.provider";
+    public static void syncContacts(Context context) {
 
-    private static Uri mUri;
-    private static Account mAccount;
-    private static ContentResolver mResolver;
+        HashMap<String, String> contactsList = ContactsUtil.getAllContacts(context);
+        if (contactsList == null)
+            return;
 
-//     TODO PERIODIC SYNC
-//     public static final long SYNC_INTERVAL = 60L;
-
-    public static Account CreateSyncAccount(Context context) {
-
-        Account newAccount = new Account(ACCOUNT, ACCOUNT_TYPE);
-
-        AccountManager accountManager = (AccountManager) context.getSystemService(Context.ACCOUNT_SERVICE);
-
-        if (accountManager != null) {
-            if (accountManager.addAccountExplicitly(newAccount, null, null)) {
-
-                ContentResolver.setIsSyncable(newAccount, AUTHORITY, 1);
-                ContentResolver.setSyncAutomatically(newAccount, AUTHORITY, true);
-            }
+        Realm realm = RealmUtil.getCustomRealmInstance(context);
+        try {
+            realm.executeTransaction(realmL -> {
+                RealmResults<RavenUser> realmResults = realmL.where(RavenUser.class).isNotNull("contactName").findAll();
+                for (RavenUser contact : realmResults) {
+                    if (!contactsList.containsKey(contact.phoneNumber)) {
+                        contact.contactName = null;
+                        realmL.insertOrUpdate(contact);
+                    }
+                }
+            });
+        } catch (Exception e) {
+            reportException(context, e);
         }
 
-        return newAccount;
+        UserManager userManager = new UserManager();
+        for (Map.Entry<String, String> contact : contactsList.entrySet()) {
+            userManager.startGetUserByAttribute(UserManager.KEY_PHONE, contact.getKey(), task -> {
+
+                QuerySnapshot querySnapshot = task.getResult();
+
+                try {
+                    if (querySnapshot != null && !querySnapshot.isEmpty()) {
+
+                        DocumentSnapshot documentSnapshot = querySnapshot.getDocuments().get(0);
+                        String userId = documentSnapshot.getId();
+
+                        RavenUserUtil.setUser(realm, false, userId, documentSnapshot, null, true, contact.getValue());
+                    } else
+                        RavenUserUtil.setContactName(realm, false, contact.getKey(), null);
+                } catch (Exception e) {
+                    reportException(context, e);
+                }
+            });
+        }
     }
 
-    public static void setupSync(Activity activity) {
-        if (ContactsUtil.contactsReadPermission(activity)) {
+    public static void reportException(Context context, Exception e) {
+        e.printStackTrace();
 
-            mAccount = CreateSyncAccount(activity);
-            mResolver = activity.getContentResolver();
-            mUri = ContactsContract.Contacts.CONTENT_URI;
-            // HomeActivity.TableObserver observer = new HomeActivity.TableObserver(new Handler());
-            // mResolver.registerContentObserver(mUri, true, observer);
-            // ContentResolver.addPeriodicSync(mAccount, AUTHORITY, Bundle.EMPTY, SYNC_INTERVAL);
-            // ContentResolver.requestSync(mAccount, AUTHORITY, Bundle.EMPTY);
-        }
-    }
+        Crashlytics.log(1000, "PHONE", FirebaseAuth.getInstance().getUid());
+        Crashlytics.logException(e);
 
-    public static void reSync(Context context) {
-
-        ContentResolver.requestSync(CreateSyncAccount(context), AUTHORITY, Bundle.EMPTY);
-    }
-
-    public class TableObserver extends ContentObserver {
-
-        TableObserver(Handler handler) {
-            super(handler);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-
-            onChange(selfChange, null);
-        }
-
-        @Override
-        public void onChange(boolean selfChange, Uri changeUri) {
-
-            ContentResolver.requestSync(mAccount, AUTHORITY, Bundle.EMPTY);
-        }
+        Toast.makeText(context, "Please contact Siddhant if you are seeing this message. " +
+                "This in an important bug and needs to be fixed.", Toast.LENGTH_LONG).show();
     }
 }

@@ -11,11 +11,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import com.google.firebase.auth.FirebaseAuth
-
 import com.siddhantkushwaha.raven.R
+import com.siddhantkushwaha.raven.RavenContactSync
 import com.siddhantkushwaha.raven.adapter.ContactAdapter
 import com.siddhantkushwaha.raven.realm.entity.RavenUser
-import com.siddhantkushwaha.raven.syncAdapter.SyncAdapter
 import com.siddhantkushwaha.raven.utility.ContactsUtil
 import com.siddhantkushwaha.raven.utility.RealmUtil
 import io.realm.*
@@ -137,7 +136,7 @@ open class BaseRavenUserActivity(private val layout: Int) : AppCompatActivity() 
 
     private fun startSyncing() {
         Toast.makeText(this, "Syncing contacts.", Toast.LENGTH_LONG).show()
-        SyncAdapter.syncContacts(this)
+        RavenContactSync.syncContacts(this@BaseRavenUserActivity)
     }
 
     private fun filter(query: String) {
@@ -163,4 +162,6 @@ open class BaseRavenUserActivity(private val layout: Int) : AppCompatActivity() 
             }
         }
     }
+
+
 }
