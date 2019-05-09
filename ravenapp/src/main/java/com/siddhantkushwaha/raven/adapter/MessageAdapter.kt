@@ -79,7 +79,7 @@ class MessageAdapter(private val context: Context, private val ravenThreadResult
             val rvp = data?.get(position - 1)!!
             val preTime = rvp.timestamp ?: rvp.localTimestamp
             if (curTime != null && preTime != null)
-                if (JodaTimeUtil.dateCmp(DateTime.parse(curTime), DateTime.parse(preTime)) != 0)
+                if (!JodaTimeUtil.sameDate(DateTime.parse(curTime), DateTime.parse(preTime)))
                     timeBanner[ravenMessage.messageId] = curTime
         }
 
