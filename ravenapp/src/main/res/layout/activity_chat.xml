@@ -96,23 +96,30 @@
             android:orientation="horizontal"
             android:weightSum="10">
 
+            <ImageView
+                android:id="@+id/addEmojiButton"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginStart="12dp"
+                android:backgroundTint="#717171"
+                android:src="@drawable/btn_insert_emoticon"
+                android:visibility="gone" />
+
             <EditText
                 android:id="@+id/messageEditText"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="12dp"
                 android:layout_weight="10"
                 android:background="@android:color/transparent"
                 android:hint="Send a Raven" />
 
             <ImageView
                 android:id="@+id/sendImageButton"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:layout_marginEnd="12dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/button_insert_photo"
-                android:visibility="visible" />
+                android:src="@drawable/button_insert_photo" />
 
         </LinearLayout>
 

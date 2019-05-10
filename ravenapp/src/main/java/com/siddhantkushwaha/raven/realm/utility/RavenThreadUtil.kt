@@ -98,9 +98,15 @@ class RavenThreadUtil {
 
         @JvmStatic
         fun getLastMessageByUserId(userId: String, messages: HashMap<String, Message>?): Map.Entry<String, Message>? {
-            return getMessagesByUserId(userId, messages)?.entries?.sortedBy { me ->
+
+            val _messages = getMessagesByUserId(userId, messages)?.entries?.sortedBy { me ->
                 me.value.sentTime
-            }?.last()
+            }
+
+            return if (_messages == null || _messages.isEmpty())
+                null
+            else
+                _messages.last()
         }
 
         @JvmStatic
